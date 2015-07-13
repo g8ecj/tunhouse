@@ -1,0 +1,74 @@
+ 00000000001111111111
+ 01234567890123456789
+
+----------------------
+|Up -10.3  10.4  14.6|              Normal summary display - all temperatures, min, max & time
+|Dn -13.4  19.4  23.9|
+|Ex -21.1 -12.2  11.4|
+|hh:mm:ss  dd:mm:yy  |
+----------------------
+
+
+up/down between sensors. Upper, lower, external, battery, time
+Short press on centre or timeout returns to summary view
+Long press on centre restricts to sensors with window opening actions associated
+----------------------
+|      Upper         |
+|Min   -10.3         |
+|Now    10.4         |
+|Max    14.6         |
+----------------------
+
+----------------------
+|      Lower         |
+|Min   -13.4         |
+|Now    19.4         |
+|Max    23.9         |
+----------------------
+
+----------------------
+|     External       |
+|Min   -21.1         |
+|Now   -12.2         |
+|Max    11.4         |
+----------------------
+
+----------------------
+|  Time  hh:mm:ss    |
+|  Date  dd:mm:yy    |
+|                    |
+|                    |
+----------------------
+
+----------------------
+|     Battery        |
+|      12.5v         |
+|                    |
+|                    |
+----------------------
+
+
+
+Press on up/down selects upper or lower limit
+Short centre or timeout cancels/returns to summary
+Press on up/down changes limit, long centre saves, short centre or timeout cancels/returns to summary
+----------------------
+|  Upper Limits      |
+|                    |
+|   Close    19      |
+|   Open     23      |
+|                    |
+----------------------
+
+
+
+
+Long press on up/down operates manual override on those sensors associated with windows (upper & lower)
+Short press on centre cancels/returns to summary
+----------------------
+|      Upper         |
+|   Manual Opening   |
+|                    |
+|  Centre to cancel  |
+----------------------
+

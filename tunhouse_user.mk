@@ -3,8 +3,8 @@
 # Edit this file to change compiler options and related stuff.
 #
 # trim the commit hash from the version but keep the subversion beyond the tag
-#GIT_VERSION := $(shell cd $(ardmega-turbine_SRC_PATH); git describe --dirty --always | sed 's/-g.*//'; cd ..)
-GIT_VERSION := 1.0
+GIT_VERSION := $(shell cd $(tunhouse_SRC_PATH); git describe --dirty --always | sed 's/-g.*//'; cd ..)
+#GIT_VERSION := 1.0
 
 # Programmer interface configuration, see http://dev.bertos.org/wiki/ProgrammerInterface for help
 tunhouse_PROGRAMMER_TYPE = none

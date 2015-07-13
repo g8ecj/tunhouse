@@ -334,9 +334,20 @@ const Screen Man_Lower[] PROGMEM = {
 };
 
 
-#define NUM_INFO 6
-#define NUM_SETUPS  5
-#define MAXSCREENS  NUM_INFO + NUM_SETUPS
+#define NUM_INFO    6
+#define NUM_SETUP   3
+#define NUM_MANUAL  2
+
+#define FIRSTINFO   0
+#define MAXINFO     (NUM_INFO - 1)
+
+#define FIRSTSETUP  NUM_INFO
+#define MAXSETUP    (NUM_INFO + NUM_SETUP - 1)
+
+#define FIRSTMAN    (MAXINFO + NUM_SETUP)
+#define MAXMAN      (FIRSTMAN + NUM_MANUAL - 1)
+
+#define MAXSCREENS  NUM_INFO + NUM_SETUP + NUM_MANUAL
 
 static const Screen *screen_list[] = { summary, upper, lower, external, datetime, battery, Set_Time, Set_Upper, Set_Lower, Man_Upper, Man_Lower };
 
@@ -647,6 +658,7 @@ ui_init (void)
 
 
 // mode values
+#define MONITOR     0
 #define SETUP       1
 #define LIMITS      2
 #define PAGEEDIT    3
@@ -662,6 +674,7 @@ run_ui (void)
    static int8_t screen_number = 0, field = 0, mode = MONITOR;
    static ticks_t backlight_timer, refresh_timer;
    static int16_t working_value;
+   uint8_t sensor;
 
    flag_warnings ();
 
@@ -780,8 +793,20 @@ run_ui (void)
       break;
 
 
+// manual open/close - only active key is cancel (centre)
+   case MANUAL:
+      switch (key)
+      {
+      case K_CENTRE:
+         mode = MONITOR;
+         screen_number = FIRSTINFO;
+         break;
+      }
+      print_screen (screen_number);
+      break;
+
+
 // up/down moves round monitor screens
-// left right moves round setup screens
 // when in setup screen then centre enters field navigation mode
    case SETUP:
       switch (key)
@@ -796,16 +821,27 @@ run_ui (void)
          print_field (*variables[field].value, field, screen_number);
          break;
       case K_UP:
-         mode = MONITOR;
-         screen_number = NUM_INFO - 1;
-         print_screen (screen_number);
+         screen_number++;
+         if (screen_number >= MAXSETUP)
+            screen_number = FIRSTSETUP;
          break;
       case K_DOWN:
-         mode = MONITOR;
-         screen_number = 0;
-         print_screen (screen_number);
+         screen_number--;
+         if (screen_number < FIRSTSETUP)
+            screen_number = MAXSETUP;
+         break;
+      case K_UP | K_LONG:
+         sensor = screen_number - FIRSTSETUP;
+         screen_number = FIRSTMAN + sensor;
+         windowopen(sensor);
+         break;
+      case K_DOWN | K_LONG:
+         sensor = screen_number - FIRSTSETUP;
+         screen_number = FIRSTMAN + sensor;
+         windowclose(sensor);
          break;
       }
+      print_screen (screen_number);
       break;
 
 
@@ -816,36 +852,20 @@ run_ui (void)
       switch (key)
       {
       case K_CENTRE:
-         screen_number = 0;
-         print_screen (screen_number);
+         screen_number = FIRSTINFO;
          break;
       case K_CENTRE | K_LONG:
-         if ((screen_number = 1) || screen_number == 2))
-         {
-            mode = SETUP;
-            screen_number += 2;
-         }
+         mode = SETUP;
+         screen_number = FIRSTSETUP;
          break;
       case K_UP:
          screen_number = (screen_number + 1) % NUM_INFO;
-         print_screen (screen_number);
          break;
       case K_DOWN:
          screen_number = (screen_number - 1 + NUM_INFO) % NUM_INFO;
-         print_screen (screen_number);
-         break;
-      case K_UP | K_LONG:
-         if (screen_number == 1)
-         {
-            screen_number = 
-         screen_number = (screen_number + 1) % NUM_INFO;
-         print_screen (screen_number);
-         break;
-      case K_DOWN | LONG:
-         screen_number = (screen_number - 1 + NUM_INFO) % NUM_INFO;
-         print_screen (screen_number);
          break;
       }
+      print_screen (screen_number);
       break;
    }
 

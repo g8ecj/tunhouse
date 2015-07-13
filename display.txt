@@ -11,7 +11,6 @@
 
 up/down between sensors. Upper, lower, external, battery, time
 Short press on centre or timeout returns to summary view
-Long press on centre restricts to sensors with window opening actions associated
 ----------------------
 |      Upper         |
 |Min   -10.3         |
@@ -35,7 +34,7 @@ Long press on centre restricts to sensors with window opening actions associated
 
 ----------------------
 |  Time  hh:mm:ss    |
-|  Date  dd:mm:yy    |
+|  Date  dd-mm-yy    |
 |                    |
 |                    |
 ----------------------
@@ -48,13 +47,33 @@ Long press on centre restricts to sensors with window opening actions associated
 ----------------------
 
 
+When in monitor mode
+Long press on centre goes to setup mode - restricts to time and limit setting screens
 
 Press on up/down selects upper or lower limit
 Short centre or timeout cancels/returns to summary
-Press on up/down changes limit, long centre saves, short centre or timeout cancels/returns to summary
+Long press on centre enters page edit mode
+Long press selects enters field edit mode
+Press on up/down changes value centre saves, short centre or timeout cancels/returns to summary
+
 ----------------------
-|  Upper Limits      |
+|  Adjust      -93   |
+|  US/Euro       1   |
+|  Time  hh:mm:ss    |
+|  Date  dd-mm-yy    |
+----------------------
+
+----------------------
+|       Upper        |
+|      Limits        |
+|   Close    19      |
+|   Open     23      |
 |                    |
+----------------------
+
+----------------------
+|       Lower        |
+|      Limits        |
 |   Close    19      |
 |   Open     23      |
 |                    |
@@ -62,9 +81,9 @@ Press on up/down changes limit, long centre saves, short centre or timeout cance
 
 
 
-
+When in setup mode
 Long press on up/down operates manual override on those sensors associated with windows (upper & lower)
-Short press on centre cancels/returns to summary
+Short press on centre cancels/returns to summary/monitor mode
 ----------------------
 |      Upper         |
 |   Manual Opening   |

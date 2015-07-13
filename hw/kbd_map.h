@@ -56,9 +56,9 @@ typedef uint16_t keymask_t;
  * \name Keycodes.
  */
 /*@{*/
-#define K_UP       BV(3)
-#define K_CENTRE   BV(2)
-#define K_DOWN     BV(1)
+#define K_UP       BV(0)
+#define K_CENTRE   BV(1)
+#define K_DOWN     BV(2)
 
 
 #define K_REPEAT   BV(13) /**< This is a repeated keyevent. */

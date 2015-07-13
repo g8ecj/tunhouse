@@ -51,10 +51,37 @@
 #include "window.h"
 #include "ui.h"
 
+#include "features.h"
 
-#define DEBUG 0
 
-static Serial serial;
+/* I/O pins used by the tunnel house window controller
+  SENSOR_LOW     -> PD2 -> D8
+  SENSOR_HIGH    -> PD3 -> D9
+  SENSOR_EXT     -> PD4 -> D10
+  WINDOW_LOW     -> PD5 -> D11
+  WINDOW_HIGH    -> PD6 -> D12
+  BUTTON_UP      -> PD7 -> D2
+  BUTTON_CENTRE  -> PB0 -> D3
+  BUTTON_DOWN    -> PB1 -> D4
+  LCD_DATA       -> PC0 -> ADC0
+                 -> PC1 -> ADC1
+                 -> PC2 -> ADC2
+                 -> PC3 -> ADC3
+  LCD_E          -> PC4 -> ADC4
+  LCD_RS         -> PC5 -> ADC5
+  LCD_RW         -> XXX -> XXX
+  LCD_BL         -> XXX -> XXX
+  BATTERY        -> xxx -> ADC6
+  L24SS          -> PB2 -> D10
+  L24MOSI        -> PB3 -> D11
+  L24MISO        -> PB4 -> D12
+  L24SCK         -> PB5 -> D13
+
+Note that no backlight pin is available!!
+
+*/
+
+Serial serial;
 
 static void
 init (void)

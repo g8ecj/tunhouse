@@ -55,18 +55,18 @@
  * In this case the data lines are put onto bits 4-7 of port B
  * @{
  */
-#define LCD_RW    PB0
-#define LCD_RS    PB1
+#define LCD_RW    PC4
+#define LCD_RS    PC5
 #define LCD_E     PD2
-#define LCD_BL    PB4         /* Backlight! */
+#define LCD_BL    PC6         /* Backlight! */
 #define LCD_DB0   /* Implement me! */
 #define LCD_DB1   /* Implement me! */
 #define LCD_DB2   /* Implement me! */
 #define LCD_DB3   /* Implement me! */
-#define LCD_DB4   PD4
-#define LCD_DB5   PD5
-#define LCD_DB6   PD6
-#define LCD_DB7   PD7
+#define LCD_DB4   PC0
+#define LCD_DB5   PC1
+#define LCD_DB6   PC2
+#define LCD_DB7   PC3
 #define LCD_PORT        PORTD
 #define LCD_PORT_IN     PIND
 #define LCD_PORT_DDR    DDRD

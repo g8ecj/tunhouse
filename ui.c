@@ -48,10 +48,8 @@
 #include "window.h"
 #include "ui.h"
 
+#include "features.h"
 
-#define PUSHBUTTONS 1
-
-char degreestr[] = { DEGREE, 'C', 0 };
 
 // a table of fields that are flashing
 #define MAXFLASH    10
@@ -197,7 +195,6 @@ Vars daymonth[2] = {
    {&gDAY,                                1,    31,    15,        eDATE,   int_inc},     // day
    {&gMONTH,                              1,    12,     7,        eDATE,   int_inc},     // month
 };
-// *INDENT-ON*
 
 // strings to  go into progmem
 
@@ -223,6 +220,7 @@ const char openstr[]  PROGMEM  = "Open ";
 const char timestr[]  PROGMEM  = "Time";
 const char uppstr[]   PROGMEM  = "Upper";
 const char voltstr[]  PROGMEM  = "Volts";
+const char degreestr[] PROGMEM = { DEGREE, 'C', 0 };
 
 
 
@@ -251,6 +249,7 @@ const Screen summary[] PROGMEM = {
 const Screen upper[] PROGMEM = {
    {-1,         0,    3,     uppstr,    0,    0},
    {eUP_MIN,    1,    0,     minstr,    6,    5},
+   {-1,         1,   15,   degreestr,   0,    0},
    {eUP_NOW,    2,    0,     nowstr,    6,    5},
    {eUP_MAX,    3,    0,     maxstr,    6,    5},
    {-2,         0,    0,     nulstr,    0,    0}
@@ -333,6 +332,7 @@ const Screen Man_Lower[] PROGMEM = {
    {-2, 0, 0, "", 0, 0}
 };
 
+// *INDENT-ON*
 
 #define NUM_INFO    6
 #define NUM_SETUP   3

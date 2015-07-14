@@ -55,29 +55,25 @@
 
 
 /* I/O pins used by the tunnel house window controller
-  SENSOR_LOW     -> PD2 -> D8
-  SENSOR_HIGH    -> PD3 -> D9
-  SENSOR_EXT     -> PD4 -> D10
-  WINDOW_LOW     -> PD5 -> D11
-  WINDOW_HIGH    -> PD6 -> D12
-  BUTTON_UP      -> PD7 -> D2
-  BUTTON_CENTRE  -> PB0 -> D3
-  BUTTON_DOWN    -> PB1 -> D4
+  1-wire         -> PD2 -> D2
+  LCD_RW         -> PD3 -> D3
+  LCD_BL         -> PD4 -> D4
+  LCD_E          -> PB0 -> D8
+  LCD_RS         -> PC4 -> ADC4
+  BUTTON_UP      -> PD5 -> D5
+  BUTTON_CENTRE  -> PD6 -> D6
+  BUTTON_DOWN    -> PD7 -> D7
   LCD_DATA       -> PC0 -> ADC0
                  -> PC1 -> ADC1
                  -> PC2 -> ADC2
                  -> PC3 -> ADC3
-  LCD_E          -> PC4 -> ADC4
-  LCD_RS         -> PC5 -> ADC5
-  LCD_RW         -> XXX -> XXX
-  LCD_BL         -> XXX -> XXX
   BATTERY        -> xxx -> ADC6
+  L24CSN         -> PB1 -> D9
   L24SS          -> PB2 -> D10
   L24MOSI        -> PB3 -> D11
   L24MISO        -> PB4 -> D12
   L24SCK         -> PB5 -> D13
 
-Note that no backlight pin is available!!
 
 */
 
@@ -105,7 +101,7 @@ init (void)
    /* Configure UART0 to work at 115.200 bps */
    ser_setbaudrate (&serial, 115200);
 
-   // get the last rainfall value & last time setting
+   // get the config stuff & last time setting
    load_eeprom_values ();
 
    // real time clock

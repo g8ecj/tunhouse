@@ -42,12 +42,15 @@ int16_t EEMEM eeAdjustTime;
 // date and time stored when set and every hour so clock isn't too far out after a reset
 DT_t EEMEM eeDateTime;
 
+uint8_t EEMEM eeidmap[6];
+
 void
 load_eeprom_values (void)
 {
 
    eeprom_read_block ((void *) &gLimits, (const void *) &eeLimits, sizeof (gLimits));
    eeprom_read_block ((void *) &gAdjustTime, (const void *) &eeAdjustTime, sizeof (gAdjustTime));
+   eeprom_read_block ((void *) &idmap, (const void *) &eeidmap, sizeof (idmap));
 
 
 }
@@ -57,5 +60,6 @@ save_eeprom_values (void)
 {
    eeprom_write_block ((const void *) &gAdjustTime, (void *) &eeAdjustTime, sizeof (gAdjustTime));
    eeprom_write_block ((const void *) &gLimits, (void *) &eeLimits, sizeof (gLimits));
+   eeprom_write_block ((const void *) &idmap, (void *) &eeidmap, sizeof (idmap));
 
 }

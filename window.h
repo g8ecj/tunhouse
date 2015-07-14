@@ -1,5 +1,4 @@
 
-#include <stdint.h>
 
 //states
 #define MANOPENING   0

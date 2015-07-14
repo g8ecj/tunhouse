@@ -1,14 +1,17 @@
 
+#include <stdint.h>
+
 #include <avr/pgmspace.h>
 
 #include <drv/timer.h>
-#include <drv/ow_ds2413.h>
 #include <drv/ow_1wire.h>
+#include <drv/ow_ds2413.h>
 
 #include "window.h"
 #include "measure.h"
 
-// use port B bits 1 & 2  for driving DS2413 1-wire GPIO for the motor relays
+
+extern uint8_t ids[6][OW_ROMCODE_SIZE];
 
 // state of the windows on the 2 sensors
 int16_t gWinState[2];
@@ -133,18 +136,6 @@ windowcan (int8_t sensor)
 }
 
 
-// set the motor 1-wire bus based on the sensor
-static void
-setonewire (uint8_t sensor)
-{
-
-    if (sensor == SENSOR_LOW)
-        ow_set_bus (&PINB, &PORTB, &DDRB, PB3);
-    else
-        ow_set_bus (&PINB, &PORTB, &DDRB, PB4);
-
-}
-
 // start motor unspooling to open a window
 void
 do_motorup (uint8_t sensor)
@@ -152,11 +143,10 @@ do_motorup (uint8_t sensor)
 
     // start timer if motor started
     gWinTimer[sensor] = RUNVALUE;
-    setonewire (sensor);
 
     // set direction relay for upwards motion (port A)
     // turn on power to this motor   (port B)
-    ow_ds2413_write(NULL, 0x00);
+    ow_ds2413_write(ids[idmap[sensor+NUMSENSORS]], 0x00);
 
 }
 
@@ -167,10 +157,9 @@ do_motordn (uint8_t sensor)
 {
     // start timer if motor started
     gWinTimer[sensor] = RUNVALUE;
-    setonewire (sensor);
     // direction relay defaults to down so ensure its off (port A)
     // turn on power to this motor (port B)
-    ow_ds2413_write(NULL, 0x01);
+    ow_ds2413_write(ids[idmap[sensor+NUMSENSORS]], 0x01);
 
 }
 
@@ -182,10 +171,9 @@ do_motoroff (uint8_t sensor)
     // start lockout timer if motor stopped
     gWinTimer[sensor] = LOCKOUTVALUE;
     // make sure both relays are de-energized
-    setonewire (sensor);
     // default direction = downwards (relay off)
     // motor off
-    ow_ds2413_write(NULL, 0x03);
+    ow_ds2413_write(ids[idmap[sensor+NUMSENSORS]], 0x03);
 
 }
 
@@ -196,10 +184,9 @@ do_motorcan (uint8_t sensor)
     // start display timer as we stop the motor
     gWinTimer[sensor] = CANCELVALUE;
     // make sure both relays are de-energized
-    setonewire (sensor);
     // default direction = downwards (relay off)
     // motor off
-    ow_ds2413_write(NULL, 0x03);
+    ow_ds2413_write(ids[idmap[sensor+NUMSENSORS]], 0x03);
 
 }
 

@@ -249,34 +249,42 @@ const Screen summary[] PROGMEM = {
 const Screen upper[] PROGMEM = {
    {-1,         0,    3,     uppstr,    0,    0},
    {eUP_MIN,    1,    0,     minstr,    6,    5},
-   {-1,         1,   15,   degreestr,   0,    0},
+   {-1,         1,   13,  degreestr,    0,    0},
    {eUP_NOW,    2,    0,     nowstr,    6,    5},
+   {-1,         1,   13,  degreestr,    0,    0},
    {eUP_MAX,    3,    0,     maxstr,    6,    5},
+   {-1,         1,   13,  degreestr,    0,    0},
    {-2,         0,    0,     nulstr,    0,    0}
 };
 
 const Screen lower[] PROGMEM = {
    {-1,         0,    3,     lowstr,    0,    0},
    {eDN_MIN,    1,    0,     minstr,    6,    5},
+   {-1,         1,   13,  degreestr,    0,    0},
    {eDN_NOW,    2,    0,     nowstr,    6,    5},
+   {-1,         1,   13,  degreestr,    0,    0},
    {eDN_MAX,    3,    0,     maxstr,    6,    5},
+   {-1,         1,   13,  degreestr,    0,    0},
    {-2,         0,    0,     nulstr,    0,    0}
 };
 
 const Screen external[] PROGMEM = {
-   {-1,         0,    3,     extstr    ,0,    0},
+   {-1,         0,    3,     extstr,    0,    0},
    {eOT_MIN,    1,    0,     minstr,    6,    5},
+   {-1,         1,   13,  degreestr,    0,    0},
    {eOT_NOW,    2,    0,     nowstr,    6,    5},
+   {-1,         1,   13,  degreestr,    0,    0},
    {eOT_MAX,    3,    0,     maxstr,    6,    5},
+   {-1,         1,   13,  degreestr,    0,    0},
    {-2,         0,    0,     nulstr,    0,    0}
 };
 
 const Screen datetime[] PROGMEM = {
-   {-1,         0,    0,     timestr,   0,    0},
+   {-1,         0,    0,    timestr,    0,    0},
    {eHOUR,      1,    0,     timlim,    5,    2},
    {eMINUTE,    1,    8,     timlim,    8,    2},
    {eSECOND,    1,   11,     nulstr,   11,    2},
-   {-1,         2,    0,     datestr,   0,    0},
+   {-1,         2,    0,    datestr,    0,    0},
    {eDAY,       2,    0,     datlim,    5,    2},
    {eMONTH,     3,   14,     datlim,    8,    2},
    {eYEAR,      3,   17,     nulstr,   11,    2},
@@ -284,52 +292,56 @@ const Screen datetime[] PROGMEM = {
 };
 
 const Screen battery[] PROGMEM = {
-   {-1,         0,    3,     battstr,   0,    0},
-   {eBATTERY,   2,   10,     voltstr,   3,    5},
+   {-1,         0,    3,    battstr,    0,    0},
+   {eBATTERY,   2,   10,    voltstr,    3,    5},
    {-2,         0,    0,     nulstr,    0,    0}
 };
 
 
 const Screen Set_Time[] PROGMEM = {
-   {eADJUSTTIME,1,    0,     timestr,   7,    4},
-   {eUSDATE,    2,    0,     datestr,   7,    3},
+   {eADJUSTTIME,1,    0,    timestr,    7,    4},
+   {eUSDATE,    2,    0,    datestr,    7,    3},
    {eHOUR,      3,    0,     timlim,    0,    2},
    {eMINUTE,    3,    3,     timlim,    3,    2},
    {eSECOND,    3,    6,     nulstr,    6,    2},
    {eDAY,       3,   11,     datlim,   11,    2},
    {eMONTH,     3,   14,     datlim,   14,    2},
    {eYEAR,      3,   17,     nulstr,   17,    2},
-   {-2, 0, 0, "", 0, 0}
+   {-2,         0,    0,     nulstr,    0,    0}
 };
 
 const Screen Set_Upper[] PROGMEM = {
-   {-1,          0,    2,     uppstr,           0,    0},
-   {-1,          1,    2,     limstr,           0,    0},
-   {eUP_LIMIT_LO,2,    4,     closestr,        12,    5},
-   {eUP_LIMIT_HI,3,    4,     openstr,         12,    5},
-   {-2, 0, 0, "", 0, 0}
+   {-1,         0,    2,     uppstr,    0,    0},
+   {-1,         1,    2,     limstr,    0,    0},
+   {eUP_LIMIT_LO,2,   4,   closestr,   12,    5},
+   {-1,         1,   17,  degreestr,    0,    0},
+   {eUP_LIMIT_HI,3,   4,    openstr,   12,    5},
+   {-1,         1,   17,  degreestr,    0,    0},
+   {-2,         0,    0,     nulstr,    0,    0}
 };
 
 const Screen Set_Lower[] PROGMEM = {
-   {-1,          0,    2,     lowstr,           0,    0},
-   {-1,          1,    2,     limstr,           0,    0},
-   {eDN_LIMIT_LO,2,    4,     closestr,        12,    5},
-   {eDN_LIMIT_HI,3,    4,     openstr,         12,    5},
-   {-2, 0, 0, "", 0, 0}
+   {-1,         0,    2,     lowstr,    0,    0},
+   {-1,         1,    2,     limstr,    0,    0},
+   {eDN_LIMIT_LO,2,   4,   closestr,   12,    5},
+   {-1,         1,   17,  degreestr,    0,    0},
+   {eDN_LIMIT_HI,3,   4,    openstr,   12,    5},
+   {-1,         1,   17,  degreestr,    0,    0},
+   {-2,         0,    0,     nulstr,    0,    0}
 };
 
 const Screen Man_Upper[] PROGMEM = {
-   {-1,          0,    6,     uppstr,    0,    0},
-   {eWINSTATE_HI,1,    0,     manstr,   12,    8},
-   {-1,          3,    0,     canstr,    0,    0},
-   {-2, 0, 0, "", 0, 0}
+   {-1,         0,    6,     uppstr,    0,    0},
+   {eWINSTATE_HI,1,   0,     manstr,   12,    8},
+   {-1,         3,    0,     canstr,    0,    0},
+   {-2,         0,    0,     nulstr,    0,    0}
 };
 
 const Screen Man_Lower[] PROGMEM = {
-   {-1,          0,    6,     lowstr,    0,    0},
-   {eWINSTATE_LO,1,    0,     manstr,   12,    8},
-   {-1,          3,    0,     canstr,    0,    0},
-   {-2, 0, 0, "", 0, 0}
+   {-1,         0,    6,     lowstr,    0,    0},
+   {eWINSTATE_LO,1,   0,     manstr,   12,    8},
+   {-1,         3,    0,     canstr,    0,    0},
+   {-2,         0,    0,     nulstr,    0,    0}
 };
 
 // *INDENT-ON*

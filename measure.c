@@ -1,6 +1,7 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <string.h>
 #include <avr/io.h>
 
 #include <algo/crc8.h>
@@ -14,6 +15,7 @@
 #include "minmax.h"
 #include "rtc.h"
 #include "analog.h"
+#include "eeprommap.h"
 #include "measure.h"
 
 #include "features.h"
@@ -34,6 +36,7 @@ int16_t gBattery;
 uint8_t gpioid = 0;
 uint8_t gthermid = 0;
 uint8_t ids[6][OW_ROMCODE_SIZE]; // only expect to find up to 5 actually!!
+uint8_t idmap[6];
 
 
 // do a bit of init for testing
@@ -76,14 +79,11 @@ measure_init (void)
    }
 
    // start off temperature conversion on all sensors
-   ow_set_bus (&PINB, &PORTB, &DDRB, PB0);
-   ow_ds18X20_start (NULL, false);
+   ow_ds18X20_start (ids[idmap[SENSOR_LOW]], false);
 
-   ow_set_bus (&PINB, &PORTB, &DDRB, PB1);
-   ow_ds18X20_start (NULL, false);
+   ow_ds18X20_start (ids[idmap[SENSOR_HIGH]], false);
 
-   ow_set_bus (&PINB, &PORTB, &DDRB, PB2);
-   ow_ds18X20_start (NULL, false);
+   ow_ds18X20_start (ids[idmap[SENSOR_OUT]], false);
 }
 
 
@@ -106,6 +106,100 @@ getlims (uint8_t sensor, int16_t * now, int16_t * up, int16_t * down)
 }
 
 
+
+// interpret a command from the console interface
+// empty string outputs the current data
+static void
+process_command (char *command, uint8_t count)
+{
+    uint8_t i;
+
+    if (count == 0)             // display now (empty input!!)
+    {
+        return;
+    }
+    if (strncmp (command, "config", 6) == 0)
+    {
+        // skip command string
+        command += 6;
+        // skip whitespace
+        while (*command == ' ')
+            command++;
+        if (command[0] == '\0')
+        {
+            for (i = 0; i < 5; i++)
+               kfile_putc(idmap[i] | 0x30, &serial.fd);
+        }
+        else
+        {
+            for (i = 0; i < 5; i++)
+               idmap[i] = command[i] & 0x0f;
+            save_eeprom_values ();
+        }
+    }
+    else
+    {
+        kfile_printf (&serial.fd,
+                      "?huh?\r\nCommands are: config\r\n");
+    }
+
+}
+
+
+
+
+// get a string from the user with backspace 
+static void
+get_input (void)
+{
+    int16_t c;
+    static uint8_t bcnt = 0;
+#define CBSIZE 20
+    static char cbuff[CBSIZE];  /* serial I/O buffer       */
+
+    while ((c = kfile_getc (&serial.fd)) != EOF)
+    {
+        c &= 0x7f;
+        switch ((char) c)
+        {
+        case 0x03:             // ctl-c
+            bcnt = 0;
+        case '\r':
+// process what is in the buffer
+            cbuff[bcnt] = '\0'; // don't include terminator in count
+            kfile_printf (&serial.fd, "\r\n");
+            process_command (cbuff, bcnt);
+            bcnt = 0;
+            break;
+        case 0x08:             // backspace
+        case 0x7f:             // rubout
+            if (bcnt > 0)
+            {
+                kfile_putc (0x08, &serial.fd);
+                kfile_putc (' ', &serial.fd);
+                kfile_putc (0x08, &serial.fd);
+                bcnt--;
+            }
+            break;
+        default:
+            if ((c >= ' ') && (bcnt < CBSIZE))
+            {
+                cbuff[bcnt++] = c;
+                kfile_putc (c, &serial.fd); // echo...
+            }
+            break;
+        }
+
+    }
+}
+
+
+
+
+
+
+
+
 // poll round our sensors in turn, if conversion finished then note the value and start a new conversion
 void
 run_measure (void)
@@ -122,42 +216,40 @@ run_measure (void)
       lasthour = uptime ();
    }
 
-   gBattery = analog_read (0);
+   gBattery = analog_read (6);
+   get_input ();
 
    // do one sensor each time round
    switch (rotate & 3)
    {
    case SENSOR_LOW:
       // low level sensor
-      ow_set_bus (&PINB, &PORTB, &DDRB, PB0);
       if (!ow_busy ())
       {
-         ow_ds18X20_read_temperature (NULL, &t);
+         ow_ds18X20_read_temperature (ids[idmap[SENSOR_LOW]], &t);
          gValues[SENSOR_LOW][TINDEX_NOW] = t;
          minmax_add (&daymax[SENSOR_LOW], t);
-         ow_ds18X20_start (NULL, false);
+         ow_ds18X20_start (ids[idmap[SENSOR_LOW]], false);
       }
       break;
    case SENSOR_HIGH:
       // high level (roof) sensor
-      ow_set_bus (&PINB, &PORTB, &DDRB, PB1);
       if (!ow_busy ())
       {
-         ow_ds18X20_read_temperature (NULL, &t);
+         ow_ds18X20_read_temperature (ids[idmap[SENSOR_HIGH]], &t);
          gValues[SENSOR_HIGH][TINDEX_NOW] = t;
          minmax_add (&daymax[SENSOR_HIGH], t);
-         ow_ds18X20_start (NULL, false);
+         ow_ds18X20_start (ids[idmap[SENSOR_HIGH]], false);
       }
       break;
    case SENSOR_OUT:
       // outside sensor
-      ow_set_bus (&PINB, &PORTB, &DDRB, PB2);
       if (!ow_busy ())
       {
-         ow_ds18X20_read_temperature (NULL, &t);
+         ow_ds18X20_read_temperature (ids[idmap[SENSOR_OUT]], &t);
          gValues[SENSOR_OUT][TINDEX_NOW] = t;
          minmax_add (&daymax[SENSOR_OUT], t);
-         ow_ds18X20_start (NULL, false);
+         ow_ds18X20_start (ids[idmap[SENSOR_OUT]], false);
       }
       break;
    }

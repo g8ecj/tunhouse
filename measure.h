@@ -22,6 +22,7 @@
 extern int16_t gValues[NUMSENSORS][NUMINDEX]; // current, max and min temperatures for each sensor
 extern int16_t gLimits[NUMSENSORS][NUMLIMIT]; // upper and lower limits for driving window motors
 extern int16_t gBattery;
+extern uint8_t idmap[6];
 
 
 

@@ -20,6 +20,8 @@ tunhouse_USER_CSRC = \
 	$(tunhouse_SRC_PATH)/analog.c \
 	$(tunhouse_SRC_PATH)/window.c \
 	$(tunhouse_SRC_PATH)/ui.c \
+	$(tunhouse_SRC_PATH)/nrf24.c \
+	$(tunhouse_SRC_PATH)/radioPinFunctions.c \
 	#
 
 # Files included by the user.

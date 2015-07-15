@@ -50,6 +50,7 @@
 #include "eeprommap.h"
 #include "window.h"
 #include "ui.h"
+#include "nrf24.h"
 
 #include "features.h"
 
@@ -78,6 +79,69 @@
 */
 
 Serial serial;
+uint8_t tx_address[5] = { 0xE7, 0xE7, 0xE7, 0xE7, 0xE7 };
+uint8_t rx_address[5] = { 0xD7, 0xD7, 0xD7, 0xD7, 0xD7 };
+
+
+
+static void
+nrf_init (void)
+{
+   /* init hardware pins */
+   nrf24_init ();
+
+   /* Channel #2 , payload length: 4 */
+   nrf24_config (2, sizeof (gValues));
+
+   /* Set the device addresses */
+   nrf24_tx_address (tx_address);
+   nrf24_rx_address (rx_address);
+}
+
+
+static void
+run_nrf (void)
+{
+   uint8_t temp;
+   /* Automatically goes to TX mode */
+   nrf24_send ((uint8_t *)gValues);
+
+   /* Wait for transmission to end */
+   while (nrf24_isSending ());
+
+   /* Make analysis on last tranmission attempt */
+   temp = nrf24_lastMessageStatus ();
+
+   if (temp == NRF24_TRANSMISSON_OK)
+   {
+//            xprintf("> Tranmission went OK\r\n");
+   }
+   else if (temp == NRF24_MESSAGE_LOST)
+   {
+//            xprintf("> Message is lost ...\r\n");    
+   }
+
+   /* Retranmission count indicates the tranmission quality */
+   temp = nrf24_retransmissionCount ();
+//    xprintf("> Retranmission count: %d\r\n",temp);
+
+   /* Optionally, go back to RX mode ... */
+   nrf24_powerUpRx ();
+
+   /* Or you might want to power down after TX */
+   // nrf24_powerDown();            
+
+}
+
+
+
+
+
+
+
+
+
+
 
 static void
 init (void)
@@ -116,6 +180,9 @@ init (void)
    // display and button handling
    ui_init ();
 
+   /* init hardware pins */
+   nrf_init ();
+
    /* Enable all the interrupts */
    IRQ_ENABLE;
 
@@ -135,6 +202,8 @@ main (void)
       run_measure ();
       // run state machine for window opening motors
       run_windows ();
+      // send data back to base
+      run_nrf ();
       // display stuff on the LCD & get user input
       run_ui ();
    }
@@ -143,51 +212,50 @@ main (void)
 #if DEBUG > 0
 
 extern uint8_t _end;
-extern uint8_t __stack; 
+extern uint8_t __stack;
 
 #define STACK_CANARY  0xc5
 
-void StackPaint(void) __attribute__ ((naked)) __attribute__ ((section (".init1")));
-uint16_t StackCount(void);
+void StackPaint (void) __attribute__ ((naked))
+   __attribute__ ((section (".init1")));
+uint16_t StackCount (void);
 
-void StackPaint(void)
+void
+StackPaint (void)
 {
 #if 1
-    uint8_t *p = &_end;
+   uint8_t *p = &_end;
 
-    while(p <= &__stack)
-    {
-        *p = STACK_CANARY;
-        p++;
-    }
+   while (p <= &__stack)
+   {
+      *p = STACK_CANARY;
+      p++;
+   }
 #else
-    __asm volatile ("    ldi r30,lo8(_end)\n"
-                    "    ldi r31,hi8(_end)\n"
-                    "    ldi r24,lo8(0xc5)\n" /* STACK_CANARY = 0xc5 */
-                    "    ldi r25,hi8(__stack)\n"
-                    "    rjmp .cmp\n"
-                    ".loop:\n"
-                    "    st Z+,r24\n"
-                    ".cmp:\n"
-                    "    cpi r30,lo8(__stack)\n"
-                    "    cpc r31,r25\n"
-                    "    brlo .loop\n"
-                    "    breq .loop"::);
+   __asm volatile ("    ldi r30,lo8(_end)\n" "    ldi r31,hi8(_end)\n" "    ldi r24,lo8(0xc5)\n"   /* STACK_CANARY = 0xc5 */
+                   "    ldi r25,hi8(__stack)\n"
+                   "    rjmp .cmp\n"
+                   ".loop:\n"
+                   "    st Z+,r24\n"
+                   ".cmp:\n"
+                   "    cpi r30,lo8(__stack)\n"
+                   "    cpc r31,r25\n" "    brlo .loop\n" "    breq .loop"::);
 #endif
-} 
+}
 
-uint16_t StackCount(void)
+uint16_t
+StackCount (void)
 {
-    const uint8_t *p = &_end;
-    uint16_t       c = 0;
+   const uint8_t *p = &_end;
+   uint16_t c = 0;
 
-    while(*p == STACK_CANARY && p <= &__stack)
-    {
-        p++;
-        c++;
-    }
+   while (*p == STACK_CANARY && p <= &__stack)
+   {
+      p++;
+      c++;
+   }
 
-    return c;
-} 
+   return c;
+}
 
 #endif

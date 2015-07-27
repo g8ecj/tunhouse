@@ -78,7 +78,39 @@
 
 */
 
+
+/* alternate pins - not yet implemented, still thinking about it!!
+
+PD2 D2    1-wire or FET drive } LO motor drivers
+PD3 D3              FET drive }
+PD4 D4    1-wire or FET drive } HI
+PD5 D5              FET drive }
+
+PD6 D6    1-wire              } LO
+PD7 D7    1-wire              } HI temperature sensors
+PB0 D8    1-wire              } EX
+
+PB1 D9    CSN                 }
+PB2 D10   SS                  }
+PB3 D11   MOSI                } NRF24L01
+PB4 D12   MISO                } interface
+PB5 D13   SCK                 }
+
+PC0 A0    up                  }
+PC1 A1    centre              } buttons
+PC2 A2    down                }
+PC3 A3
+PC4 A4    SDA                 } LCD
+PC5 A5    SCL                 }
+
+    A6    Battery             } analog
+    A7
+*/
+
+
+
 Serial serial;
+
 uint8_t tx_address[5] = { 0xE7, 0xE7, 0xE7, 0xE7, 0xE7 };
 uint8_t rx_address[5] = { 0xD7, 0xD7, 0xD7, 0xD7, 0xD7 };
 
@@ -90,7 +122,7 @@ nrf_init (void)
    /* init hardware pins */
    nrf24_init ();
 
-   /* Channel #2 , payload length: 4 */
+   /* Channel #2 , payload length: whatever */
    nrf24_config (2, sizeof (gValues));
 
    /* Set the device addresses */
@@ -177,16 +209,19 @@ init (void)
    // temperature sensors
    measure_init ();
 
-   // display and button handling
-   ui_init ();
-
-   /* init hardware pins */
-   nrf_init ();
-
    /* Enable all the interrupts */
    IRQ_ENABLE;
 
+   /* init hardware pins */
+//   nrf_init ();
+
+   // display and button handling
+   ui_init ();
+
+
 }
+
+extern void ui_tst(void);
 
 int
 main (void)
@@ -203,7 +238,7 @@ main (void)
       // run state machine for window opening motors
       run_windows ();
       // send data back to base
-      run_nrf ();
+//      run_nrf ();
       // display stuff on the LCD & get user input
       run_ui ();
    }

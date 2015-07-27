@@ -43,18 +43,18 @@
  * Enable scroll buffer
  * $WIZ$ type = "boolean"
  */
-#define CONFIG_TERM_SCROLL 0
+#define CONFIG_TERM_SCROLL 1
 
 
 /**
- * Number of columns in LCD display. 
+ * Number of columns in LCD display.
  * $WIZ$ type = "enum"
  * $WIZ$ value_list = "terminal_cols"
  */
 #define CONFIG_TERM_COLS	TERMINAL_COLS_20
 
 /**
- * Number of rows in LCD display. 
+ * Number of rows in LCD display.
  * $WIZ$ type = "enum"
  * $WIZ$ value_list = "terminal_rows"
  */

@@ -20,7 +20,6 @@
 
 #include "features.h"
 
-extern Serial serial;
 
 
 
@@ -35,39 +34,13 @@ int16_t gLimits[NUMSENSORS][NUMLIMIT]; // upper and lower limits for driving win
 int16_t gBattery;
 uint8_t gpioid = 0;
 uint8_t gthermid = 0;
-uint8_t ids[6][OW_ROMCODE_SIZE]; // only expect to find up to 5 actually!!
-uint8_t idmap[6];
 
 
 // do a bit of init for testing
 void
 measure_init (void)
 {
-   uint8_t i, diff;
-
-   for (diff = OW_SEARCH_FIRST, i = 0; diff != OW_LAST_DEVICE; i++)
-   {
-      diff = ow_rom_search (diff, ids[i]);
-
-      if ((diff == OW_PRESENCE_ERR) || (diff == OW_DATA_ERR))
-         break;                 // <--- early exit!
-
-#if DEBUG > 0
-      kfile_printf (&serial.fd,
-                    "Found device %02x:%02x%02x%02x%02x%02x%02x:%02x\r\n",
-                    ids[i][0], ids[i][1], ids[i][2], ids[i][3], ids[i][4],
-                    ids[i][5], ids[i][6], ids[i][7]);
-      if (crc8 (ids[i], 8))
-         kfile_print (&serial.fd, "CRC suspect\r\n");
-#endif
-      if (ids[i][0] == SSWITCH_FAM)
-         gpioid++;
-      if ((ids[i][0] == DS18S20_FAMILY_CODE)
-          || (ids[i][0] == DS18B20_FAMILY_CODE)
-          || (ids[i][0] == DS1822_FAMILY_CODE))
-         gthermid++;
-
-   }
+   uint8_t i, j;
 
    // initialise all the min/max buffers (hourly and daily)
    for (i = 0; i < NUMSENSORS; i++)
@@ -76,14 +49,19 @@ measure_init (void)
 //      minmax_init (&hourmin[i], 60, false);
       minmax_init (&daymax[i], 24, true);
       minmax_init (&daymin[i], 24, false);
+      for (j = 0; j < NUMINDEX; j++)
+         gValues[i][j] = 0;
    }
 
    // start off temperature conversion on all sensors
-   ow_ds18X20_start (ids[idmap[SENSOR_LOW]], false);
+   ow_set_bus (&PIND, &PORTD, &DDRD, PD6);          // SENSOR_LOW
+   ow_ds18X20_start (NULL, false);
 
-   ow_ds18X20_start (ids[idmap[SENSOR_HIGH]], false);
+   ow_set_bus (&PIND, &PORTD, &DDRD, PD7);          // SENSOR_HIGH
+   ow_ds18X20_start (NULL, false);
 
-   ow_ds18X20_start (ids[idmap[SENSOR_OUT]], false);
+   ow_set_bus (&PINB, &PORTB, &DDRB, PB0);          // SENSOR_OUT
+   ow_ds18X20_start (NULL, false);
 }
 
 
@@ -107,98 +85,6 @@ getlims (uint8_t sensor, int16_t * now, int16_t * up, int16_t * down)
 
 
 
-// interpret a command from the console interface
-// empty string outputs the current data
-static void
-process_command (char *command, uint8_t count)
-{
-    uint8_t i;
-
-    if (count == 0)             // display now (empty input!!)
-    {
-        return;
-    }
-    if (strncmp (command, "config", 6) == 0)
-    {
-        // skip command string
-        command += 6;
-        // skip whitespace
-        while (*command == ' ')
-            command++;
-        if (command[0] == '\0')
-        {
-            for (i = 0; i < 5; i++)
-               kfile_putc(idmap[i] | 0x30, &serial.fd);
-        }
-        else
-        {
-            for (i = 0; i < 5; i++)
-               idmap[i] = command[i] & 0x0f;
-            save_eeprom_values ();
-        }
-    }
-    else
-    {
-        kfile_printf (&serial.fd,
-                      "?huh?\r\nCommands are: config\r\n");
-    }
-
-}
-
-
-
-
-// get a string from the user with backspace 
-static void
-get_input (void)
-{
-    int16_t c;
-    static uint8_t bcnt = 0;
-#define CBSIZE 20
-    static char cbuff[CBSIZE];  /* serial I/O buffer       */
-
-    while ((c = kfile_getc (&serial.fd)) != EOF)
-    {
-        c &= 0x7f;
-        switch ((char) c)
-        {
-        case 0x03:             // ctl-c
-            bcnt = 0;
-        case '\r':
-// process what is in the buffer
-            cbuff[bcnt] = '\0'; // don't include terminator in count
-            kfile_printf (&serial.fd, "\r\n");
-            process_command (cbuff, bcnt);
-            bcnt = 0;
-            break;
-        case 0x08:             // backspace
-        case 0x7f:             // rubout
-            if (bcnt > 0)
-            {
-                kfile_putc (0x08, &serial.fd);
-                kfile_putc (' ', &serial.fd);
-                kfile_putc (0x08, &serial.fd);
-                bcnt--;
-            }
-            break;
-        default:
-            if ((c >= ' ') && (bcnt < CBSIZE))
-            {
-                cbuff[bcnt++] = c;
-                kfile_putc (c, &serial.fd); // echo...
-            }
-            break;
-        }
-
-    }
-}
-
-
-
-
-
-
-
 
 // poll round our sensors in turn, if conversion finished then note the value and start a new conversion
 void
@@ -217,39 +103,44 @@ run_measure (void)
    }
 
    gBattery = analog_read (6);
-   get_input ();
 
    // do one sensor each time round
    switch (rotate & 3)
    {
    case SENSOR_LOW:
       // low level sensor
+      ow_set_bus (&PIND, &PORTD, &DDRD, PD6);          // SENSOR_LOW
       if (!ow_busy ())
       {
-         ow_ds18X20_read_temperature (ids[idmap[SENSOR_LOW]], &t);
+         ow_ds18X20_read_temperature (NULL, &t);
+         t = 1001;
          gValues[SENSOR_LOW][TINDEX_NOW] = t;
          minmax_add (&daymax[SENSOR_LOW], t);
-         ow_ds18X20_start (ids[idmap[SENSOR_LOW]], false);
+         ow_ds18X20_start (NULL, false);
       }
       break;
    case SENSOR_HIGH:
       // high level (roof) sensor
+      ow_set_bus (&PIND, &PORTD, &DDRD, PD7);         // SENSOR_HIGH
       if (!ow_busy ())
       {
-         ow_ds18X20_read_temperature (ids[idmap[SENSOR_HIGH]], &t);
+         ow_ds18X20_read_temperature (NULL, &t);
+         t = 1111;
          gValues[SENSOR_HIGH][TINDEX_NOW] = t;
          minmax_add (&daymax[SENSOR_HIGH], t);
-         ow_ds18X20_start (ids[idmap[SENSOR_HIGH]], false);
+         ow_ds18X20_start (NULL, false);
       }
       break;
    case SENSOR_OUT:
       // outside sensor
+      ow_set_bus (&PINB, &PORTB, &DDRB, PB0);          // SENSOR_OUT
       if (!ow_busy ())
       {
-         ow_ds18X20_read_temperature (ids[idmap[SENSOR_OUT]], &t);
+         ow_ds18X20_read_temperature (NULL, &t);
+         t = 2221;
          gValues[SENSOR_OUT][TINDEX_NOW] = t;
          minmax_add (&daymax[SENSOR_OUT], t);
-         ow_ds18X20_start (ids[idmap[SENSOR_OUT]], false);
+         ow_ds18X20_start (NULL, false);
       }
       break;
    }

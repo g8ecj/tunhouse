@@ -53,8 +53,9 @@ Long press on centre goes to setup mode - restricts to time and limit setting sc
 Press on up/down selects upper or lower limit
 Short centre or timeout cancels/returns to summary
 Long press on centre enters page edit mode
-Long press selects enters field edit mode
-Press on up/down changes value centre saves, short centre or timeout cancels/returns to summary
+Long press on centre enters field edit mode
+Press on up/down changes value, centre saves, timeout cancels/returns to summary
+Press on up/down changes limit selected
 
 ----------------------
 |  Adjust      -93   |

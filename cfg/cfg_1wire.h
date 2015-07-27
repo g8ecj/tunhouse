@@ -52,7 +52,7 @@
  *
  * $WIZ$ type = "boolean"
  */
-#define OW_ONE_BUS   1
+#define OW_ONE_BUS   0
 
 
 /**

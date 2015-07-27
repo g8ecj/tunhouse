@@ -281,13 +281,13 @@ const Screen external[] PROGMEM = {
 
 const Screen datetime[] PROGMEM = {
    {-1,         0,    0,    timestr,    0,    0},
-   {eHOUR,      1,    0,     timlim,    5,    2},
+   {eHOUR,      1,    5,     timlim,    5,    2},
    {eMINUTE,    1,    8,     timlim,    8,    2},
-   {eSECOND,    1,   11,     nulstr,   11,    2},
+   {eSECOND,    1,    0,     nulstr,   11,    2},
    {-1,         2,    0,    datestr,    0,    0},
-   {eDAY,       2,    0,     datlim,    5,    2},
-   {eMONTH,     3,   14,     datlim,    8,    2},
-   {eYEAR,      3,   17,     nulstr,   11,    2},
+   {eDAY,       3,    5,     datlim,    5,    2},
+   {eMONTH,     3,    8,     datlim,    8,    2},
+   {eYEAR,      3,    0,     nulstr,   11,    2},
    {-2,         0,    0,     nulstr,    0,    0}
 };
 
@@ -460,12 +460,11 @@ check_flash (int8_t field)
 static void
 print_field (int16_t value, int8_t field, uint8_t screen)
 {
-   int8_t i;
+   int8_t i, j;
    int16_t whole, part;
    char spaces[10] = "         ";
    char tritext[4][5] = { "off", "on", "auto", "oops" };
    char wintext[4][8] = {"OPENING", "CLOSING", "OPEN", "CLOSED" };
-
 
    const Screen *scrn = screen_list[screen];
 
@@ -497,7 +496,7 @@ print_field (int16_t value, int8_t field, uint8_t screen)
             kfile_printf (&term.fd, "%.*s%d.%2u", value < 0 ? 1 : 0, "-", whole, part);
             break;
          case eSHORT:
-            // split the value into those bits before and after the decimal point
+            // split the value into those bits before and after the decimal point, ONLY 1 PLACE!
             // if the whole part is less than 1 then we loose the sign bit so do it manually in all cases
             whole = abs (value / 100);
             part = abs (value % 100) / 10;
@@ -603,17 +602,22 @@ static void
 print_screen (int8_t screen)
 {
    int8_t i = 0, j;
+   PGM_P text;
    const Screen *scrn = screen_list[screen];
 
-   kfile_printf (&term.fd, "%c", TERM_CLR);
-   while (scrn[i].field != -2)
+//   kfile_printf (&term.fd, "%c", TERM_CLR);
+   while ((int8_t)pgm_read_byte(&scrn[i].field) != -2)
    {
       kfile_printf (&term.fd, "%c%c%c", TERM_CPC, TERM_ROW + pgm_read_byte (&scrn[i].row), TERM_COL + pgm_read_byte (&scrn[i].col));
-      for (j = 0; (const char) (pgm_read_byte (&scrn[i].text[j])); i++)
-         kfile_putc((const char) pgm_read_byte (&scrn[i].text[j]), &term.fd);
+      text =  (PGM_P) pgm_read_word(&scrn[i].text);
+
+      for (j = 0; (const char)(pgm_read_byte(&text[j])) && j < 20; j++)
+      {
+          kfile_putc((const char) pgm_read_byte (&text[j]), &term.fd);
+      }
 
       if ((int8_t) pgm_read_byte (&scrn[i].field) != -1)
-         print_field (*variables[scrn[i].field].value, pgm_read_byte (&scrn[i].field), screen);
+         print_field (*variables[pgm_read_byte(&scrn[i].field)].value, pgm_read_byte (&scrn[i].field), screen);
 
       i++;
    }
@@ -647,6 +651,7 @@ check_value (enum VARS var, int16_t value)
       return true;
 
 }
+
 
 // initialise the module!
 void
@@ -689,6 +694,7 @@ run_ui (void)
    uint8_t sensor;
 
    flag_warnings ();
+   lcd_backlight(1);
 
 #if PUSHBUTTONS == 1
    keymask_t key;
@@ -701,19 +707,22 @@ run_ui (void)
    key = kfile_getc (&serial.fd);
    if (key == EOF)
       key = 0;
+   else if (key < 0x60)
+      key |= (K_LONG | 0x20);
 #endif
 
    // if key pressed then ignite backlight for a short while
    if (key)
    {
-      lcd_bl_on ();
+      kfile_printf (&term.fd, "%c", TERM_CLR);
+      lcd_backlight(1);
       backlight_timer = timer_clock ();
    }
    else
    {
       if (timer_clock () - backlight_timer > ms_to_ticks (BACKLIGHT))
       {
-         lcd_bl_off ();
+//         lcd_backlight(0);
       }
    }
 
@@ -722,7 +731,6 @@ run_ui (void)
       refresh_timer = timer_clock ();
       print_screen (screen_number);
    }
-
 
    switch (mode)
    {

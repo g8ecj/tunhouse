@@ -53,8 +53,8 @@
 
 #define KBD_HW_INIT \
 	do { \
-   DDRD &= ~(BV(5) | BV(6) | BV(7));      /* port D5-7 as inputs */ \
-   PORTD |= (BV(5) | BV(6) | BV(7));      /* turn on pullup on D5-7 */   \
+   DDRC &= ~(BV(0) | BV(1) | BV(2));      /* port C0-2 as inputs */ \
+   PORTC |= (BV(0) | BV(1) | BV(2));      /* turn on pullup on C0-2 */   \
 	} while (0)
 
 EXTERN_C int emul_kbdReadCols(void);
@@ -66,7 +66,7 @@ EXTERN_C int emul_kbdReadCols(void);
 INLINE keymask_t kbd_readkeys(void)
 {
 
-	return (~(PIND >> 5) & 0x07);             // invert and shift 7...5 to 2...0
+	return (~(PINC) & 0x07);             // invert and shift 7...5 to 2...0
 
 }
 

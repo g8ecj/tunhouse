@@ -203,17 +203,17 @@ init (void)
    // real time clock
    rtc_init ();
 
-   // open/closing of windows
-   window_init ();
-
    // temperature sensors
    measure_init ();
+
+   // open/closing of windows
+   window_init ();
 
    /* Enable all the interrupts */
    IRQ_ENABLE;
 
    /* init hardware pins */
-//   nrf_init ();
+   nrf_init ();
 
    // display and button handling
    ui_init ();

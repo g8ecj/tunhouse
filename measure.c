@@ -34,6 +34,7 @@ int16_t gLimits[NUMSENSORS][NUMLIMIT]; // upper and lower limits for driving win
 int16_t gBattery;
 uint8_t gpioid = 0;
 uint8_t gthermid = 0;
+uint32_t lasthour;
 
 
 // do a bit of init for testing
@@ -42,25 +43,29 @@ measure_init (void)
 {
    uint8_t i, j;
 
+   lasthour = uptime ();
    // initialise all the min/max buffers (hourly and daily)
    for (i = 0; i < NUMSENSORS; i++)
    {
 //      minmax_init (&hourmax[i], 60, true);
 //      minmax_init (&hourmin[i], 60, false);
-      minmax_init (&daymax[i], 24, true);
       minmax_init (&daymin[i], 24, false);
+      minmax_init (&daymax[i], 24, true);
       for (j = 0; j < NUMINDEX; j++)
          gValues[i][j] = 0;
    }
 
    // start off temperature conversion on all sensors
    ow_set_bus (&PIND, &PORTD, &DDRD, PD6);          // SENSOR_LOW
+   ow_ds18x20_resolution(NULL, 10);
    ow_ds18X20_start (NULL, false);
 
    ow_set_bus (&PIND, &PORTD, &DDRD, PD7);          // SENSOR_HIGH
+   ow_ds18x20_resolution(NULL, 10);
    ow_ds18X20_start (NULL, false);
 
    ow_set_bus (&PINB, &PORTB, &DDRB, PB0);          // SENSOR_OUT
+   ow_ds18x20_resolution(NULL, 10);
    ow_ds18X20_start (NULL, false);
 }
 
@@ -93,14 +98,6 @@ run_measure (void)
    static char rotate = 0;
    int16_t t;
    int8_t i;
-   static int8_t firstrun = true;
-   static uint32_t lasthour = 0;
-
-   if (firstrun)
-   {
-      firstrun = false;
-      lasthour = uptime ();
-   }
 
    gBattery = analog_read (6);
 
@@ -115,6 +112,7 @@ run_measure (void)
          ow_ds18X20_read_temperature (NULL, &t);
          t = 1001;
          gValues[SENSOR_LOW][TINDEX_NOW] = t;
+         minmax_add (&daymin[SENSOR_LOW], t);
          minmax_add (&daymax[SENSOR_LOW], t);
          ow_ds18X20_start (NULL, false);
       }
@@ -127,6 +125,7 @@ run_measure (void)
          ow_ds18X20_read_temperature (NULL, &t);
          t = 1111;
          gValues[SENSOR_HIGH][TINDEX_NOW] = t;
+         minmax_add (&daymin[SENSOR_HIGH], t);
          minmax_add (&daymax[SENSOR_HIGH], t);
          ow_ds18X20_start (NULL, false);
       }
@@ -139,6 +138,7 @@ run_measure (void)
          ow_ds18X20_read_temperature (NULL, &t);
          t = 2221;
          gValues[SENSOR_OUT][TINDEX_NOW] = t;
+         minmax_add (&daymin[SENSOR_OUT], t);
          minmax_add (&daymax[SENSOR_OUT], t);
          ow_ds18X20_start (NULL, false);
       }
@@ -152,8 +152,8 @@ run_measure (void)
       lasthour = uptime ();
       for (i = 0; i < NUMSENSORS; i++)
       {
-         minmax_tick (&daymax[i]);
          minmax_tick (&daymin[i]);
+         minmax_tick (&daymax[i]);
       }
 
    }

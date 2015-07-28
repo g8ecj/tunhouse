@@ -41,7 +41,3 @@ uint8_t windowopening (uint8_t sensor);
 uint8_t windowclosing (uint8_t sensor);
 uint8_t windowcanceling (uint8_t sensor);
 
-void do_motorup (uint8_t sensor);
-void do_motordn (uint8_t sensor);
-void do_motoroff (uint8_t sensor);
-void do_motorcan (uint8_t sensor);

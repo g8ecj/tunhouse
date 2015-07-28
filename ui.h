@@ -23,8 +23,6 @@
 #define _UI_H
 
 
-#define DEGREE  0xb2
-
 // all the fields displayed
 enum VARS
 {

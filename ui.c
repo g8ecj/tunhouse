@@ -68,6 +68,10 @@ static Term term;
 
 int16_t gUSdate;
 
+static const char lcd_degree[8] = { 0x1c, 0x14, 0x1c, 0x00, 0x00, 0x00, 0x00, 0x00 };	/* degree - char set B doesn't have it!! */
+#define DEGREE 1
+
+
 typedef int8_t (*IncFunc_t) (int8_t field, int8_t dirn);
 
 
@@ -105,15 +109,15 @@ null_inc (int8_t field, int8_t dirn)
    return 0;
 }
 
-#if 0
 static int8_t
 deca_inc (int8_t field, int8_t dirn)
 {
    (void) dirn;
    (void) field;
-   return 10;
+   return 100;
 }
 
+#if 0
 static int8_t
 var_inc (int8_t field, int8_t dirn)
 {
@@ -168,11 +172,11 @@ Vars variables[eNUMVARS] = {
    {&gValues[SENSOR_OUT][TINDEX_NOW],     0,     0,     0,     eSHORT,   null_inc},    //                value now
    {&gValues[SENSOR_OUT][TINDEX_MAX],     0,     0,     0,     eSHORT,   null_inc},    //                maximuum
 
-   {&gLimits[SENSOR_HIGH][LIMIT_UP],    -20,    30,    20,      eNORMAL,   int_inc},     // temperature to open
-   {&gLimits[SENSOR_HIGH][LIMIT_DN],    -20,    30,    15,      eNORMAL,   int_inc},     //                close
+   {&gLimits[SENSOR_HIGH][LIMIT_UP],  -2000,  3000,  2000,       eSHORT,  deca_inc},     // temperature to open
+   {&gLimits[SENSOR_HIGH][LIMIT_DN],  -2000,  3000,  1500,       eSHORT,  deca_inc},     //                close
 
-   {&gLimits[SENSOR_LOW][LIMIT_UP],     -20,    30,    20,      eNORMAL,   int_inc},     // temperature to open
-   {&gLimits[SENSOR_LOW][LIMIT_DN],     -20,    30,    15,      eNORMAL,   int_inc},     //                close
+   {&gLimits[SENSOR_LOW][LIMIT_UP],   -2000,  3000,  2000,       eSHORT,  deca_inc},     // temperature to open
+   {&gLimits[SENSOR_LOW][LIMIT_DN],   -2000,  3000,  1500,       eSHORT,  deca_inc},     //                close
 
    {&gHOUR,                               0,    23,    12,        eDATE,   int_inc},     // hour
    {&gMINUTE,                             0,    59,     0,        eDATE,   int_inc},     // minute
@@ -251,9 +255,9 @@ const Screen upper[] PROGMEM = {
    {eUP_MIN,    1,    0,     minstr,    6,    5},
    {-1,         1,   13,  degreestr,    0,    0},
    {eUP_NOW,    2,    0,     nowstr,    6,    5},
-   {-1,         1,   13,  degreestr,    0,    0},
+   {-1,         2,   13,  degreestr,    0,    0},
    {eUP_MAX,    3,    0,     maxstr,    6,    5},
-   {-1,         1,   13,  degreestr,    0,    0},
+   {-1,         3,   13,  degreestr,    0,    0},
    {-2,         0,    0,     nulstr,    0,    0}
 };
 
@@ -262,9 +266,9 @@ const Screen lower[] PROGMEM = {
    {eDN_MIN,    1,    0,     minstr,    6,    5},
    {-1,         1,   13,  degreestr,    0,    0},
    {eDN_NOW,    2,    0,     nowstr,    6,    5},
-   {-1,         1,   13,  degreestr,    0,    0},
+   {-1,         2,   13,  degreestr,    0,    0},
    {eDN_MAX,    3,    0,     maxstr,    6,    5},
-   {-1,         1,   13,  degreestr,    0,    0},
+   {-1,         3,   13,  degreestr,    0,    0},
    {-2,         0,    0,     nulstr,    0,    0}
 };
 
@@ -273,9 +277,9 @@ const Screen external[] PROGMEM = {
    {eOT_MIN,    1,    0,     minstr,    6,    5},
    {-1,         1,   13,  degreestr,    0,    0},
    {eOT_NOW,    2,    0,     nowstr,    6,    5},
-   {-1,         1,   13,  degreestr,    0,    0},
+   {-1,         2,   13,  degreestr,    0,    0},
    {eOT_MAX,    3,    0,     maxstr,    6,    5},
-   {-1,         1,   13,  degreestr,    0,    0},
+   {-1,         3,   13,  degreestr,    0,    0},
    {-2,         0,    0,     nulstr,    0,    0}
 };
 
@@ -313,20 +317,20 @@ const Screen Set_Time[] PROGMEM = {
 const Screen Set_Upper[] PROGMEM = {
    {-1,         0,    2,     uppstr,    0,    0},
    {-1,         1,    2,     limstr,    0,    0},
-   {eUP_LIMIT_LO,2,   4,   closestr,   12,    5},
-   {-1,         1,   17,  degreestr,    0,    0},
-   {eUP_LIMIT_HI,3,   4,    openstr,   12,    5},
-   {-1,         1,   17,  degreestr,    0,    0},
+   {eUP_LIMIT_LO,2,   4,   closestr,   11,    5},
+   {-1,         2,   17,  degreestr,    0,    0},
+   {eUP_LIMIT_HI,3,   4,    openstr,   11,    5},
+   {-1,         3,   17,  degreestr,    0,    0},
    {-2,         0,    0,     nulstr,    0,    0}
 };
 
 const Screen Set_Lower[] PROGMEM = {
    {-1,         0,    2,     lowstr,    0,    0},
    {-1,         1,    2,     limstr,    0,    0},
-   {eDN_LIMIT_LO,2,   4,   closestr,   12,    5},
-   {-1,         1,   17,  degreestr,    0,    0},
-   {eDN_LIMIT_HI,3,   4,    openstr,   12,    5},
-   {-1,         1,   17,  degreestr,    0,    0},
+   {eDN_LIMIT_LO,2,   4,   closestr,   11,    5},
+   {-1,         2,   17,  degreestr,    0,    0},
+   {eDN_LIMIT_HI,3,   4,    openstr,   11,    5},
+   {-1,         3,   17,  degreestr,    0,    0},
    {-2,         0,    0,     nulstr,    0,    0}
 };
 
@@ -460,7 +464,7 @@ check_flash (int8_t field)
 static void
 print_field (int16_t value, int8_t field, uint8_t screen)
 {
-   int8_t i, j;
+   int8_t i;
    int16_t whole, part;
    char spaces[10] = "         ";
    char tritext[4][5] = { "off", "on", "auto", "oops" };
@@ -535,9 +539,9 @@ find_next_field (int8_t field, int8_t screen, int8_t dirn)
       if ((int8_t) pgm_read_byte (&scrn[i].field) < 0)
          continue;
       if ((int8_t) pgm_read_byte (&scrn[i].field) > max)
-         max = scrn[i].field;
+         max = pgm_read_byte (&scrn[i].field);
       if ((int8_t) pgm_read_byte (&scrn[i].field) < min)
-         min = scrn[i].field;
+         min = pgm_read_byte (&scrn[i].field);
    }
 
    field += dirn;
@@ -634,6 +638,10 @@ flag_warnings (void)
       set_flash (eUP_NOW, true);
    else
       set_flash (eUP_NOW, false);
+   if (gValues[SENSOR_LOW][TINDEX_NOW] > gLimits[SENSOR_LOW][LIMIT_UP])
+      set_flash (eDN_NOW, true);
+   else
+      set_flash (eDN_NOW, false);
 
 
 }
@@ -660,7 +668,7 @@ ui_init (void)
 
    lcd_hw_init ();
    lcd_display (1, 0, 0);
-//      lcd_remapChar (lcd_degree, DEGREE);        // put the degree symbol on character 0x01
+   lcd_remapChar (lcd_degree, DEGREE);        // put the degree symbol on character 0x01
 
    term_init (&term);
 #if PUSHBUTTONS == 1
@@ -677,12 +685,12 @@ ui_init (void)
 // mode values
 #define MONITOR     0
 #define SETUP       1
-#define LIMITS      2
-#define PAGEEDIT    3
-#define FIELDEDIT   4
-#define MANUAL      5
+#define PAGEEDIT    2
+#define FIELDEDIT   3
+#define MANUAL      4
 
 
+extern ticks_t gWinTimer[];
 
 
 void
@@ -709,6 +717,9 @@ run_ui (void)
       key = 0;
    else if (key < 0x60)
       key |= (K_LONG | 0x20);
+   else if (key == 'z')
+      kprintf("Tlo %lu Thi %lu tim %lu\r\n", gWinTimer[SENSOR_LOW], gWinTimer[SENSOR_HIGH], uptime());
+   
 #endif
 
    // if key pressed then ignite backlight for a short while
@@ -717,12 +728,33 @@ run_ui (void)
       kfile_printf (&term.fd, "%c", TERM_CLR);
       lcd_backlight(1);
       backlight_timer = timer_clock ();
+      switch (mode)
+      {
+      case MONITOR:
+         kprintf ("Monitor\r\n");
+         break;
+      case SETUP:
+         kprintf ("Setup\r\n");
+         break;
+      case PAGEEDIT:
+         kprintf ("Pageedit\r\n");
+         break;
+      case FIELDEDIT:
+         kprintf ("Fieldedit\r\n");
+         break;
+      case MANUAL:
+         kprintf ("Manual\r\n");
+         break;
+      default:
+         kprintf ("Opps\r\n");
+         break;
+      }
    }
    else
    {
       if (timer_clock () - backlight_timer > ms_to_ticks (BACKLIGHT))
       {
-//         lcd_backlight(0);
+         lcd_backlight(0);
       }
    }
 
@@ -795,6 +827,10 @@ run_ui (void)
       switch (key)
       {
       case K_CENTRE:
+         mode = MONITOR;
+         screen_number = FIRSTINFO;
+         break;
+      case K_CENTRE | K_LONG:
          // enter this field to change it
          mode = FIELDEDIT;
          set_flash (field, true);
@@ -827,11 +863,15 @@ run_ui (void)
 
 
 // up/down moves round monitor screens
-// when in setup screen then centre enters field navigation mode
+// when in setup screen then long centre enters field navigation mode
    case SETUP:
       switch (key)
       {
       case K_CENTRE:
+         mode = MONITOR;
+         screen_number = FIRSTINFO;
+         break;
+      case K_CENTRE | K_LONG:
          // enter edit mode
          mode = PAGEEDIT;
          // turn on cursor
@@ -842,7 +882,7 @@ run_ui (void)
          break;
       case K_UP:
          screen_number++;
-         if (screen_number >= MAXSETUP)
+         if (screen_number > MAXSETUP)
             screen_number = FIRSTSETUP;
          break;
       case K_DOWN:
@@ -851,12 +891,15 @@ run_ui (void)
             screen_number = MAXSETUP;
          break;
       case K_UP | K_LONG:
+         mode = MANUAL;
+         // get sensor number from screen number, use as base for manual screen
          sensor = screen_number - FIRSTSETUP;
          screen_number = FIRSTMAN + sensor;
          windowopen(sensor);
          break;
       case K_DOWN | K_LONG:
-         sensor = screen_number - FIRSTSETUP;
+         mode = MANUAL;
+         sensor = (screen_number - FIRSTSETUP) & 3;
          screen_number = FIRSTMAN + sensor;
          windowclose(sensor);
          break;

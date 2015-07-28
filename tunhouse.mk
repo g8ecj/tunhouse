@@ -26,7 +26,7 @@ tunhouse_WIZARD_CSRC = \
 	bertos/cpu/avr/drv/timer_avr.c \
 	bertos/cpu/avr/drv/timer_mega.c \
 	bertos/drv/pcf8574.c \
-	bertos/drv/lcdpcf8574.c \
+	bertos/drv/lcd_pcf8574.c \
 	bertos/drv/ow_1wire.c \
 	bertos/drv/ow_ds18x20.c \
 	bertos/drv/ow_ds2413.c \

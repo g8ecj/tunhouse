@@ -43,7 +43,7 @@
 *
 * $WIZ$ type = "int"
 */
-#define CONFIG_I2C_FREQ  100000UL
+#define CONFIG_I2C_FREQ  400000UL
 
 /**
  * I2C start timeout.

@@ -38,7 +38,12 @@
 #include <drv/ser.h>
 #include <drv/lcd_hd44.h>
 #include <drv/term.h>
+
+#include "features.h"
+
+#if PUSHBUTTONS == 1
 #include <drv/kbd.h>
+#endif
 
 #include <avr/eeprom.h>
 
@@ -48,7 +53,6 @@
 #include "window.h"
 #include "ui.h"
 
-#include "features.h"
 
 
 // a table of fields that are flashing
@@ -60,7 +64,7 @@ static int8_t flashing[MAXFLASH];
 #define HEADINGS 1500L
 #define BACKLIGHT 5000L
 #define REFRESH 300L
-#define FLASHON 700L
+#define FLASHON 600L
 #define FLASHOFF 300L
 
 extern Serial serial;
@@ -160,13 +164,13 @@ enum STYLE
 // *INDENT-OFF*
 Vars variables[eNUMVARS] = {
    {NULL, 0, 0, 0, eNORMAL, null_inc},  // dummy 1st entry
-   {&gValues[SENSOR_HIGH][TINDEX_MIN],    0,     0,     0,     eSHORT,   null_inc},    // high position, minimum
-   {&gValues[SENSOR_HIGH][TINDEX_NOW],    0,     0,     0,     eSHORT,   null_inc},    //                value now
-   {&gValues[SENSOR_HIGH][TINDEX_MAX],    0,     0,     0,     eSHORT,   null_inc},    //                maximuum
-
    {&gValues[SENSOR_LOW][TINDEX_MIN],     0,     0,     0,     eSHORT,   null_inc},    // low position, minimum
    {&gValues[SENSOR_LOW][TINDEX_NOW],     0,     0,     0,     eSHORT,   null_inc},    //                value now
    {&gValues[SENSOR_LOW][TINDEX_MAX],     0,     0,     0,     eSHORT,   null_inc},    //                maximuum
+
+   {&gValues[SENSOR_HIGH][TINDEX_MIN],    0,     0,     0,     eSHORT,   null_inc},    // high position, minimum
+   {&gValues[SENSOR_HIGH][TINDEX_NOW],    0,     0,     0,     eSHORT,   null_inc},    //                value now
+   {&gValues[SENSOR_HIGH][TINDEX_MAX],    0,     0,     0,     eSHORT,   null_inc},    //                maximuum
 
    {&gValues[SENSOR_OUT][TINDEX_MIN],     0,     0,     0,     eSHORT,   null_inc},    // outside position, minimum
    {&gValues[SENSOR_OUT][TINDEX_NOW],     0,     0,     0,     eSHORT,   null_inc},    //                value now
@@ -229,13 +233,13 @@ const char degreestr[] PROGMEM = { DEGREE, 'C', 0 };
 
 
 const Screen summary[] PROGMEM = {
-   {eUP_MIN,    0,    0,     upstr,     3,    5},
-   {eUP_NOW,    0,    0,     nulstr,    9,    5},
-   {eUP_MAX,    0,    0,     nulstr,   15,    5},
-
    {eDN_MIN,    1,    0,     lostr,     3,    5},
    {eDN_NOW,    1,    0,     nulstr,    9,    5},
    {eDN_MAX,    1,    0,     nulstr,   15,    5},
+
+   {eUP_MIN,    0,    0,     upstr,     3,    5},
+   {eUP_NOW,    0,    0,     nulstr,    9,    5},
+   {eUP_MAX,    0,    0,     nulstr,   15,    5},
 
    {eOT_MIN,    2,    0,     exstr,     3,    5},
    {eOT_NOW,    2,    0,     nulstr,    9,    5},
@@ -250,17 +254,6 @@ const Screen summary[] PROGMEM = {
    {-2,         0,    0,     nulstr,    0,    0}
 };
 
-const Screen upper[] PROGMEM = {
-   {-1,         0,    3,     uppstr,    0,    0},
-   {eUP_MIN,    1,    0,     minstr,    6,    5},
-   {-1,         1,   13,  degreestr,    0,    0},
-   {eUP_NOW,    2,    0,     nowstr,    6,    5},
-   {-1,         2,   13,  degreestr,    0,    0},
-   {eUP_MAX,    3,    0,     maxstr,    6,    5},
-   {-1,         3,   13,  degreestr,    0,    0},
-   {-2,         0,    0,     nulstr,    0,    0}
-};
-
 const Screen lower[] PROGMEM = {
    {-1,         0,    3,     lowstr,    0,    0},
    {eDN_MIN,    1,    0,     minstr,    6,    5},
@@ -268,6 +261,17 @@ const Screen lower[] PROGMEM = {
    {eDN_NOW,    2,    0,     nowstr,    6,    5},
    {-1,         2,   13,  degreestr,    0,    0},
    {eDN_MAX,    3,    0,     maxstr,    6,    5},
+   {-1,         3,   13,  degreestr,    0,    0},
+   {-2,         0,    0,     nulstr,    0,    0}
+};
+
+const Screen upper[] PROGMEM = {
+   {-1,         0,    3,     uppstr,    0,    0},
+   {eUP_MIN,    1,    0,     minstr,    6,    5},
+   {-1,         1,   13,  degreestr,    0,    0},
+   {eUP_NOW,    2,    0,     nowstr,    6,    5},
+   {-1,         2,   13,  degreestr,    0,    0},
+   {eUP_MAX,    3,    0,     maxstr,    6,    5},
    {-1,         3,   13,  degreestr,    0,    0},
    {-2,         0,    0,     nulstr,    0,    0}
 };
@@ -314,16 +318,6 @@ const Screen Set_Time[] PROGMEM = {
    {-2,         0,    0,     nulstr,    0,    0}
 };
 
-const Screen Set_Upper[] PROGMEM = {
-   {-1,         0,    2,     uppstr,    0,    0},
-   {-1,         1,    2,     limstr,    0,    0},
-   {eUP_LIMIT_LO,2,   4,   closestr,   11,    5},
-   {-1,         2,   17,  degreestr,    0,    0},
-   {eUP_LIMIT_HI,3,   4,    openstr,   11,    5},
-   {-1,         3,   17,  degreestr,    0,    0},
-   {-2,         0,    0,     nulstr,    0,    0}
-};
-
 const Screen Set_Lower[] PROGMEM = {
    {-1,         0,    2,     lowstr,    0,    0},
    {-1,         1,    2,     limstr,    0,    0},
@@ -334,16 +328,26 @@ const Screen Set_Lower[] PROGMEM = {
    {-2,         0,    0,     nulstr,    0,    0}
 };
 
-const Screen Man_Upper[] PROGMEM = {
-   {-1,         0,    6,     uppstr,    0,    0},
-   {eWINSTATE_HI,1,   0,     manstr,   12,    8},
-   {-1,         3,    0,     canstr,    0,    0},
+const Screen Set_Upper[] PROGMEM = {
+   {-1,         0,    2,     uppstr,    0,    0},
+   {-1,         1,    2,     limstr,    0,    0},
+   {eUP_LIMIT_LO,2,   4,   closestr,   11,    5},
+   {-1,         2,   17,  degreestr,    0,    0},
+   {eUP_LIMIT_HI,3,   4,    openstr,   11,    5},
+   {-1,         3,   17,  degreestr,    0,    0},
    {-2,         0,    0,     nulstr,    0,    0}
 };
 
 const Screen Man_Lower[] PROGMEM = {
    {-1,         0,    6,     lowstr,    0,    0},
    {eWINSTATE_LO,1,   0,     manstr,   12,    8},
+   {-1,         3,    0,     canstr,    0,    0},
+   {-2,         0,    0,     nulstr,    0,    0}
+};
+
+const Screen Man_Upper[] PROGMEM = {
+   {-1,         0,    6,     uppstr,    0,    0},
+   {eWINSTATE_HI,1,   0,     manstr,   12,    8},
    {-1,         3,    0,     canstr,    0,    0},
    {-2,         0,    0,     nulstr,    0,    0}
 };
@@ -365,7 +369,8 @@ const Screen Man_Lower[] PROGMEM = {
 
 #define MAXSCREENS  NUM_INFO + NUM_SETUP + NUM_MANUAL
 
-static const Screen *screen_list[] = { summary, upper, lower, external, datetime, battery, Set_Time, Set_Upper, Set_Lower, Man_Upper, Man_Lower };
+// order here is critical - screen numbers are used to derive sensor numbers in some modes!!
+static const Screen *screen_list[] = { summary, lower, upper, external, datetime, battery, Set_Lower, Set_Upper, Set_Time, Man_Lower, Man_Upper };
 
 
 static void
@@ -702,7 +707,6 @@ run_ui (void)
    uint8_t sensor;
 
    flag_warnings ();
-   lcd_backlight(1);
 
 #if PUSHBUTTONS == 1
    keymask_t key;
@@ -712,6 +716,7 @@ run_ui (void)
 #define K_UP          'u'
 #define K_DOWN        'd'
 #define K_CENTRE      'c'
+#define K_LONG        0x8000
    key = kfile_getc (&serial.fd);
    if (key == EOF)
       key = 0;
@@ -725,9 +730,10 @@ run_ui (void)
    // if key pressed then ignite backlight for a short while
    if (key)
    {
-      kfile_printf (&term.fd, "%c", TERM_CLR);
+      kfile_printf (&term.fd, "%c%c", TERM_CLR, TERM_CLR);
       lcd_backlight(1);
       backlight_timer = timer_clock ();
+
       switch (mode)
       {
       case MONITOR:
@@ -752,8 +758,9 @@ run_ui (void)
    }
    else
    {
-      if (timer_clock () - backlight_timer > ms_to_ticks (BACKLIGHT))
+      if ((backlight_timer) && (timer_clock () - backlight_timer > ms_to_ticks (BACKLIGHT)))
       {
+         backlight_timer = 0;
          lcd_backlight(0);
       }
    }
@@ -851,9 +858,17 @@ run_ui (void)
 
 // manual open/close - only active key is cancel (centre)
    case MANUAL:
+      sensor = screen_number - FIRSTMAN;
+      if (windowidle(sensor))
+      {
+         mode = MONITOR;
+         screen_number = FIRSTINFO;
+      }
+
       switch (key)
       {
       case K_CENTRE:
+         windowcan(sensor);
          mode = MONITOR;
          screen_number = FIRSTINFO;
          break;
@@ -891,17 +906,23 @@ run_ui (void)
             screen_number = MAXSETUP;
          break;
       case K_UP | K_LONG:
-         mode = MANUAL;
          // get sensor number from screen number, use as base for manual screen
          sensor = screen_number - FIRSTSETUP;
-         screen_number = FIRSTMAN + sensor;
-         windowopen(sensor);
+         if ((sensor == SENSOR_LOW) || (sensor == SENSOR_HIGH))
+         {
+            mode = MANUAL;
+            screen_number = FIRSTMAN + sensor;
+            windowopen(sensor);
+         }
          break;
       case K_DOWN | K_LONG:
-         mode = MANUAL;
-         sensor = (screen_number - FIRSTSETUP) & 3;
-         screen_number = FIRSTMAN + sensor;
-         windowclose(sensor);
+         sensor = screen_number - FIRSTSETUP;
+         if ((sensor == SENSOR_LOW) || (sensor == SENSOR_HIGH))
+         {
+            mode = MANUAL;
+            screen_number = FIRSTMAN + sensor;
+            windowclose(sensor);
+         }
          break;
       }
       print_screen (screen_number);

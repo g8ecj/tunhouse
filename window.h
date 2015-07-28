@@ -37,7 +37,5 @@ void wintimer (void);
 void windowopen (int8_t sensor);
 void windowclose (int8_t sensor);
 void windowcan (int8_t sensor);
-uint8_t windowopening (uint8_t sensor);
-uint8_t windowclosing (uint8_t sensor);
-uint8_t windowcanceling (uint8_t sensor);
+uint8_t windowidle (uint8_t sensor);
 

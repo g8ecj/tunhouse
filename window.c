@@ -97,7 +97,15 @@ windowcan (int8_t sensor)
     winmachine (sensor, MANUALCANCEL);
 }
 
-
+// find out if window still opening/closing manually
+uint8_t
+windowidle(uint8_t sensor)
+{
+   if ((gWinState[sensor] == MANOPENING) || (gWinState[sensor] == MANCLOSING))
+      return false;
+   else
+      return true;
+}
 
 // drive round the state machine, moving between states and initiating actions
 static void

@@ -26,13 +26,13 @@
 // all the fields displayed
 enum VARS
 {
-   eUP_MIN = 1,
-   eUP_NOW,
-   eUP_MAX,
-
-   eDN_MIN,
+   eDN_MIN = 1,
    eDN_NOW,
    eDN_MAX,
+
+   eUP_MIN,
+   eUP_NOW,
+   eUP_MAX,
 
    eOT_MIN,
    eOT_NOW,

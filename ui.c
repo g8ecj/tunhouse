@@ -75,6 +75,10 @@ int16_t gUSdate;
 static const char lcd_degree[8] = { 0x1c, 0x14, 0x1c, 0x00, 0x00, 0x00, 0x00, 0x00 };	/* degree - char set B doesn't have it!! */
 #define DEGREE 1
 
+// prototype functions that may not be used
+int8_t get_line (int8_t field, int8_t screen);
+int8_t find_next_line (int8_t field, int8_t screen, int8_t dirn);
+
 
 typedef int8_t (*IncFunc_t) (int8_t field, int8_t dirn);
 
@@ -182,6 +186,9 @@ Vars variables[eNUMVARS] = {
    {&gLimits[SENSOR_HIGH][LIMIT_UP],  -2000,  3000,  2000,       eSHORT,  deca_inc},     // temperature to open
    {&gLimits[SENSOR_HIGH][LIMIT_DN],  -2000,  3000,  1500,       eSHORT,  deca_inc},     //                close
 
+   {&gAdjustTime,                      -719,   719,     0,      eNORMAL,   int_inc},     // clock adjuster
+   {&gUSdate,                             0,     1,     0,     eBOOLEAN,   int_inc},     // date format
+
    {&gHOUR,                               0,    23,    12,        eDATE,   int_inc},     // hour
    {&gMINUTE,                             0,    59,     0,        eDATE,   int_inc},     // minute
    {&gSECOND,                             0,    59,     0,        eDATE,   int_inc},     // second
@@ -190,9 +197,6 @@ Vars variables[eNUMVARS] = {
    {&gYEAR,                              12,    99,    15,        eDATE,   int_inc},     // year
 
    {&gBattery,                            0,     0,     0,     eDECIMAL,  null_inc},     // battery volts
-
-   {&gAdjustTime,                      -719,   719,     0,      eNORMAL,   int_inc},     // clock adjuster
-   {&gUSdate,                             0,     1,     0,     eBOOLEAN,   int_inc},     // date format
 
    {&gWinState[SENSOR_LOW],               0,     0,     0,      eWINDOW,  null_inc},     //open/close etc
    {&gWinState[SENSOR_HIGH],              0,     0,     0,      eWINDOW,  null_inc},     //open/close etc
@@ -558,9 +562,8 @@ find_next_field (int8_t field, int8_t screen, int8_t dirn)
    return field;
 }
 
-#if 0
 // find out what line this field is on
-static int8_t
+int8_t
 get_line (int8_t field, int8_t screen)
 {
    const Screen *scrn = screen_list[screen];
@@ -581,7 +584,7 @@ get_line (int8_t field, int8_t screen)
 }
 
 // find the next line by scanning fields in the direction requested
-static int8_t
+int8_t
 find_next_line (int8_t field, int8_t screen, int8_t dirn)
 {
    int8_t startline, line = 0;
@@ -604,7 +607,6 @@ find_next_line (int8_t field, int8_t screen, int8_t dirn)
 
    return field;
 }
-#endif
 
 // display the text and optional field for all lines on a screen
 static void

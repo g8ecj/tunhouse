@@ -44,6 +44,9 @@ enum VARS
    eUP_LIMIT_HI,
    eUP_LIMIT_LO,
 
+   eADJUSTTIME,
+   eUSDATE,
+
    eHOUR,
    eMINUTE,
    eSECOND,
@@ -52,9 +55,6 @@ enum VARS
    eYEAR,
 
    eBATTERY,
-
-   eADJUSTTIME,
-   eUSDATE,
 
    eWINSTATE_LO,
    eWINSTATE_HI,

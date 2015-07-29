@@ -5,10 +5,11 @@
 #define MANCLOSING   1
 #define MANOPEN      2
 #define MANCLOSED    3
-#define WINCLOSED    4
-#define WINOPENING   5
+#define WINOPENING   4
+#define WINCLOSING   5
 #define WINOPEN      6
-#define WINCLOSING   7
+#define WINCLOSED    7
+
 
 
 // events

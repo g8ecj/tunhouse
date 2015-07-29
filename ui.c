@@ -176,11 +176,11 @@ Vars variables[eNUMVARS] = {
    {&gValues[SENSOR_OUT][TINDEX_NOW],     0,     0,     0,     eSHORT,   null_inc},    //                value now
    {&gValues[SENSOR_OUT][TINDEX_MAX],     0,     0,     0,     eSHORT,   null_inc},    //                maximuum
 
-   {&gLimits[SENSOR_HIGH][LIMIT_UP],  -2000,  3000,  2000,       eSHORT,  deca_inc},     // temperature to open
-   {&gLimits[SENSOR_HIGH][LIMIT_DN],  -2000,  3000,  1500,       eSHORT,  deca_inc},     //                close
-
    {&gLimits[SENSOR_LOW][LIMIT_UP],   -2000,  3000,  2000,       eSHORT,  deca_inc},     // temperature to open
    {&gLimits[SENSOR_LOW][LIMIT_DN],   -2000,  3000,  1500,       eSHORT,  deca_inc},     //                close
+
+   {&gLimits[SENSOR_HIGH][LIMIT_UP],  -2000,  3000,  2000,       eSHORT,  deca_inc},     // temperature to open
+   {&gLimits[SENSOR_HIGH][LIMIT_DN],  -2000,  3000,  1500,       eSHORT,  deca_inc},     //                close
 
    {&gHOUR,                               0,    23,    12,        eDATE,   int_inc},     // hour
    {&gMINUTE,                             0,    59,     0,        eDATE,   int_inc},     // minute
@@ -194,8 +194,8 @@ Vars variables[eNUMVARS] = {
    {&gAdjustTime,                      -719,   719,     0,      eNORMAL,   int_inc},     // clock adjuster
    {&gUSdate,                             0,     1,     0,     eBOOLEAN,   int_inc},     // date format
 
-   {&gWinState[SENSOR_HIGH],              0,     0,     0,      eWINDOW,  null_inc},     //open/close etc
    {&gWinState[SENSOR_LOW],               0,     0,     0,      eWINDOW,  null_inc},     //open/close etc
+   {&gWinState[SENSOR_HIGH],              0,     0,     0,      eWINDOW,  null_inc},     //open/close etc
 };
 
 
@@ -364,7 +364,7 @@ const Screen Man_Upper[] PROGMEM = {
 #define FIRSTSETUP  NUM_INFO
 #define MAXSETUP    (NUM_INFO + NUM_SETUP - 1)
 
-#define FIRSTMAN    (MAXINFO + NUM_SETUP)
+#define FIRSTMAN    (NUM_INFO + NUM_SETUP)
 #define MAXMAN      (FIRSTMAN + NUM_MANUAL - 1)
 
 #define MAXSCREENS  NUM_INFO + NUM_SETUP + NUM_MANUAL
@@ -558,6 +558,7 @@ find_next_field (int8_t field, int8_t screen, int8_t dirn)
    return field;
 }
 
+#if 0
 // find out what line this field is on
 static int8_t
 get_line (int8_t field, int8_t screen)
@@ -602,9 +603,8 @@ find_next_line (int8_t field, int8_t screen, int8_t dirn)
    }
 
    return field;
-
 }
-
+#endif
 
 // display the text and optional field for all lines on a screen
 static void
@@ -722,39 +722,17 @@ run_ui (void)
       key = 0;
    else if (key < 0x60)
       key |= (K_LONG | 0x20);
-   else if (key == 'z')
-      kprintf("Tlo %lu Thi %lu tim %lu\r\n", gWinTimer[SENSOR_LOW], gWinTimer[SENSOR_HIGH], uptime());
-   
+//   else if (key == 'z')
+//      kprintf("Tlo %lu Thi %lu tim %lu scrn %d STlo %d SThi %d\r\n", gWinTimer[SENSOR_LOW], gWinTimer[SENSOR_HIGH], uptime(), screen_number, gWinState[SENSOR_LOW], gWinState[SENSOR_HIGH]);
+
 #endif
 
    // if key pressed then ignite backlight for a short while
    if (key)
    {
-      kfile_printf (&term.fd, "%c%c", TERM_CLR, TERM_CLR);
       lcd_backlight(1);
+      kfile_printf (&term.fd, "%c", TERM_CLR);
       backlight_timer = timer_clock ();
-
-      switch (mode)
-      {
-      case MONITOR:
-         kprintf ("Monitor\r\n");
-         break;
-      case SETUP:
-         kprintf ("Setup\r\n");
-         break;
-      case PAGEEDIT:
-         kprintf ("Pageedit\r\n");
-         break;
-      case FIELDEDIT:
-         kprintf ("Fieldedit\r\n");
-         break;
-      case MANUAL:
-         kprintf ("Manual\r\n");
-         break;
-      default:
-         kprintf ("Opps\r\n");
-         break;
-      }
    }
    else
    {
@@ -827,7 +805,7 @@ run_ui (void)
 
 
 // centre enters field edit mode
-// left/right together exits field navigation and moves round setup screens
+// up/down moves through fields
    case PAGEEDIT:
       // refresh the value to place the cursor on the screen in the right place
       print_field (*variables[field].value, field, screen_number);
@@ -846,11 +824,11 @@ run_ui (void)
          break;
       case K_UP:
          // field on previous line
-         field = find_next_line (field, screen_number, -1);
+         field = find_next_field (field, screen_number, -1);
          break;
       case K_DOWN:
          // field on next line
-         field = find_next_line (field, screen_number, 1);
+         field = find_next_field (field, screen_number, 1);
          break;
       }
       break;
@@ -873,7 +851,7 @@ run_ui (void)
          screen_number = FIRSTINFO;
          break;
       }
-      print_screen (screen_number);
+//      print_screen (screen_number);
       break;
 
 
@@ -925,7 +903,7 @@ run_ui (void)
          }
          break;
       }
-      print_screen (screen_number);
+//      print_screen (screen_number);
       break;
 
 
@@ -948,9 +926,30 @@ run_ui (void)
       case K_DOWN:
          screen_number = (screen_number - 1 + NUM_INFO) % NUM_INFO;
          break;
+      case K_UP | K_LONG:
+         // get sensor number from screen number, use as base for manual screen
+         sensor = screen_number - 1;
+         if ((sensor == SENSOR_LOW) || (sensor == SENSOR_HIGH))
+         {
+            mode = MANUAL;
+            screen_number = FIRSTMAN + sensor;
+            windowopen(sensor);
+         }
+         break;
+      case K_DOWN | K_LONG:
+         sensor = screen_number - 1;
+         if ((sensor == SENSOR_LOW) || (sensor == SENSOR_HIGH))
+         {
+            mode = MANUAL;
+            screen_number = FIRSTMAN + sensor;
+            windowclose(sensor);
+         }
+         break;
       }
-      print_screen (screen_number);
+//      print_screen (screen_number);
       break;
    }
+   if (key)
+      print_screen (screen_number);
 
 }

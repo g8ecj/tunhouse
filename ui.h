@@ -38,11 +38,11 @@ enum VARS
    eOT_NOW,
    eOT_MAX,
 
-   eUP_LIMIT_HI,
-   eUP_LIMIT_LO,
-
    eDN_LIMIT_HI,
    eDN_LIMIT_LO,
+
+   eUP_LIMIT_HI,
+   eUP_LIMIT_LO,
 
    eHOUR,
    eMINUTE,
@@ -56,8 +56,8 @@ enum VARS
    eADJUSTTIME,
    eUSDATE,
 
-   eWINSTATE_HI,
    eWINSTATE_LO,
+   eWINSTATE_HI,
 
    eNUMVARS
 };

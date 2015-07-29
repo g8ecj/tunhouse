@@ -56,30 +56,6 @@
 
 
 /* I/O pins used by the tunnel house window controller
-  1-wire         -> PD2 -> D2
-  LCD_RW         -> PD3 -> D3
-  LCD_BL         -> PD4 -> D4
-  LCD_E          -> PB0 -> D8
-  LCD_RS         -> PC4 -> ADC4
-  BUTTON_UP      -> PD5 -> D5
-  BUTTON_CENTRE  -> PD6 -> D6
-  BUTTON_DOWN    -> PD7 -> D7
-  LCD_DATA       -> PC0 -> ADC0
-                 -> PC1 -> ADC1
-                 -> PC2 -> ADC2
-                 -> PC3 -> ADC3
-  BATTERY        -> xxx -> ADC6
-  L24CSN         -> PB1 -> D9
-  L24SS          -> PB2 -> D10
-  L24MOSI        -> PB3 -> D11
-  L24MISO        -> PB4 -> D12
-  L24SCK         -> PB5 -> D13
-
-
-*/
-
-
-/* alternate pins - not yet implemented, still thinking about it!!
 
 PD2 D2    1-wire or FET drive } LO motor drivers
 PD3 D3              FET drive }

@@ -59,7 +59,6 @@ const WINDOW_NEXTSTATE window_nextstate[][6] PROGMEM = {
          /* *INDENT-ON* */
 
 
-
 // start with windows closed
 void
 window_init (void)
@@ -70,7 +69,6 @@ window_init (void)
     gWinTimer[SENSOR_HIGH] = 0;
 
 }
-
 
 
 
@@ -97,6 +95,7 @@ windowcan (int8_t sensor)
     winmachine (sensor, MANUALCANCEL);
 }
 
+
 // find out if window still opening/closing manually
 uint8_t
 windowidle(uint8_t sensor)
@@ -106,6 +105,7 @@ windowidle(uint8_t sensor)
    else
       return true;
 }
+
 
 // drive round the state machine, moving between states and initiating actions
 static void
@@ -134,7 +134,7 @@ setonewire (uint8_t sensor)
    if (sensor == SENSOR_LOW)
       ow_set_bus (&PIND, &PORTD, &DDRD, PD2);
    else
-      ow_set_bus (&PIND, &PORTD, &DDRD, PD3);
+      ow_set_bus (&PIND, &PORTD, &DDRD, PD4);
 
 }
 

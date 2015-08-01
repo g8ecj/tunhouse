@@ -57,25 +57,24 @@
 
 /* I/O pins used by the tunnel house window controller
 
-PD2 D2    1-wire or FET drive } LO motor drivers
-PD3 D3              FET drive }
-PD4 D4    1-wire or FET drive } HI
-PD5 D5              FET drive }
+PD2 D2    1-wire or FET drive } LO motor driver
+PD3 D3    1-wire or FET drive } HI
+PD4 D4    1-wire              } LO
+PD5 65    1-wire              } HI temperature sensors
+PD6 D5    1-wire              } EX
+PD7 D7    FET driver          } LO motor driver
 
-PD6 D6    1-wire              } LO
-PD7 D7    1-wire              } HI temperature sensors
-PB0 D8    1-wire              } EX
-
-PB1 D9    CSN                 }
-PB2 D10   SS                  }
-PB3 D11   MOSI                } NRF24L01
-PB4 D12   MISO                } interface
+PB0 D8    CE                  } NRF24L01
+PB1 D9    CSN                 } interface
+PB2 D10
+PB3 D11   MOSI                }
+PB4 D12   MISO                }
 PB5 D13   SCK                 }
 
 PC0 A0    up                  }
 PC1 A1    centre              } buttons
 PC2 A2    down                }
-PC3 A3
+PC3 A3    FET driver          } HI motor driver
 PC4 A4    SDA                 } LCD
 PC5 A5    SCL                 }
 
@@ -87,8 +86,9 @@ PC5 A5    SCL                 }
 
 Serial serial;
 
-uint8_t tx_address[5] = { 0xE7, 0xE7, 0xE7, 0xE7, 0xE7 };
-uint8_t rx_address[5] = { 0xD7, 0xD7, 0xD7, 0xD7, 0xD7 };
+uint8_t tx_address[5] = { 0xE2, 0xF0, 0xF0, 0xE8, 0xE8 };
+// match address to test s/w
+uint8_t rx_address[5] = { 0xC2, 0xC2, 0xC2, 0xC2, 0xC1 };
 
 
 
@@ -99,7 +99,8 @@ nrf_init (void)
    nrf24_init ();
 
    /* Channel #2 , payload length: whatever */
-   nrf24_config (2, sizeof (gValues));
+//   nrf24_config (76, sizeof (gValues));
+   nrf24_config (76, 18);
 
    /* Set the device addresses */
    nrf24_tx_address (tx_address);
@@ -111,9 +112,19 @@ static void
 run_nrf (void)
 {
    uint8_t temp;
+   static ticks_t tx_timer;
+
+   if (timer_clock () - tx_timer > ms_to_ticks (1000))
+      tx_timer = timer_clock ();
+   else
+      return;
+
+
+
    /* Automatically goes to TX mode */
    nrf24_send ((uint8_t *)gValues);
 
+   kprintf("Wait for TX done\r\n");
    /* Wait for transmission to end */
    while (nrf24_isSending ());
 
@@ -122,22 +133,22 @@ run_nrf (void)
 
    if (temp == NRF24_TRANSMISSON_OK)
    {
-//            xprintf("> Tranmission went OK\r\n");
+       kprintf("> Tranmission went OK\r\n");
    }
    else if (temp == NRF24_MESSAGE_LOST)
    {
-//            xprintf("> Message is lost ...\r\n");    
+       kprintf("> Message is lost ...\r\n");
    }
 
    /* Retranmission count indicates the tranmission quality */
    temp = nrf24_retransmissionCount ();
-//    xprintf("> Retranmission count: %d\r\n",temp);
+   kprintf("> Retranmission count: %d\r\n",temp);
 
    /* Optionally, go back to RX mode ... */
    nrf24_powerUpRx ();
 
    /* Or you might want to power down after TX */
-   // nrf24_powerDown();            
+//   nrf24_powerDown();            
 
 }
 
@@ -214,7 +225,7 @@ main (void)
       // run state machine for window opening motors
       run_windows ();
       // send data back to base
-//      run_nrf ();
+      run_nrf ();
       // display stuff on the LCD & get user input
       run_ui ();
    }

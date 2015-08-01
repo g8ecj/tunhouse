@@ -21,7 +21,7 @@
 #define HIGH 1
 
 #define nrf24_ADDR_LEN 5
-#define nrf24_CONFIG ((1<<EN_CRC)|(0<<CRCO))
+#define nrf24_CONFIG ((1<<EN_CRC)|(1<<CRCO))
 
 #define NRF24_TRANSMISSON_OK 0
 #define NRF24_MESSAGE_LOST   1

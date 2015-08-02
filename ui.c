@@ -616,7 +616,6 @@ print_screen (int8_t screen)
    PGM_P text;
    const Screen *scrn = screen_list[screen];
 
-//   kfile_printf (&term.fd, "%c", TERM_CLR);
    while ((int8_t)pgm_read_byte(&scrn[i].field) != -2)
    {
       kfile_printf (&term.fd, "%c%c%c", TERM_CPC, TERM_ROW + pgm_read_byte (&scrn[i].row), TERM_COL + pgm_read_byte (&scrn[i].col));
@@ -687,6 +686,25 @@ ui_init (void)
 }
 
 
+int8_t
+ui_getrow(uint8_t * buffer)
+{
+   uint8_t i;
+   static uint8_t row = 0;
+
+   i = kfile_read(&term.fd, buffer, CONFIG_TERM_COLS);
+   kprintf("Chars %d row %d\r\n", i, row);
+
+   if (i != CONFIG_TERM_COLS)
+   {
+      row = 0;
+      return -1;
+   }
+   else
+      return row++;
+
+}
+
 
 
 // mode values
@@ -701,7 +719,7 @@ extern ticks_t gWinTimer[];
 
 
 void
-run_ui (void)
+run_ui (uint8_t remote_key)
 {
    static int8_t screen_number = 0, field = 0, mode = MONITOR;
    static ticks_t backlight_timer, refresh_timer;
@@ -709,6 +727,8 @@ run_ui (void)
    uint8_t sensor;
 
    flag_warnings ();
+
+
 
 #if PUSHBUTTONS == 1
    keymask_t key;
@@ -729,11 +749,17 @@ run_ui (void)
 
 #endif
 
+   if (remote_key)
+   {
+      key = remote_key;
+      if (key < 0x60)
+      key |= (K_LONG | 0x20);
+   }
+
    // if key pressed then ignite backlight for a short while
    if (key)
    {
       lcd_backlight(1);
-      kfile_printf (&term.fd, "%c", TERM_CLR);
       backlight_timer = timer_clock ();
    }
    else
@@ -744,11 +770,11 @@ run_ui (void)
          lcd_backlight(0);
       }
    }
-
    if (timer_clock () - refresh_timer > ms_to_ticks (REFRESH))
    {
       refresh_timer = timer_clock ();
-      print_screen (screen_number);
+      if (!key)
+         print_screen (screen_number);
    }
 
    switch (mode)
@@ -853,7 +879,6 @@ run_ui (void)
          screen_number = FIRSTINFO;
          break;
       }
-//      print_screen (screen_number);
       break;
 
 
@@ -905,7 +930,6 @@ run_ui (void)
          }
          break;
       }
-//      print_screen (screen_number);
       break;
 
 
@@ -948,10 +972,12 @@ run_ui (void)
          }
          break;
       }
-//      print_screen (screen_number);
       break;
    }
    if (key)
+   {
+      kfile_printf (&term.fd, "%c", TERM_CLR);
       print_screen (screen_number);
+   }
 
 }

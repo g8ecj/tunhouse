@@ -50,6 +50,7 @@
 #include "eeprommap.h"
 #include "window.h"
 #include "ui.h"
+#include <drv/term.h>
 #include "nrf24l01.h"
 
 #include "features.h"
@@ -82,7 +83,7 @@ PC5 A5    SCL                 }
     A7
 */
 
-
+#define KEYSTROKE 'K'
 
 Serial serial;
 
@@ -90,35 +91,49 @@ uint8_t addrtx0[NRF24L01_ADDRSIZE] = NRF24L01_ADDRP0;
 uint8_t addrtx1[NRF24L01_ADDRSIZE] = NRF24L01_ADDRP1;
 
 
-static void
+static uint8_t
 run_nrf (void)
 {
-   uint8_t temp;
+   int8_t status = 1, row;
    static ticks_t tx_timer;
+   uint8_t pipe, ret = 0;
+   uint8_t buffer[NRF24L01_PAYLOAD];
 
-   if (timer_clock () - tx_timer > ms_to_ticks (1000))
+   if (timer_clock () - tx_timer > ms_to_ticks (500))
       tx_timer = timer_clock ();
    else
-      return;
+      return ret;
 
 
-   /* Automatically goes to TX mode */
-   nrf24l01_settxaddr(addrtx1);
-   temp = nrf24l01_write((uint8_t *)&gValues);
-
-   if (temp == 1)
+   if ((row = ui_getrow(&buffer[2])) >= 0)
    {
-       kprintf("> Tranmission went OK\r\n");
+      nrf24l01_settxaddr (addrtx1);
+      buffer[0] = row + '0';
+      buffer[1] = ' ';
+      status = nrf24l01_write(buffer);
+   }
+
+   if (status == 1)
+   {
+      kprintf ("> Tranmission went OK\r\n");
    }
    else
    {
-       kprintf("> Tranmission failed\r\n");
+      kprintf ("> Tranmission failed\r\n");
 
       /* Retranmission count indicates the tranmission quality */
-      temp = nrf24_retransmissionCount ();
-      kprintf("> Retranmission count: %d\r\n",temp);
+      status = nrf24_retransmissionCount ();
+      kprintf ("> Retranmission count: %d\r\n", status);
    }
 
+   if (nrf24l01_readready (&pipe))
+   {                            //if data is ready
+      //read buffer
+      nrf24l01_read (buffer);
+      if (buffer[0] == KEYSTROKE)
+         ret = buffer[1];
+   }
+   return ret;
 }
 
 
@@ -177,16 +192,17 @@ init (void)
 
 }
 
-extern void ui_tst(void);
+extern void ui_tst (void);
 
 int
 main (void)
 {
+   uint8_t key;
 
    init ();
 
 #if DEBUG == 1 && NRF24L01_PRINTENABLE == 1
-   nrf24l01_printinfo();
+   nrf24l01_printinfo ();
 #endif
 
    while (1)
@@ -198,9 +214,9 @@ main (void)
       // run state machine for window opening motors
       run_windows ();
       // send data back to base
-      run_nrf ();
+      key = run_nrf ();
       // display stuff on the LCD & get user input
-      run_ui ();
+      run_ui (key);
    }
 }
 

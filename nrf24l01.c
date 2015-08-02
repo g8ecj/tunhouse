@@ -10,9 +10,13 @@ Please refer to LICENSE file for licensing information.
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
+
+#define F_CPU CPU_FREQ
 #include <util/delay.h>
 #include <string.h>
 #include <stdio.h>
+
+#include <io/kfile.h>
 
 #include "nrf24l01.h"
 #include "nrf24l01registers.h"
@@ -32,7 +36,7 @@ static uint8_t nrf24l01_addrtx[NRF24L01_ADDRSIZE] = NRF24L01_ADDRTX;
 /*
  * read one register
  */
-uint8_t nrf24l01_readregister(uint8_t reg) {
+static uint8_t nrf24l01_readregister(uint8_t reg) {
 	nrf24l01_CSNlo; //low CSN
 	spi_writereadbyte(NRF24L01_CMD_R_REGISTER | (NRF24L01_CMD_REGISTER_MASK & reg));
     uint8_t result = spi_writereadbyte(NRF24L01_CMD_NOP); //read write register
@@ -43,7 +47,7 @@ uint8_t nrf24l01_readregister(uint8_t reg) {
 /*
  * read many registers
  */
-void nrf24l01_readregisters(uint8_t reg, uint8_t *value, uint8_t len) {
+static void nrf24l01_readregisters(uint8_t reg, uint8_t *value, uint8_t len) {
 	uint8_t i = 0;
 	nrf24l01_CSNlo; //low CSN
 	spi_writereadbyte(NRF24L01_CMD_R_REGISTER | (NRF24L01_CMD_REGISTER_MASK & reg));
@@ -55,7 +59,7 @@ void nrf24l01_readregisters(uint8_t reg, uint8_t *value, uint8_t len) {
 /*
  * write one register
  */
-void nrf24l01_writeregister(uint8_t reg, uint8_t value) {
+static void nrf24l01_writeregister(uint8_t reg, uint8_t value) {
 	nrf24l01_CSNlo; //low CSN
 	spi_writereadbyte(NRF24L01_CMD_W_REGISTER | (NRF24L01_CMD_REGISTER_MASK & reg));
 	spi_writereadbyte(value); //write register
@@ -65,7 +69,7 @@ void nrf24l01_writeregister(uint8_t reg, uint8_t value) {
 /*
  * write many registers
  */
-void nrf24l01_writeregisters(uint8_t reg, uint8_t *value, uint8_t len) {
+static void nrf24l01_writeregisters(uint8_t reg, uint8_t *value, uint8_t len) {
 	uint8_t i = 0;
 	nrf24l01_CSNlo; //low CSN
     spi_writereadbyte(NRF24L01_CMD_W_REGISTER | (NRF24L01_CMD_REGISTER_MASK & reg));
@@ -77,7 +81,7 @@ void nrf24l01_writeregisters(uint8_t reg, uint8_t *value, uint8_t len) {
 /*
  * reverse an array, NRF24L01 expects LSB first
  */
-void nrf24l01_revaddress(uint8_t *addr, uint8_t *addrrev) {
+static void nrf24l01_revaddress(uint8_t *addr, uint8_t *addrrev) {
 	//reverse address
 	uint8_t i = 0;
 	for(i=0; i<NRF24L01_ADDRSIZE; i++)
@@ -127,7 +131,7 @@ void nrf24l01_settxaddr(uint8_t *addr) {
 /*
  * flush RX fifo
  */
-void nrf24l01_flushRXfifo() {
+static void nrf24l01_flushRXfifo(void) {
 	nrf24l01_CSNlo; //low CSN
 	spi_writereadbyte(NRF24L01_CMD_FLUSH_RX);
 	nrf24l01_CSNhi; //high CSN
@@ -136,7 +140,7 @@ void nrf24l01_flushRXfifo() {
 /*
  * flush RX fifo
  */
-void nrf24l01_flushTXfifo() {
+static void nrf24l01_flushTXfifo(void) {
 	nrf24l01_CSNlo; //low CSN
 	spi_writereadbyte(NRF24L01_CMD_FLUSH_TX);
 	nrf24l01_CSNhi; //high CSN
@@ -145,7 +149,7 @@ void nrf24l01_flushTXfifo() {
 /*
  * set chip as RX
  */
-void nrf24l01_setRX() {
+static void nrf24l01_setRX(void) {
 	nrf24l01_setrxaddr(0, nrf24l01_addr0); //restore pipe 0 address
 	nrf24l01_writeregister(NRF24L01_REG_CONFIG, nrf24l01_readregister(NRF24L01_REG_CONFIG) | (1<<NRF24L01_REG_PRIM_RX)); //prx mode
 	nrf24l01_writeregister(NRF24L01_REG_CONFIG, nrf24l01_readregister(NRF24L01_REG_CONFIG) | (1<<NRF24L01_REG_PWR_UP)); //power up
@@ -159,7 +163,7 @@ void nrf24l01_setRX() {
 /*
  * set chip as TX
  */
-void nrf24l01_setTX() {
+static void nrf24l01_setTX(void) {
 	nrf24l01_CElo; //stop listening
 	nrf24l01_writeregister(NRF24L01_REG_CONFIG, nrf24l01_readregister(NRF24L01_REG_CONFIG) & ~(1<<NRF24L01_REG_PRIM_RX)); //ptx mode
 	nrf24l01_writeregister(NRF24L01_REG_CONFIG, nrf24l01_readregister(NRF24L01_REG_CONFIG) | (1<<NRF24L01_REG_PWR_UP)); //power up
@@ -172,17 +176,16 @@ void nrf24l01_setTX() {
 /*
  * print info
  */
-void nrf24l01_printinfo(void(*prints)(const char *), void(*printc)(unsigned char data)) {
-	char buff[100];
-	prints("info\r\n");
-	sprintf(buff,"STATUS: %02X\r\n", nrf24l01_getstatus()); prints(buff);
-	sprintf(buff,"CONFIG: %02X\r\n", nrf24l01_readregister(NRF24L01_REG_CONFIG)); prints(buff);
-	sprintf(buff,"RF_CH: %02X\r\n", nrf24l01_readregister(NRF24L01_REG_RF_CH)); prints(buff);
-	sprintf(buff,"RF_SETUP: %02X\r\n", nrf24l01_readregister(NRF24L01_REG_RF_SETUP)); prints(buff);
-	sprintf(buff,"EN_AA: %02X\r\n", nrf24l01_readregister(NRF24L01_REG_EN_AA)); prints(buff);
-	sprintf(buff,"EN_RXADDR: %02X\r\n", nrf24l01_readregister(NRF24L01_REG_EN_RXADDR)); prints(buff);
-	sprintf(buff,"OBSERVE_TX: %02X\r\n", nrf24l01_readregister(NRF24L01_REG_OBSERVE_TX)); prints(buff);
-	prints("\r\n");
+void nrf24l01_printinfo(void) {
+	kprintf("info\r\n");
+	kprintf("STATUS: %02X\r\n", nrf24l01_getstatus());
+	kprintf("CONFIG: %02X\r\n", nrf24l01_readregister(NRF24L01_REG_CONFIG));
+	kprintf("RF_CH: %02X\r\n", nrf24l01_readregister(NRF24L01_REG_RF_CH));
+	kprintf("RF_SETUP: %02X\r\n", nrf24l01_readregister(NRF24L01_REG_RF_SETUP));
+	kprintf("EN_AA: %02X\r\n", nrf24l01_readregister(NRF24L01_REG_EN_AA));
+	kprintf("EN_RXADDR: %02X\r\n", nrf24l01_readregister(NRF24L01_REG_EN_RXADDR));
+	kprintf("OBSERVE_TX: %02X\r\n", nrf24l01_readregister(NRF24L01_REG_OBSERVE_TX));
+	kprintf("\r\n");
 }
 #endif
 
@@ -190,7 +193,7 @@ void nrf24l01_printinfo(void(*prints)(const char *), void(*printc)(unsigned char
 /*
  * get status register
  */
-uint8_t nrf24l01_getstatus() {
+uint8_t nrf24l01_getstatus(void) {
 	uint8_t status = 0;
 	nrf24l01_CSNlo; //low CSN
 	status = spi_writereadbyte(NRF24L01_CMD_NOP); //get status, send NOP request
@@ -273,10 +276,14 @@ uint8_t nrf24l01_write(uint8_t *data) {
 	return ret;
 }
 
+/* Returns the number of retransmissions occured for the last message */
+uint8_t nrf24_retransmissionCount(void) {
+    return nrf24l01_readregister(NRF24L01_REG_OBSERVE_TX) & 0x0F;
+}
 /*
  * set power level
  */
-void nrf24l01_setpalevel() {
+static void nrf24l01_setpalevel(void) {
   uint8_t setup = nrf24l01_readregister(NRF24L01_REG_RF_SETUP);
   setup &= ~((1<<NRF24L01_REG_RF_PWR_LOW) | (1<<NRF24L01_REG_RF_PWR_HIGH));
 
@@ -298,7 +305,7 @@ void nrf24l01_setpalevel() {
 /*
  * set datarate
  */
-void nrf24l01_setdatarate() {
+static void nrf24l01_setdatarate(void) {
   uint8_t setup = nrf24l01_readregister(NRF24L01_REG_RF_SETUP) ;
 
   setup &= ~((1<<NRF24L01_REG_RF_DR_LOW) | (1<<NRF24L01_REG_RF_DR_HIGH));
@@ -319,7 +326,7 @@ void nrf24l01_setdatarate() {
 /*
  * set crc length
  */
-void nrf24l01_setcrclength() {
+static void nrf24l01_setcrclength(void) {
   uint8_t config = nrf24l01_readregister(NRF24L01_REG_CONFIG) & ~((1<<NRF24L01_REG_CRCO) | (1<<NRF24L01_REG_EN_CRC));
 
   if (NRF24L01_RF24_CRC == NRF24L01_RF24_CRC_DISABLED) {
@@ -336,10 +343,11 @@ void nrf24l01_setcrclength() {
   nrf24l01_writeregister(NRF24L01_REG_CONFIG, config);
 }
 
+
 /*
  * init nrf24l01
  */
-void nrf24l01_init() {
+void nrf24l01_init(void) {
 	//setup port
 	NRF24L01_DDR |= (1<<NRF24L01_CSN); //output
 	NRF24L01_DDR |= (1<<NRF24L01_CE); //output

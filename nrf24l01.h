@@ -25,7 +25,7 @@ Please refer to LICENSE file for licensing information.
 #define NRF24L01_CSN PB1
 
 //define the spi path
-#define NRF24L01_SPIPATH "../spi/spi.h" //spi lib path
+#define NRF24L01_SPIPATH "spi.h" //spi lib path
 
 //CE and CSN functions
 #define nrf24l01_CSNhi NRF24L01_PORT |= (1<<NRF24L01_CSN);
@@ -62,15 +62,15 @@ Please refer to LICENSE file for licensing information.
 #define NRF24L01_ACK 1
 
 //auto retransmit delay and count
-#define NRF24L01_RETR (0b0100 << NRF24L01_REG_ARD) | (0b0111 << NRF24L01_REG_ARC) //1500uS, 15 times
+#define NRF24L01_RETR (0b0100 << NRF24L01_REG_ARD) | (0b1111 << NRF24L01_REG_ARC) //1500uS, 15 times
 
 //enable / disable pipe
 #define NRF24L01_ENABLEDP0 1 //pipe 0
 #define NRF24L01_ENABLEDP1 1 //pipe 1
-#define NRF24L01_ENABLEDP2 1 //pipe 2
-#define NRF24L01_ENABLEDP3 1 //pipe 3
-#define NRF24L01_ENABLEDP4 1 //pipe 4
-#define NRF24L01_ENABLEDP5 1 //pipe 5
+#define NRF24L01_ENABLEDP2 0 //pipe 2
+#define NRF24L01_ENABLEDP3 0 //pipe 3
+#define NRF24L01_ENABLEDP4 0 //pipe 4
+#define NRF24L01_ENABLEDP5 0 //pipe 5
 
 //address size
 #define NRF24L01_ADDRSIZE 5
@@ -87,15 +87,16 @@ Please refer to LICENSE file for licensing information.
  //enable print info function
 #define NRF24L01_PRINTENABLE 1
 
-extern void nrf24l01_init();
-extern uint8_t nrf24l01_getstatus();
-extern uint8_t nrf24l01_readready();
+extern void nrf24l01_init(void);
+extern uint8_t nrf24l01_getstatus(void);
+extern uint8_t nrf24l01_readready(uint8_t* pipe);
 extern void nrf24l01_read(uint8_t *data);
 extern uint8_t nrf24l01_write(uint8_t *data);
 extern void nrf24l01_setrxaddr(uint8_t channel, uint8_t *addr);
 extern void nrf24l01_settxaddr(uint8_t *addr);
+extern uint8_t nrf24_retransmissionCount(void);
 #if NRF24L01_PRINTENABLE == 1
-extern void nrf24l01_printinfo(void(*prints)(const char *), void(*printc)(unsigned char data));
+extern void nrf24l01_printinfo(void);
 #endif
 
 #endif

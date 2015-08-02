@@ -50,7 +50,7 @@
 #include "eeprommap.h"
 #include "window.h"
 #include "ui.h"
-#include "nrf24.h"
+#include "nrf24l01.h"
 
 #include "features.h"
 
@@ -86,26 +86,8 @@ PC5 A5    SCL                 }
 
 Serial serial;
 
-uint8_t tx_address[5] = { 0xE2, 0xF0, 0xF0, 0xE8, 0xE8 };
-// match address to test s/w
-uint8_t rx_address[5] = { 0xC2, 0xC2, 0xC2, 0xC2, 0xC1 };
-
-
-
-static void
-nrf_init (void)
-{
-   /* init hardware pins */
-   nrf24_init ();
-
-   /* Channel #2 , payload length: whatever */
-//   nrf24_config (76, sizeof (gValues));
-   nrf24_config (76, 18);
-
-   /* Set the device addresses */
-   nrf24_tx_address (tx_address);
-   nrf24_rx_address (rx_address);
-}
+uint8_t addrtx0[NRF24L01_ADDRSIZE] = NRF24L01_ADDRP0;
+uint8_t addrtx1[NRF24L01_ADDRSIZE] = NRF24L01_ADDRP1;
 
 
 static void
@@ -120,35 +102,22 @@ run_nrf (void)
       return;
 
 
-
    /* Automatically goes to TX mode */
-   nrf24_send ((uint8_t *)gValues);
+   nrf24l01_settxaddr(addrtx1);
+   temp = nrf24l01_write((uint8_t *)&gValues);
 
-   kprintf("Wait for TX done\r\n");
-   /* Wait for transmission to end */
-   while (nrf24_isSending ());
-
-   /* Make analysis on last tranmission attempt */
-   temp = nrf24_lastMessageStatus ();
-
-   if (temp == NRF24_TRANSMISSON_OK)
+   if (temp == 1)
    {
        kprintf("> Tranmission went OK\r\n");
    }
-   else if (temp == NRF24_MESSAGE_LOST)
+   else
    {
-       kprintf("> Message is lost ...\r\n");
+       kprintf("> Tranmission failed\r\n");
+
+      /* Retranmission count indicates the tranmission quality */
+      temp = nrf24_retransmissionCount ();
+      kprintf("> Retranmission count: %d\r\n",temp);
    }
-
-   /* Retranmission count indicates the tranmission quality */
-   temp = nrf24_retransmissionCount ();
-   kprintf("> Retranmission count: %d\r\n",temp);
-
-   /* Optionally, go back to RX mode ... */
-   nrf24_powerUpRx ();
-
-   /* Or you might want to power down after TX */
-//   nrf24_powerDown();            
 
 }
 
@@ -200,7 +169,7 @@ init (void)
    IRQ_ENABLE;
 
    /* init hardware pins */
-   nrf_init ();
+   nrf24l01_init ();
 
    // display and button handling
    ui_init ();
@@ -215,6 +184,10 @@ main (void)
 {
 
    init ();
+
+#if DEBUG == 1 && NRF24L01_PRINTENABLE == 1
+   nrf24l01_printinfo();
+#endif
 
    while (1)
    {

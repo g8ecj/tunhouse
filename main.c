@@ -105,12 +105,12 @@ run_nrf (void)
       return ret;
 
 
-   if ((row = ui_getrow(&buffer[2])) >= 0)
+   while ((row = ui_getrow(&buffer[2])) <= CONFIG_TERM_ROWS)
    {
       nrf24l01_settxaddr (addrtx1);
       buffer[0] = row + '0';
       buffer[1] = ' ';
-      status = nrf24l01_write(buffer);
+      status &= nrf24l01_write(buffer);
    }
 
    if (status == 1)
@@ -126,10 +126,13 @@ run_nrf (void)
       kprintf ("> Retranmission count: %d\r\n", status);
    }
 
+   nrf24l01_setRX();
+   timer_delay(20);
    if (nrf24l01_readready (&pipe))
-   {                            //if data is ready
+   {
       //read buffer
       nrf24l01_read (buffer);
+      // see if a keyboard command. If so return the keycode
       if (buffer[0] == KEYSTROKE)
          ret = buffer[1];
    }

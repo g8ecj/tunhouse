@@ -24,6 +24,8 @@ Please refer to LICENSE file for licensing information.
 //include spi library functions
 #include NRF24L01_SPIPATH
 
+void nrf24l01_readregisters(uint8_t reg, uint8_t *value, uint8_t len);
+
 //address variables
 static uint8_t nrf24l01_addr0[NRF24L01_ADDRSIZE] = NRF24L01_ADDRP0;
 static uint8_t nrf24l01_addr1[NRF24L01_ADDRSIZE] = NRF24L01_ADDRP1;
@@ -47,7 +49,7 @@ static uint8_t nrf24l01_readregister(uint8_t reg) {
 /*
  * read many registers
  */
-static void nrf24l01_readregisters(uint8_t reg, uint8_t *value, uint8_t len) {
+void nrf24l01_readregisters(uint8_t reg, uint8_t *value, uint8_t len) {
 	uint8_t i = 0;
 	nrf24l01_CSNlo; //low CSN
 	spi_writereadbyte(NRF24L01_CMD_R_REGISTER | (NRF24L01_CMD_REGISTER_MASK & reg));
@@ -149,7 +151,7 @@ static void nrf24l01_flushTXfifo(void) {
 /*
  * set chip as RX
  */
-static void nrf24l01_setRX(void) {
+void nrf24l01_setRX(void) {
 	nrf24l01_setrxaddr(0, nrf24l01_addr0); //restore pipe 0 address
 	nrf24l01_writeregister(NRF24L01_REG_CONFIG, nrf24l01_readregister(NRF24L01_REG_CONFIG) | (1<<NRF24L01_REG_PRIM_RX)); //prx mode
 	nrf24l01_writeregister(NRF24L01_REG_CONFIG, nrf24l01_readregister(NRF24L01_REG_CONFIG) | (1<<NRF24L01_REG_PWR_UP)); //power up
@@ -268,10 +270,10 @@ uint8_t nrf24l01_write(uint8_t *data) {
 	nrf24l01_writeregister(NRF24L01_REG_RF_CH, NRF24L01_CH);
 
 	//power down
-	nrf24l01_writeregister(NRF24L01_REG_CONFIG, nrf24l01_readregister(NRF24L01_REG_CONFIG) & ~(1<<NRF24L01_REG_PWR_UP));
+//	nrf24l01_writeregister(NRF24L01_REG_CONFIG, nrf24l01_readregister(NRF24L01_REG_CONFIG) & ~(1<<NRF24L01_REG_PWR_UP));
 
 	//set rx mode
-	nrf24l01_setRX();
+//	nrf24l01_setRX();
 
 	return ret;
 }

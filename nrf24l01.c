@@ -18,11 +18,12 @@ Please refer to LICENSE file for licensing information.
 
 #include <io/kfile.h>
 
+#include "hw/hw_nrf24l01.h"
 #include "nrf24l01.h"
 #include "nrf24l01registers.h"
 
 //include spi library functions
-#include NRF24L01_SPIPATH
+#include "spi.h"
 
 void nrf24l01_readregisters(uint8_t reg, uint8_t *value, uint8_t len);
 

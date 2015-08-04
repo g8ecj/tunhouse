@@ -99,35 +99,6 @@ run_nrf (void)
    uint8_t pipe, ret = 0;
    uint8_t buffer[NRF24L01_PAYLOAD];
 
-   if (timer_clock () - tx_timer > ms_to_ticks (500))
-      tx_timer = timer_clock ();
-   else
-      return ret;
-
-
-   while ((row = ui_getrow(&buffer[2])) <= CONFIG_TERM_ROWS)
-   {
-      nrf24l01_settxaddr (addrtx1);
-      buffer[0] = row + '0';
-      buffer[1] = ' ';
-      status &= nrf24l01_write(buffer);
-   }
-
-   if (status == 1)
-   {
-      kprintf ("> Tranmission went OK\r\n");
-   }
-   else
-   {
-      kprintf ("> Tranmission failed\r\n");
-
-      /* Retranmission count indicates the tranmission quality */
-      status = nrf24_retransmissionCount ();
-      kprintf ("> Retranmission count: %d\r\n", status);
-   }
-
-   nrf24l01_setRX();
-   timer_delay(20);
    if (nrf24l01_readready (&pipe))
    {
       //read buffer
@@ -136,6 +107,38 @@ run_nrf (void)
       if (buffer[0] == KEYSTROKE)
          ret = buffer[1];
    }
+
+   if (timer_clock () - tx_timer > ms_to_ticks (100))
+      tx_timer = timer_clock ();
+   else
+      return ret;
+
+
+   while ((row = ui_getrow(&buffer[2])) >= 0)
+   {
+      nrf24l01_settxaddr (addrtx1);
+      buffer[0] = row + '0';
+      buffer[1] = ' ';
+      status &= nrf24l01_write(buffer);
+      buffer[22] = 0;
+      timer_delay(10);
+   }
+
+   if (status == 1)
+   {
+      kprintf ("> Tx OK\r\n");
+   }
+   else
+   {
+      kprintf ("> Tx failed\r\n");
+
+      /* Retranmission count indicates the tranmission quality */
+      status = nrf24_retransmissionCount ();
+      kprintf ("> Retranmission count: %d\r\n", status);
+   }
+
+   nrf24l01_setRX();
+
    return ret;
 }
 

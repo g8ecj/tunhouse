@@ -62,7 +62,7 @@ static int8_t flashing[MAXFLASH];
 
 // Timings (in mS) for various activities
 #define HEADINGS 1500L
-#define BACKLIGHT 5000L
+#define BACKLIGHT 15000L
 #define REFRESH 300L
 #define FLASHON 600L
 #define FLASHOFF 300L
@@ -689,11 +689,10 @@ ui_init (void)
 int8_t
 ui_getrow(uint8_t * buffer)
 {
-   uint8_t i;
+   int8_t i;
    static uint8_t row = 0;
 
    i = kfile_read(&term.fd, buffer, CONFIG_TERM_COLS);
-   kprintf("Chars %d row %d\r\n", i, row);
 
    if (i != CONFIG_TERM_COLS)
    {

@@ -290,13 +290,13 @@ static void nrf24l01_setpalevel(void) {
   uint8_t setup = nrf24l01_readregister(NRF24L01_REG_RF_SETUP);
   setup &= ~((1<<NRF24L01_REG_RF_PWR_LOW) | (1<<NRF24L01_REG_RF_PWR_HIGH));
 
-  if (NRF24L01_RF24_PA == NRF24L01_RF24_PA_MAX) {
+  if (CONFIG_NRF24L01_RF24_PA == NRF24L01_RF24_PA_MAX) {
 	  setup |= (1<<NRF24L01_REG_RF_PWR_LOW) | (1<<NRF24L01_REG_RF_PWR_HIGH);
-  } else if (NRF24L01_RF24_PA == NRF24L01_RF24_PA_HIGH) {
+  } else if (CONFIG_NRF24L01_RF24_PA == NRF24L01_RF24_PA_HIGH) {
 	  setup |= (1<<NRF24L01_REG_RF_PWR_HIGH) ;
-  } else if (NRF24L01_RF24_PA == NRF24L01_RF24_PA_LOW) {
+  } else if (CONFIG_NRF24L01_RF24_PA == NRF24L01_RF24_PA_LOW) {
 	  setup |= (1<<NRF24L01_REG_RF_PWR_LOW);
-  } else if (NRF24L01_RF24_PA == NRF24L01_RF24_PA_MIN) {
+  } else if (CONFIG_NRF24L01_RF24_PA == NRF24L01_RF24_PA_MIN) {
   } else {
 	  //default is max power
 	  setup |= (1<<NRF24L01_REG_RF_PWR_LOW) | (1<<NRF24L01_REG_RF_PWR_HIGH);
@@ -312,12 +312,12 @@ static void nrf24l01_setdatarate(void) {
   uint8_t setup = nrf24l01_readregister(NRF24L01_REG_RF_SETUP) ;
 
   setup &= ~((1<<NRF24L01_REG_RF_DR_LOW) | (1<<NRF24L01_REG_RF_DR_HIGH));
-  if(NRF24L01_RF24_SPEED == NRF24L01_RF24_SPEED_250KBPS) {
+  if(CONFIG_NRF24L01_RF24_SPEED == NRF24L01_RF24_SPEED_250KBPS) {
     setup |= (1<<NRF24L01_REG_RF_DR_LOW);
   } else {
-    if (NRF24L01_RF24_SPEED == NRF24L01_RF24_SPEED_2MBPS) {
+    if (CONFIG_NRF24L01_RF24_SPEED == NRF24L01_RF24_SPEED_2MBPS) {
     	setup |= (1<<NRF24L01_REG_RF_DR_HIGH);
-    } else if (NRF24L01_RF24_SPEED == NRF24L01_RF24_SPEED_2MBPS) {
+    } else if (CONFIG_NRF24L01_RF24_SPEED == NRF24L01_RF24_SPEED_2MBPS) {
     } else {
     	//default is 1Mbps
     }
@@ -332,11 +332,11 @@ static void nrf24l01_setdatarate(void) {
 static void nrf24l01_setcrclength(void) {
   uint8_t config = nrf24l01_readregister(NRF24L01_REG_CONFIG) & ~((1<<NRF24L01_REG_CRCO) | (1<<NRF24L01_REG_EN_CRC));
 
-  if (NRF24L01_RF24_CRC == NRF24L01_RF24_CRC_DISABLED) {
+  if (CONFIG_NRF24L01_RF24_CRC == NRF24L01_RF24_CRC_DISABLED) {
 	  //nothing
-  } else if (NRF24L01_RF24_CRC == NRF24L01_RF24_CRC_8) {
+  } else if (CONFIG_NRF24L01_RF24_CRC == NRF24L01_RF24_CRC_8) {
 	  config |= (1<<NRF24L01_REG_EN_CRC);
-  } else if (NRF24L01_RF24_CRC == NRF24L01_RF24_CRC_16) {
+  } else if (CONFIG_NRF24L01_RF24_CRC == NRF24L01_RF24_CRC_16) {
 	  config |= (1<<NRF24L01_REG_EN_CRC);
 	  config |= (1<<NRF24L01_REG_CRCO);
   } else {

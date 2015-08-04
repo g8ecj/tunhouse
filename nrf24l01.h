@@ -23,18 +23,33 @@ Please refer to LICENSE file for licensing information.
 //address size
 #define NRF24L01_ADDRSIZE 5
 
-//power setup
+/**
+ * \name Values for CONFIG_NRF24L01_RF24_PA.
+ *
+ * Select the power output of the transmitter
+ * $WIZ$ nrf24l01_rf24_power = "NRF24L01_RF24_PA_MIN" "NRF24L01_RF24_PA_LOW" "NRF24L01_RF24_PA_HIGH" "NRF24L01_RF24_PA_MAX"
+ */
 #define NRF24L01_RF24_PA_MIN 1
 #define NRF24L01_RF24_PA_LOW 2
 #define NRF24L01_RF24_PA_HIGH 3
 #define NRF24L01_RF24_PA_MAX 4
 
-//speed setup
+/**
+ * \name Values for CONFIG_NRF24L01_RF24_SPEED
+ *
+ * Select the power output of the transmitter
+ * $WIZ$ nrf24l01_rf24_speed = "NRF24L01_RF24_SPEED_250KBPS" "NRF24L01_RF24_SPEED_1MBPS" "NRF24L01_RF24_SPEED_2MBPS"
+ */
 #define NRF24L01_RF24_SPEED_250KBPS 1
 #define NRF24L01_RF24_SPEED_1MBPS 2
 #define NRF24L01_RF24_SPEED_2MBPS 3
 
-//crc setup
+/**
+ * \name Values for CONFIG_NRF24L01_RF24_CRC
+ *
+ * Select the power output of the transmitter
+ * $WIZ$ nrf24l01_rf24_crc = "NRF24L01_RF24_CRC_DISABLED" "NRF24L01_RF24_CRC_8" "NRF24L01_RF24_CRC_16"
+ */
 #define NRF24L01_RF24_CRC_DISABLED 1
 #define NRF24L01_RF24_CRC_8 2
 #define NRF24L01_RF24_CRC_16 3

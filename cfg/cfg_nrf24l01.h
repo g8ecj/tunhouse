@@ -18,20 +18,32 @@ Please refer to LICENSE file for licensing information.
 
 #include <avr/io.h>
 
-//power setup
-#define NRF24L01_RF24_PA NRF24L01_RF24_PA_MAX
+/**
+ * Power setting
+ * $WIZ$ type = "enum"
+ * $WIZ$ value_list = "nrf24l01_rf24_power"
+ */
+#define CONFIG_NRF24L01_RF24_PA NRF24L01_RF24_PA_MAX
 
-//speed setup
-#define NRF24L01_RF24_SPEED NRF24L01_RF24_SPEED_1MBPS
+/**
+ * Speed setting
+ * $WIZ$ type = "enum"
+ * $WIZ$ value_list = "nrf24l01_rf24_speed"
+ */
+#define CONFIG_NRF24L01_RF24_SPEED NRF24L01_RF24_SPEED_1MBPS
 
-//crc setup
-#define NRF24L01_RF24_CRC NRF24L01_RF24_CRC_16
+/**
+ * crc setting
+ * $WIZ$ type = "enum"
+ * $WIZ$ value_list = "nrf24l01_rf24_crc"
+ */
+#define CONFIG_NRF24L01_RF24_CRC NRF24L01_RF24_CRC_16
 
 //transmission channel
 #define NRF24L01_CH 76
 
 //payload lenght
-#define NRF24L01_PAYLOAD 16
+#define NRF24L01_PAYLOAD 32
 
 //auto ack enabled
 #define NRF24L01_ACK 1

@@ -71,4 +71,5 @@ void set_flash (int8_t field, int8_t set);
 bool check_value (enum VARS var, int16_t value);
 void get_month_day (uint8_t * month, uint8_t * day);
 int8_t ui_getrow(uint8_t * buffer);
+int8_t ui_getcursor(uint8_t * row, uint8_t * column);
 #endif

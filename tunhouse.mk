@@ -35,6 +35,7 @@ tunhouse_WIZARD_CSRC = \
 	bertos/drv/kbd.c \
 	bertos/drv/term.c \
 	bertos/drv/timer.c \
+	bertos/net/nrf24l01.c \
 	bertos/io/kfile.c \
 	bertos/mware/event.c \
 	bertos/mware/formatwr.c \

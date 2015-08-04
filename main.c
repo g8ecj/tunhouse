@@ -44,14 +44,14 @@
 
 #include <drv/timer.h>
 #include <drv/ser.h>
+#include <drv/term.h>
+#include <net/nrf24l01.h>
 
 #include "measure.h"
 #include "rtc.h"
 #include "eeprommap.h"
 #include "window.h"
 #include "ui.h"
-#include <drv/term.h>
-#include "nrf24l01.h"
 
 #include "features.h"
 
@@ -96,7 +96,7 @@ run_nrf (void)
 {
    int8_t status = 1, row;
    static ticks_t tx_timer;
-   uint8_t pipe, ret = 0;
+   uint8_t pipe, ret = 0, r, c;
    uint8_t buffer[NRF24L01_PAYLOAD];
 
    if (nrf24l01_readready (&pipe))
@@ -118,10 +118,19 @@ run_nrf (void)
    {
       nrf24l01_settxaddr (addrtx1);
       buffer[0] = row + '0';
-      buffer[1] = ' ';
+      buffer[1] = '0';
       status &= nrf24l01_write(buffer);
       buffer[22] = 0;
       timer_delay(10);
+   }
+
+   if (ui_getcursor(&r, &c))
+   {
+      nrf24l01_settxaddr (addrtx1);
+      buffer[0] = 'A';
+      buffer[1] = r;
+      buffer[2] = c;
+      status &= nrf24l01_write(buffer);
    }
 
    if (status == 1)

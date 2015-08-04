@@ -704,7 +704,23 @@ ui_getrow(uint8_t * buffer)
 
 }
 
+int8_t
+ui_getcursor(uint8_t * row, uint8_t * column)
+{
+   int8_t i;
 
+   i = kfile_seek(&term.fd, 0, KSM_SEEK_CUR);
+
+   if ((i >=0 ) && (i < (CONFIG_TERM_COLS * CONFIG_TERM_ROWS)))
+   {
+      *row = i / CONFIG_TERM_COLS;
+      *column = i % CONFIG_TERM_COLS;
+      return true;
+   }
+   else
+      return false;
+
+}
 
 // mode values
 #define MONITOR     0

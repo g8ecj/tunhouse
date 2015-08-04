@@ -20,7 +20,6 @@ tunhouse_USER_CSRC = \
 	$(tunhouse_SRC_PATH)/analog.c \
 	$(tunhouse_SRC_PATH)/window.c \
 	$(tunhouse_SRC_PATH)/ui.c \
-	$(tunhouse_SRC_PATH)/nrf24l01.c \
 	$(tunhouse_SRC_PATH)/spi.c \
 	#
 

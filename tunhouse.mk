@@ -4,7 +4,7 @@
 #
 
 # Constants automatically defined by the selected modules
-tunhouse_DEBUG = 1
+tunhouse_DEBUG = 0
 
 # Our target application
 TRG += tunhouse

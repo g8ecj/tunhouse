@@ -114,7 +114,7 @@ run_nrf (void)
       return ret;
 
 
-   while ((row = ui_getrow(&buffer[2])) >= 0)
+   while ((row = ui_termrowget(&buffer[2])) >= 0)
    {
       nrf24l01_settxaddr (addrtx1);
       buffer[0] = row + '0';
@@ -124,7 +124,7 @@ run_nrf (void)
       timer_delay(10);
    }
 
-   if (ui_getcursor(&r, &c))
+   if (ui_termcursorget(&r, &c))
    {
       nrf24l01_settxaddr (addrtx1);
       buffer[0] = 'A';

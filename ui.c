@@ -687,7 +687,7 @@ ui_init (void)
 
 
 int8_t
-ui_getrow(uint8_t * buffer)
+ui_termrowget(uint8_t * buffer)
 {
    int8_t i;
    static uint8_t row = 0;
@@ -705,7 +705,7 @@ ui_getrow(uint8_t * buffer)
 }
 
 int8_t
-ui_getcursor(uint8_t * row, uint8_t * column)
+ui_termcursorget(uint8_t * row, uint8_t * column)
 {
    int8_t i;
 
@@ -729,8 +729,6 @@ ui_getcursor(uint8_t * row, uint8_t * column)
 #define FIELDEDIT   3
 #define MANUAL      4
 
-
-extern ticks_t gWinTimer[];
 
 
 void
@@ -759,8 +757,6 @@ run_ui (uint8_t remote_key)
       key = 0;
    else if (key < 0x60)
       key |= (K_LONG | 0x20);
-//   else if (key == 'z')
-//      kprintf("Tlo %lu Thi %lu tim %lu scrn %d STlo %d SThi %d\r\n", gWinTimer[SENSOR_LOW], gWinTimer[SENSOR_HIGH], uptime(), screen_number, gWinState[SENSOR_LOW], gWinState[SENSOR_HIGH]);
 
 #endif
 

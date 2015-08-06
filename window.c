@@ -24,6 +24,20 @@ static void do_motorcan (uint8_t sensor);
 static void winmachine (uint8_t sensor, uint8_t event);
 
 
+/*
+ Pins used to drive the relays
+PD2 D2    FET drive           } LO motor direction
+PD3 D3    FET drive           } HI motor direction
+PD7 D7    FET driver          } LO motor on/off
+PC3 A3    FET driver          } HI motor on/off
+*/
+
+#define LO_DIRN(x)    { if (x) PORTD |= 4; else PORTD &=~4; } while(0)
+#define HI_DIRN(x)    { if (x) PORTD |= 8; else PORTD &=~8; } while(0)
+#define LO_ON(x)      { if (x) PORTD |= 128; else PORTD &=~128; } while(0)
+#define HI_ON(x)      { if (x) PORTC |= 8; else PORTC &=~8; } while(0)
+
+
 
 typedef struct PROGMEM
 {
@@ -63,10 +77,16 @@ const WINDOW_NEXTSTATE window_nextstate[][6] PROGMEM = {
 void
 window_init (void)
 {
-    gWinState[SENSOR_LOW] = WINCLOSED;
-    gWinState[SENSOR_HIGH] = WINCLOSED;
-    gWinTimer[SENSOR_LOW] = 0;
-    gWinTimer[SENSOR_HIGH] = 0;
+   gWinState[SENSOR_LOW] = WINCLOSED;
+   gWinState[SENSOR_HIGH] = WINCLOSED;
+   gWinTimer[SENSOR_LOW] = 0;
+   gWinTimer[SENSOR_HIGH] = 0;
+   DDRD |= BV(2) | BV(3) | BV(7);
+   DDRC |= BV(3);
+   LO_DIRN(0);
+   LO_ON(0);
+   HI_DIRN(0);
+   HI_ON(0);
 
 }
 
@@ -125,20 +145,6 @@ winmachine (uint8_t sensor, uint8_t event)
 }
 
 
-
-// set the motor 1-wire bus based on the sensor
-static void
-setonewire (uint8_t sensor)
-{
-
-   if (sensor == SENSOR_LOW)
-      ow_set_bus (&PIND, &PORTD, &DDRD, PD2);
-   else
-      ow_set_bus (&PIND, &PORTD, &DDRD, PD4);
-
-}
-
-
 // start motor unspooling to open a window
 static void
 do_motorup (uint8_t sensor)
@@ -149,9 +155,16 @@ do_motorup (uint8_t sensor)
 
     // set direction relay for upwards motion (port A)
     // turn on power to this motor   (port B)
-    setonewire (sensor);
-    ow_ds2413_write(NULL, 0x00);
-
+   if (sensor == SENSOR_LOW)
+   {
+      LO_DIRN(1);
+      LO_ON(1);
+   }
+   else
+   {
+      HI_DIRN(1);
+      HI_ON(1);
+   }
 }
 
 
@@ -163,8 +176,16 @@ do_motordn (uint8_t sensor)
     gWinTimer[sensor] = uptime() + RUNVALUE;
     // direction relay defaults to down so ensure its off (port A)
     // turn on power to this motor (port B)
-    setonewire (sensor);
-    ow_ds2413_write(NULL, 0x01);
+   if (sensor == SENSOR_LOW)
+   {
+      LO_DIRN(0);
+      LO_ON(1);
+   }
+   else
+   {
+      HI_DIRN(0);
+      HI_ON(1);
+   }
 
 }
 
@@ -178,8 +199,16 @@ do_motoroff (uint8_t sensor)
     // make sure both relays are de-energized
     // default direction = downwards (relay off)
     // motor off
-    setonewire (sensor);
-    ow_ds2413_write(NULL, 0x03);
+   if (sensor == SENSOR_LOW)
+   {
+      LO_DIRN(0);
+      LO_ON(0);
+   }
+   else
+   {
+      HI_DIRN(0);
+      HI_ON(0);
+   }
 
 }
 
@@ -192,8 +221,16 @@ do_motorcan (uint8_t sensor)
     // make sure both relays are de-energized
     // default direction = downwards (relay off)
     // motor off
-    setonewire (sensor);
-    ow_ds2413_write(NULL, 0x03);
+   if (sensor == SENSOR_LOW)
+   {
+      LO_DIRN(0);
+      LO_ON(0);
+   }
+   else
+   {
+      HI_DIRN(0);
+      HI_ON(0);
+   }
 
 }
 

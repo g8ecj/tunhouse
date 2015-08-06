@@ -132,18 +132,26 @@ run_nrf (void)
       buffer[2] = c;
       status &= nrf24l01_write(buffer);
    }
+   else
+   {
+      nrf24l01_settxaddr (addrtx1);
+      buffer[0] = 'C';
+      buffer[1] = r;
+      buffer[2] = c;
+      status &= nrf24l01_write(buffer);
+   }
 
    if (status == 1)
    {
-      kprintf ("> Tx OK\r\n");
+      kfile_printf (&serial.fd, "> Tx OK\r\n");
    }
    else
    {
-      kprintf ("> Tx failed\r\n");
+      kfile_printf (&serial.fd, "> Tx failed\r\n");
 
       /* Retranmission count indicates the tranmission quality */
       status = nrf24_retransmissionCount ();
-      kprintf ("> Retranmission count: %d\r\n", status);
+      kfile_printf (&serial.fd, "> Retranmission count: %d\r\n", status);
    }
 
    nrf24l01_setRX();

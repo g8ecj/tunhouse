@@ -59,6 +59,16 @@
 #define MAXFLASH    10
 static int8_t flashing[MAXFLASH];
 
+// mode values
+#define MONITOR     0
+#define SETUP       1
+#define PAGEEDIT    2
+#define FIELDEDIT   3
+#define MANUAL      4
+
+
+static int8_t mode = MONITOR;
+
 
 // Timings (in mS) for various activities
 #define HEADINGS 1500L
@@ -66,6 +76,9 @@ static int8_t flashing[MAXFLASH];
 #define REFRESH 300L
 #define FLASHON 600L
 #define FLASHOFF 300L
+
+
+
 
 extern Serial serial;
 static Term term;
@@ -711,30 +724,28 @@ ui_termcursorget(uint8_t * row, uint8_t * column)
 
    i = kfile_seek(&term.fd, 0, KSM_SEEK_CUR);
 
-   if ((i >=0 ) && (i < (CONFIG_TERM_COLS * CONFIG_TERM_ROWS)))
+   if ((mode == PAGEEDIT) || (mode == FIELDEDIT))
    {
       *row = i / CONFIG_TERM_COLS;
       *column = i % CONFIG_TERM_COLS;
       return true;
    }
    else
+   {
+      *row = 0;
+      *column = 0;
       return false;
+   }
 
 }
 
-// mode values
-#define MONITOR     0
-#define SETUP       1
-#define PAGEEDIT    2
-#define FIELDEDIT   3
-#define MANUAL      4
 
 
 
 void
 run_ui (uint8_t remote_key)
 {
-   static int8_t screen_number = 0, field = 0, mode = MONITOR;
+   static int8_t screen_number = 0, last_screen = 99, field = 0;
    static ticks_t backlight_timer, refresh_timer;
    static int16_t working_value;
    uint8_t sensor;
@@ -985,10 +996,15 @@ run_ui (uint8_t remote_key)
       }
       break;
    }
-   if (key)
+//   if (key)
+//   {
+//      kfile_printf (&term.fd, "%c", TERM_CLR);
+//      print_screen (screen_number);
+//   }
+   if (screen_number != last_screen)
    {
       kfile_printf (&term.fd, "%c", TERM_CLR);
       print_screen (screen_number);
+      last_screen = screen_number;
    }
-
 }

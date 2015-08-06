@@ -99,6 +99,7 @@ run_nrf (void)
    uint8_t pipe, ret = 0, r, c;
    uint8_t buffer[NRF24L01_PAYLOAD];
 
+   // always see if any remote key presses
    if (nrf24l01_readready (&pipe))
    {
       //read buffer
@@ -108,12 +109,13 @@ run_nrf (void)
          ret = buffer[1];
    }
 
+   // throttle data transfer by only doing every 'n' ms
    if (timer_clock () - tx_timer > ms_to_ticks (100))
       tx_timer = timer_clock ();
    else
       return ret;
 
-
+   // get a screenfull of data fro mthe UI and send it
    while ((row = ui_termrowget(&buffer[2])) >= 0)
    {
       nrf24l01_settxaddr (addrtx1);
@@ -124,6 +126,7 @@ run_nrf (void)
       timer_delay(10);
    }
 
+   // get the current cursor address if it is on and send it
    if (ui_termcursorget(&r, &c))
    {
       nrf24l01_settxaddr (addrtx1);
@@ -132,6 +135,7 @@ run_nrf (void)
       buffer[2] = c;
       status &= nrf24l01_write(buffer);
    }
+   // otherwise send an indication the cursor is off
    else
    {
       nrf24l01_settxaddr (addrtx1);
@@ -141,6 +145,7 @@ run_nrf (void)
       status &= nrf24l01_write(buffer);
    }
 
+   // debug report via serial interface
    if (status == 1)
    {
       kfile_printf (&serial.fd, "> Tx OK\r\n");
@@ -154,6 +159,7 @@ run_nrf (void)
       kfile_printf (&serial.fd, "> Retranmission count: %d\r\n", status);
    }
 
+   // return to RX mode ready for more remote keys
    nrf24l01_setRX();
 
    return ret;

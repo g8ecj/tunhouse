@@ -146,11 +146,7 @@ run_nrf (void)
    }
 
    // debug report via serial interface
-   if (status == 1)
-   {
-      kfile_printf (&serial.fd, "> Tx OK\r\n");
-   }
-   else
+   if (status != 1)
    {
       kfile_printf (&serial.fd, "> Tx failed\r\n");
 

@@ -17,6 +17,7 @@ Please refer to LICENSE file for licensing information.
 #define _HW_NRF24L01_H_
 
 #include <avr/io.h>
+#include "cfg/macros.h"   /* BV() */
 
 //CE and CSN port definitions
 #define NRF24L01_DDR DDRB
@@ -25,10 +26,10 @@ Please refer to LICENSE file for licensing information.
 #define NRF24L01_CSN PB1
 
 //CE and CSN functions
-#define nrf24l01_CSNhi NRF24L01_PORT |= (1<<NRF24L01_CSN);
-#define nrf24l01_CSNlo NRF24L01_PORT &= ~(1<<NRF24L01_CSN);
-#define nrf24l01_CEhi NRF24L01_PORT |=  (1<<NRF24L01_CE);
-#define nrf24l01_CElo NRF24L01_PORT &= ~(1<<NRF24L01_CE);
+#define nrf24l01_CSNhi NRF24L01_PORT |= BV(NRF24L01_CSN);
+#define nrf24l01_CSNlo NRF24L01_PORT &= ~BV(NRF24L01_CSN);
+#define nrf24l01_CEhi NRF24L01_PORT |=  BV(NRF24L01_CE);
+#define nrf24l01_CElo NRF24L01_PORT &= ~BV(NRF24L01_CE);
 
 
 

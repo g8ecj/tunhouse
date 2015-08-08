@@ -58,29 +58,34 @@
 
 /* I/O pins used by the tunnel house window controller
 
-PD2 D2    1-wire or FET drive } LO motor driver
-PD3 D3    1-wire or FET drive } HI
-PD4 D4    1-wire              } LO
-PD5 65    1-wire              } HI temperature sensors
-PD6 D5    1-wire              } EX
-PD7 D7    FET driver          } LO motor driver
+GND        4
 
-PB0 D8    CE                  } NRF24L01
-PB1 D9    CSN                 } interface
-PB2 D10
-PB3 D11   MOSI                }
-PB4 D12   MISO                }
-PB5 D13   SCK                 }
+PD2 D2     5     FET driver          } LO motor driver
+PD3 D3     6     FET driver          } HI
+PD4 D4     7     1-wire              } LO
+PD5 D5     8     1-wire              } HI temperature sensors
+PD6 D6     9     1-wire              } EX
+PD7 D7    10     FET driver          } LO motor driver
 
-PC0 A0    up                  }
-PC1 A1    centre              } buttons
-PC2 A2    down                }
-PC3 A3    FET driver          } HI motor driver
-PC4 A4    SDA                 } LCD
-PC5 A5    SCL                 }
+PB0 D8    11     CE                  } NRF24L01
+PB1 D9    12     CSN                 } interface
+PB2 D10   13     FET driver          } HI motor driver
+PB3 D11   14     MOSI                }
+PB4 D12   15     MISO                }
+PB5 D13   16     SCK                 }
 
-    A6    Battery             } analog
-    A7
+PC0 A0    19     up                  }
+PC1 A1    20     centre              } buttons
+PC2 A2    21     down                }
+
+PC4 A4    23     SDA                 } LCD
+PC5 A5    24     SCL                 }
+
+    A6    25     Battery             } analog
+
+5V        27
+GND       29
+VIN       30
 */
 
 #define KEYSTROKE 'K'
@@ -110,7 +115,7 @@ run_nrf (void)
    }
 
    // throttle data transfer by only doing every 'n' ms
-   if (timer_clock () - tx_timer > ms_to_ticks (100))
+   if (timer_clock () - tx_timer > ms_to_ticks (250))
       tx_timer = timer_clock ();
    else
       return ret;

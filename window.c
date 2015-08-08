@@ -26,16 +26,16 @@ static void winmachine (uint8_t sensor, uint8_t event);
 
 /*
  Pins used to drive the relays
-PD2 D2    FET drive           } LO motor direction
-PD3 D3    FET drive           } HI motor direction
+PD2 D2    FET driver          } LO motor direction
+PD3 D3    FET driver          } HI motor direction
 PD7 D7    FET driver          } LO motor on/off
-PC3 A3    FET driver          } HI motor on/off
+PB2 D10   FET driver          } HI motor on/off
 */
 
-#define LO_DIRN(x)    { if (x) PORTD |= 4; else PORTD &=~4; } while(0)
-#define HI_DIRN(x)    { if (x) PORTD |= 8; else PORTD &=~8; } while(0)
-#define LO_ON(x)      { if (x) PORTD |= 128; else PORTD &=~128; } while(0)
-#define HI_ON(x)      { if (x) PORTC |= 8; else PORTC &=~8; } while(0)
+#define LO_DIRN(x)    { if (x) PORTD |= BV(PD2); else PORTD &=~BV(PD2); } while(0)
+#define HI_DIRN(x)    { if (x) PORTD |= BV(PD3); else PORTD &=~BV(PD3); } while(0)
+#define LO_ON(x)      { if (x) PORTD |= BV(PD7); else PORTD &=~BV(PB7); } while(0)
+#define HI_ON(x)      { if (x) PORTB |= BV(PB2); else PORTB &=~BV(PB2); } while(0)
 
 
 

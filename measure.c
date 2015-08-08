@@ -88,7 +88,16 @@ getlims (uint8_t sensor, int16_t * now, int16_t * up, int16_t * down)
    return ret;
 }
 
-
+// keep temperature values between -50 and 90 degrees
+static int16_t
+validate_value(int16_t value)
+{
+   if (value < -5000)
+      return -5000;
+   if (value > 9000)
+      return 9000;
+   return value;
+}
 
 
 // poll round our sensors in turn, if conversion finished then note the value and start a new conversion
@@ -110,6 +119,7 @@ run_measure (void)
       if (!ow_busy ())
       {
          ow_ds18X20_read_temperature (NULL, &t);
+         t = validate_value(t);
          gValues[SENSOR_LOW][TINDEX_NOW] = t;
          minmax_add (&daymin[SENSOR_LOW], t);
          minmax_add (&daymax[SENSOR_LOW], t);
@@ -122,6 +132,7 @@ run_measure (void)
       if (!ow_busy ())
       {
          ow_ds18X20_read_temperature (NULL, &t);
+         t = validate_value(t);
          gValues[SENSOR_HIGH][TINDEX_NOW] = t;
          minmax_add (&daymin[SENSOR_HIGH], t);
          minmax_add (&daymax[SENSOR_HIGH], t);
@@ -134,6 +145,7 @@ run_measure (void)
       if (!ow_busy ())
       {
          ow_ds18X20_read_temperature (NULL, &t);
+         t = validate_value(t);
          gValues[SENSOR_OUT][TINDEX_NOW] = t;
          minmax_add (&daymin[SENSOR_OUT], t);
          minmax_add (&daymax[SENSOR_OUT], t);

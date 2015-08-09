@@ -222,7 +222,13 @@ init (void)
 
 }
 
-extern void ui_tst (void);
+#if DEBUG == 1 && NRF24L01_PRINTENABLE == 1
+static void
+debug_prints (const char * s)
+{
+   kprintf("%s", s);
+}
+#endif
 
 int
 main (void)
@@ -232,7 +238,7 @@ main (void)
    init ();
 
 #if DEBUG == 1 && NRF24L01_PRINTENABLE == 1
-   nrf24l01_printinfo ();
+   nrf24l01_printinfo (debug_prints);
 #endif
 
    while (1)

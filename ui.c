@@ -85,7 +85,8 @@ static Term term;
 
 int16_t gUSdate;
 
-static const char lcd_degree[8] = { 0x1c, 0x14, 0x1c, 0x00, 0x00, 0x00, 0x00, 0x00 };	/* degree - char set B doesn't have it!! */
+static const char lcd_degree[8] = { 0x1c, 0x14, 0x1c, 0x00, 0x00, 0x00, 0x00, 0x00 };   /* degree - char set B doesn't have it!! */
+
 #define DEGREE 1
 
 // prototype functions that may not be used
@@ -113,7 +114,7 @@ typedef struct PROGMEM
    // -2 = end of array of structs
    int8_t row;                  // row of where to start text
    int8_t col;                  // column of where to start text
-   PGM_P text;            // the text!!
+   PGM_P text;                  // the text!!
    int8_t vcol;                 // the column of where to display the value
    int8_t width;                // width of the field
 } Screen;
@@ -387,7 +388,8 @@ const Screen Man_Upper[] PROGMEM = {
 #define MAXSCREENS  NUM_INFO + NUM_SETUP + NUM_MANUAL
 
 // order here is critical - screen numbers are used to derive sensor numbers in some modes!!
-static const Screen *screen_list[] = { summary, lower, upper, external, datetime, battery, Set_Lower, Set_Upper, Set_Time, Man_Lower, Man_Upper };
+static const Screen *screen_list[] =
+   { summary, lower, upper, external, datetime, battery, Set_Lower, Set_Upper, Set_Time, Man_Lower, Man_Upper };
 
 
 static void
@@ -490,19 +492,21 @@ print_field (int16_t value, int8_t field, uint8_t screen)
    int16_t whole, part;
    char spaces[10] = "         ";
    char tritext[4][5] = { "off", "on", "auto", "oops" };
-   char wintext[4][8] = {"OPENING", "CLOSING", "OPEN", "CLOSED" };
+   char wintext[4][8] = { "OPENING", "CLOSING", "OPEN", "CLOSED" };
 
    const Screen *scrn = screen_list[screen];
 
    for (i = 0; (int8_t) pgm_read_byte (&scrn[i].field) != -2; i++)
    {
-      if ((int8_t) pgm_read_byte (&scrn[i].field) == field)       // found the correct one
+      if ((int8_t) pgm_read_byte (&scrn[i].field) == field)     // found the correct one
       {
-         kfile_printf (&term.fd, "%c%c%c", TERM_CPC, TERM_ROW + pgm_read_byte (&scrn[i].row), TERM_COL + pgm_read_byte (&scrn[i].vcol));
+         kfile_printf (&term.fd, "%c%c%c", TERM_CPC, TERM_ROW + pgm_read_byte (&scrn[i].row),
+                       TERM_COL + pgm_read_byte (&scrn[i].vcol));
          kfile_printf (&term.fd, "%.*s", pgm_read_byte (&scrn[i].width), spaces);
          if (check_flash (field))
             break;
-         kfile_printf (&term.fd, "%c%c%c", TERM_CPC, TERM_ROW + pgm_read_byte (&scrn[i].row), TERM_COL + pgm_read_byte (&scrn[i].vcol));
+         kfile_printf (&term.fd, "%c%c%c", TERM_CPC, TERM_ROW + pgm_read_byte (&scrn[i].row),
+                       TERM_COL + pgm_read_byte (&scrn[i].vcol));
          switch (variables[field].style)
          {
          case eNORMAL:
@@ -629,18 +633,19 @@ print_screen (int8_t screen)
    PGM_P text;
    const Screen *scrn = screen_list[screen];
 
-   while ((int8_t)pgm_read_byte(&scrn[i].field) != -2)
+   while ((int8_t) pgm_read_byte (&scrn[i].field) != -2)
    {
-      kfile_printf (&term.fd, "%c%c%c", TERM_CPC, TERM_ROW + pgm_read_byte (&scrn[i].row), TERM_COL + pgm_read_byte (&scrn[i].col));
-      text =  (PGM_P) pgm_read_word(&scrn[i].text);
+      kfile_printf (&term.fd, "%c%c%c", TERM_CPC, TERM_ROW + pgm_read_byte (&scrn[i].row),
+                    TERM_COL + pgm_read_byte (&scrn[i].col));
+      text = (PGM_P) pgm_read_word (&scrn[i].text);
 
-      for (j = 0; (const char)(pgm_read_byte(&text[j])) && j < 20; j++)
+      for (j = 0; (const char) (pgm_read_byte (&text[j])) && j < 20; j++)
       {
-          kfile_putc((const char) pgm_read_byte (&text[j]), &term.fd);
+         kfile_putc ((const char) pgm_read_byte (&text[j]), &term.fd);
       }
 
       if ((int8_t) pgm_read_byte (&scrn[i].field) != -1)
-         print_field (*variables[pgm_read_byte(&scrn[i].field)].value, pgm_read_byte (&scrn[i].field), screen);
+         print_field (*variables[pgm_read_byte (&scrn[i].field)].value, pgm_read_byte (&scrn[i].field), screen);
 
       i++;
    }
@@ -687,7 +692,7 @@ ui_init (void)
 
    lcd_hw_init ();
    lcd_display (1, 0, 0);
-   lcd_remapChar (lcd_degree, DEGREE);        // put the degree symbol on character 0x01
+   lcd_remapChar (lcd_degree, DEGREE);  // put the degree symbol on character 0x01
 
    term_init (&term);
 #if PUSHBUTTONS == 1
@@ -699,13 +704,15 @@ ui_init (void)
 }
 
 
+// get a row of text from the terminal emulator, indicating which row it is.
+// If we have all the data, return -1. On the next read we will restart at the beginning.
 int8_t
-ui_termrowget(uint8_t * buffer)
+ui_termrowget (uint8_t * buffer)
 {
    int8_t i;
    static uint8_t row = 0;
 
-   i = kfile_read(&term.fd, buffer, CONFIG_TERM_COLS);
+   i = kfile_read (&term.fd, buffer, CONFIG_TERM_COLS);
 
    if (i != CONFIG_TERM_COLS)
    {
@@ -717,12 +724,15 @@ ui_termrowget(uint8_t * buffer)
 
 }
 
+
+// If the cursor is relevant (Page or Field edit modes) return true and the row and column of the curos
+// otherwise return false - row and column in this case are invalid.
 int8_t
-ui_termcursorget(uint8_t * row, uint8_t * column)
+ui_termcursorget (uint8_t * row, uint8_t * column)
 {
    int8_t i;
 
-   i = kfile_seek(&term.fd, 0, KSM_SEEK_CUR);
+   i = kfile_seek (&term.fd, 0, KSM_SEEK_CUR);
 
    if ((mode == PAGEEDIT) || (mode == FIELDEDIT))
    {
@@ -775,13 +785,13 @@ run_ui (uint8_t remote_key)
    {
       key = remote_key;
       if (key < 0x60)
-      key |= (K_LONG | 0x20);
+         key |= (K_LONG | 0x20);
    }
 
    // if key pressed then ignite backlight for a short while
    if (key)
    {
-      lcd_backlight(1);
+      lcd_backlight (1);
       backlight_timer = timer_clock ();
    }
    else
@@ -789,7 +799,7 @@ run_ui (uint8_t remote_key)
       if ((backlight_timer) && (timer_clock () - backlight_timer > ms_to_ticks (BACKLIGHT)))
       {
          backlight_timer = 0;
-         lcd_backlight(0);
+         lcd_backlight (0);
       }
    }
    if (timer_clock () - refresh_timer > ms_to_ticks (REFRESH))
@@ -850,6 +860,18 @@ run_ui (uint8_t remote_key)
          else                   // wrap
             working_value = variables[field].max;
          break;
+      case K_DOWN | K_LONG:
+         mode = PAGEEDIT;
+         // abort - reload previous values
+         load_eeprom_values ();
+         set_flash (field, false);      // make sure flash is off
+         break;
+      case K_UP | K_LONG:
+         // inc of zero special case for voltage calibration to set default
+         variables[field].get_inc (field, 0);
+         // load default
+         working_value = variables[field].defval;
+         break;
       }
       break;
 
@@ -887,7 +909,7 @@ run_ui (uint8_t remote_key)
 // manual open/close - only active key is cancel (centre)
    case MANUAL:
       sensor = screen_number - FIRSTMAN;
-      if (windowidle(sensor))
+      if (windowidle (sensor))
       {
          mode = MONITOR;
          screen_number = FIRSTINFO;
@@ -896,7 +918,7 @@ run_ui (uint8_t remote_key)
       switch (key)
       {
       case K_CENTRE:
-         windowcan(sensor);
+         windowcan (sensor);
          mode = MONITOR;
          screen_number = FIRSTINFO;
          break;
@@ -939,7 +961,7 @@ run_ui (uint8_t remote_key)
          {
             mode = MANUAL;
             screen_number = FIRSTMAN + sensor;
-            windowopen(sensor);
+            windowopen (sensor);
          }
          break;
       case K_DOWN | K_LONG:
@@ -948,7 +970,7 @@ run_ui (uint8_t remote_key)
          {
             mode = MANUAL;
             screen_number = FIRSTMAN + sensor;
-            windowclose(sensor);
+            windowclose (sensor);
          }
          break;
       }
@@ -981,7 +1003,7 @@ run_ui (uint8_t remote_key)
          {
             mode = MANUAL;
             screen_number = FIRSTMAN + sensor;
-            windowopen(sensor);
+            windowopen (sensor);
          }
          break;
       case K_DOWN | K_LONG:
@@ -990,7 +1012,7 @@ run_ui (uint8_t remote_key)
          {
             mode = MANUAL;
             screen_number = FIRSTMAN + sensor;
-            windowclose(sensor);
+            windowclose (sensor);
          }
          break;
       }

@@ -273,7 +273,7 @@ const Screen summary[] PROGMEM = {
 };
 
 const Screen lower[] PROGMEM = {
-   {-1,         0,    3,     lowstr,    0,    0},
+   {eWINSTATE_LO,0,   2,     lowstr,   12,    8},
    {eDN_MIN,    1,    0,     minstr,    6,    5},
    {-1,         1,   13,  degreestr,    0,    0},
    {eDN_NOW,    2,    0,     nowstr,    6,    5},
@@ -284,7 +284,7 @@ const Screen lower[] PROGMEM = {
 };
 
 const Screen upper[] PROGMEM = {
-   {-1,         0,    3,     uppstr,    0,    0},
+   {eWINSTATE_HI,0,   2,     uppstr,   12,    8},
    {eUP_MIN,    1,    0,     minstr,    6,    5},
    {-1,         1,   13,  degreestr,    0,    0},
    {eUP_NOW,    2,    0,     nowstr,    6,    5},
@@ -1016,11 +1016,8 @@ run_ui (uint8_t remote_key)
       }
       break;
    }
-//   if (key)
-//   {
-//      kfile_printf (&term.fd, "%c", TERM_CLR);
-//      print_screen (screen_number);
-//   }
+
+   // refresh with clear screen first if screen number changes
    if (screen_number != last_screen)
    {
       kfile_printf (&term.fd, "%c", TERM_CLR);

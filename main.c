@@ -233,7 +233,7 @@ debug_prints (const char * s)
 int
 main (void)
 {
-   uint8_t key;
+   uint8_t key = 0;
 
    init ();
 

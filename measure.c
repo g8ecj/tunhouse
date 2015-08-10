@@ -92,10 +92,10 @@ getlims (uint8_t sensor, int16_t * now, int16_t * up, int16_t * down)
 static int16_t
 validate_value(int16_t value)
 {
-   if (value < -5000)
-      return -5000;
-   if (value > 9000)
-      return 9000;
+   if (value < -9990)
+      return -9990;
+   if (value > 9990)
+      return 9990;
    return value;
 }
 

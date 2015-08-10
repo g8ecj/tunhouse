@@ -860,17 +860,15 @@ run_ui (uint8_t remote_key)
          else                   // wrap
             working_value = variables[field].max;
          break;
+      case K_UP | K_LONG:
+         // load default
+         working_value = variables[field].defval;
+         break;
       case K_DOWN | K_LONG:
          mode = PAGEEDIT;
          // abort - reload previous values
          load_eeprom_values ();
          set_flash (field, false);      // make sure flash is off
-         break;
-      case K_UP | K_LONG:
-         // inc of zero special case for voltage calibration to set default
-         variables[field].get_inc (field, 0);
-         // load default
-         working_value = variables[field].defval;
          break;
       }
       break;

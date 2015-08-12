@@ -69,4 +69,6 @@ void run_ui (uint8_t remote_key);
 void set_flash (int8_t field, int8_t set);
 int8_t ui_termrowget(uint8_t * buffer);
 int8_t ui_termcursorget(uint8_t * row, uint8_t * column);
+bool ui_refresh_check(void);
+
 #endif

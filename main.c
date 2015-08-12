@@ -100,12 +100,11 @@ static uint8_t
 run_nrf (void)
 {
    int8_t status = 1, row;
-   static ticks_t tx_timer;
-   uint8_t pipe, ret = 0, r, c;
+   uint8_t ret = 0, r, c;
    uint8_t buffer[NRF24L01_PAYLOAD];
 
    // always see if any remote key presses
-   if (nrf24l01_readready (&pipe))
+   if (nrf24l01_readready (NULL))
    {
       //read buffer
       nrf24l01_read (buffer);
@@ -114,13 +113,11 @@ run_nrf (void)
          ret = buffer[1];
    }
 
-   // throttle data transfer by only doing every 'n' ms
-   if (timer_clock () - tx_timer > ms_to_ticks (250))
-      tx_timer = timer_clock ();
-   else
+   // throttle data transfer by only doing every 'n' ms, controlled by the UI
+   if (!ui_refresh_check())
       return ret;
 
-   // get a screenfull of data fro mthe UI and send it
+   // get a screenfull of data from the UI and send it
    while ((row = ui_termrowget(&buffer[2])) >= 0)
    {
       nrf24l01_settxaddr (addrtx1);
@@ -165,15 +162,6 @@ run_nrf (void)
 
    return ret;
 }
-
-
-
-
-
-
-
-
-
 
 
 static void
@@ -245,7 +233,7 @@ main (void)
    {
       // keep real time clock stuff up to date
       run_rtc ();
-      // run temperature reading stuff on the onewire interface
+      // run temperature reading stuff on the 1-wire interface
       run_measure ();
       // run state machine for window opening motors
       run_windows ();
@@ -270,7 +258,6 @@ uint16_t StackCount (void);
 void
 StackPaint (void)
 {
-#if 1
    uint8_t *p = &_end;
 
    while (p <= &__stack)
@@ -278,16 +265,6 @@ StackPaint (void)
       *p = STACK_CANARY;
       p++;
    }
-#else
-   __asm volatile ("    ldi r30,lo8(_end)\n" "    ldi r31,hi8(_end)\n" "    ldi r24,lo8(0xc5)\n"   /* STACK_CANARY = 0xc5 */
-                   "    ldi r25,hi8(__stack)\n"
-                   "    rjmp .cmp\n"
-                   ".loop:\n"
-                   "    st Z+,r24\n"
-                   ".cmp:\n"
-                   "    cpi r30,lo8(__stack)\n"
-                   "    cpc r31,r25\n" "    brlo .loop\n" "    breq .loop"::);
-#endif
 }
 
 uint16_t

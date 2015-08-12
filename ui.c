@@ -69,10 +69,9 @@ static int8_t flashing[MAXFLASH];
 
 
 static int8_t mode = MONITOR;
-
+static bool refreshed = false;
 
 // Timings (in mS) for various activities
-#define HEADINGS 1500L
 #define BACKLIGHT 15000L
 #define REFRESH 300L
 #define FLASHON 600L
@@ -704,7 +703,13 @@ ui_termcursorget (uint8_t * row, uint8_t * column)
 
 }
 
-
+bool
+ui_refresh_check(void)
+{
+   bool ret = refreshed;
+   refreshed = false;
+   return ret;
+}
 
 
 void
@@ -714,10 +719,12 @@ run_ui (uint8_t remote_key)
    static ticks_t backlight_timer, refresh_timer;
    static int16_t working_value;
    uint8_t sensor;
+   int16_t *pVar;
+   int16_t inc;
+   IncFunc_t pIncFunc;
 
+   // mark those fields that should ne flashed
    flag_warnings ();
-
-
 
 #if PUSHBUTTONS == 1
    keymask_t key;
@@ -736,14 +743,12 @@ run_ui (uint8_t remote_key)
 
 #endif
 
-   // if key pressed then ignite backlight for a short while
+   // if key pressed then ignite backlight for a short while and assume a refresh (change to a screen)
    if (key)
    {
-#if DEBUG > 0
-      kfile_printf(&serial.fd, "Key 0x%04x Stack %d\r\n", key, StackCount());
-#endif
       lcd_backlight (1);
       backlight_timer = timer_clock ();
+      refreshed = true;
    }
    else
    {
@@ -758,24 +763,25 @@ run_ui (uint8_t remote_key)
       if ((key > 0x40) && (key < 0x60))
          key |= (K_LONG | 0x20);
    }
+
+   // refresh whole screen regularly if no key presses
    if (timer_clock () - refresh_timer > ms_to_ticks (REFRESH))
    {
       refresh_timer = timer_clock ();
+      refreshed = true;
       if (!key)
          print_screen (screen_number);
    }
 
+   // process keystrokes according to mode we are in.
    switch (mode)
    {
-         int16_t *pVar;
    case FIELDEDIT:
       // refresh the value to place the cursor on the screen in the right place
       print_field (working_value, field, screen_number);
 
       switch (key)
       {
-         int16_t inc;
-         IncFunc_t pIncFunc;           // pointer to field increment function for a field
       case K_CENTRE:
          // save value and exit field edit mode
          // save the working value into the real one

@@ -23,9 +23,7 @@
 
 
 
-//MINMAX hourmax[NUMSENSORS];
 MINMAX daymax[NUMSENSORS];
-//MINMAX hourmin[NUMSENSORS];
 MINMAX daymin[NUMSENSORS];
 
 
@@ -47,8 +45,6 @@ measure_init (void)
    // initialise all the min/max buffers (hourly and daily)
    for (i = 0; i < NUMSENSORS; i++)
    {
-//      minmax_init (&hourmax[i], 60, true);
-//      minmax_init (&hourmin[i], 60, false);
       minmax_init (&daymin[i], 24, false);
       minmax_init (&daymax[i], 24, true);
       for (j = 0; j < NUMINDEX; j++)

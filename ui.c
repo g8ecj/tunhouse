@@ -53,6 +53,7 @@
 #include "window.h"
 #include "ui.h"
 
+extern uint16_t StackCount (void);
 
 
 // a table of fields that are flashing
@@ -97,7 +98,7 @@ int8_t find_next_line (int8_t field, int8_t screen, int8_t dirn);
 typedef int8_t (*IncFunc_t) (int8_t field, int8_t dirn);
 
 
-typedef struct vars
+typedef struct PROGMEM
 {
    int16_t *value;
    int16_t min;
@@ -121,7 +122,7 @@ typedef struct PROGMEM
 
 
 // forward reference
-Vars variables[eNUMVARS];
+const Vars variables[eNUMVARS];
 
 static int8_t
 null_inc (int8_t field, int8_t dirn)
@@ -180,7 +181,7 @@ enum STYLE
 //           value,                        min,   max, default, style,   increment function
 // Note: Its only worth having (real) limits for those values that can be changed.
 // *INDENT-OFF*
-Vars variables[eNUMVARS] = {
+const Vars variables[eNUMVARS] PROGMEM = {
    {NULL, 0, 0, 0, eNORMAL, null_inc},  // dummy 1st entry
    {&gValues[SENSOR_LOW][TINDEX_MIN],     0,     0,     0,     eSHORT,   null_inc},    // low position, minimum
    {&gValues[SENSOR_LOW][TINDEX_NOW],     0,     0,     0,     eSHORT,   null_inc},    //                value now
@@ -201,7 +202,6 @@ Vars variables[eNUMVARS] = {
    {&gLimits[SENSOR_HIGH][LIMIT_DN],  -2000,  3000,  1500,       eSHORT,  deca_inc},     //                close
 
    {&gAdjustTime,                      -719,   719,     0,      eNORMAL,   int_inc},     // clock adjuster
-   {&gUSdate,                             0,     1,     0,     eBOOLEAN,   int_inc},     // date format
 
    {&gHOUR,                               0,    23,    12,        eDATE,   int_inc},     // hour
    {&gMINUTE,                             0,    59,     0,        eDATE,   int_inc},     // minute
@@ -217,17 +217,13 @@ Vars variables[eNUMVARS] = {
 };
 
 
-Vars daymonth[2] = {
-   {&gDAY,                                1,    31,    15,        eDATE,   int_inc},     // day
-   {&gMONTH,                              1,    12,     7,        eDATE,   int_inc},     // month
-};
-
 // strings to  go into progmem
 
 const char datlim[]   PROGMEM  = "  -";
 const char timlim[]   PROGMEM  = "  :";
 const char dash[]     PROGMEM  = "-";
 const char nulstr[]   PROGMEM  = "";
+const char adjuststr[]  PROGMEM  = "Timesync";
 const char battstr[]  PROGMEM  = "Battery";
 const char canstr[]   PROGMEM  = "Centre to Cancel";
 const char closestr[] PROGMEM  = "Close";
@@ -325,8 +321,7 @@ const Screen battery[] PROGMEM = {
 
 
 const Screen Set_Time[] PROGMEM = {
-   {eADJUSTTIME,1,    0,    timestr,    7,    4},
-   {eUSDATE,    2,    0,    datestr,    7,    3},
+   {eADJUSTTIME,1,    0,  adjuststr,   11,    4},
    {eHOUR,      3,    0,     timlim,    0,    2},
    {eMINUTE,    3,    3,     timlim,    3,    2},
    {eSECOND,    3,    6,     nulstr,    6,    2},
@@ -390,34 +385,6 @@ const Screen Man_Upper[] PROGMEM = {
 // order here is critical - screen numbers are used to derive sensor numbers in some modes!!
 static const Screen *screen_list[] =
    { summary, lower, upper, external, datetime, battery, Set_Lower, Set_Upper, Set_Time, Man_Lower, Man_Upper };
-
-
-static void
-set_month_day (uint8_t us)
-{
-
-   if (us)
-   {
-      variables[eDAY] = daymonth[1];
-      variables[eMONTH] = daymonth[0];
-   }
-   // if already in US Date mode but want EURO mode then swap back
-   else
-   {
-      variables[eDAY] = daymonth[0];
-      variables[eMONTH] = daymonth[1];
-   }
-}
-
-void
-get_month_day (uint8_t * month, uint8_t * day)
-{
-
-   *month = (uint8_t) * variables[eMONTH].value;
-   *day = (uint8_t) * variables[eDAY].value;
-
-}
-
 
 
 
@@ -507,7 +474,7 @@ print_field (int16_t value, int8_t field, uint8_t screen)
             break;
          kfile_printf (&term.fd, "%c%c%c", TERM_CPC, TERM_ROW + pgm_read_byte (&scrn[i].row),
                        TERM_COL + pgm_read_byte (&scrn[i].vcol));
-         switch (variables[field].style)
+         switch (pgm_read_byte(&variables[field].style))
          {
          case eNORMAL:
             kfile_printf (&term.fd, "%d", value);
@@ -632,6 +599,7 @@ print_screen (int8_t screen)
    int8_t i = 0, j;
    PGM_P text;
    const Screen *scrn = screen_list[screen];
+   int16_t *pVar;
 
    while ((int8_t) pgm_read_byte (&scrn[i].field) != -2)
    {
@@ -645,8 +613,10 @@ print_screen (int8_t screen)
       }
 
       if ((int8_t) pgm_read_byte (&scrn[i].field) != -1)
-         print_field (*variables[pgm_read_byte (&scrn[i].field)].value, pgm_read_byte (&scrn[i].field), screen);
-
+      {
+         pVar = (int16_t *) pgm_read_word(&variables[pgm_read_byte (&scrn[i].field)].value);
+         print_field (*pVar, pgm_read_byte (&scrn[i].field), screen);
+      }
       i++;
    }
 }
@@ -670,19 +640,6 @@ flag_warnings (void)
 
 }
 
-// used externally to verify that a value is within the correct range and set it if so.
-bool
-check_value (enum VARS var, int16_t value)
-{
-   if ((value >= variables[var].min) && (value <= variables[var].max))
-   {
-      *variables[var].value = value;
-      return false;
-   }
-   else
-      return true;
-
-}
 
 
 // initialise the module!
@@ -697,9 +654,7 @@ ui_init (void)
    term_init (&term);
 #if PUSHBUTTONS == 1
    kbd_init ();
-   kbd_setRepeatMask (K_UP | K_DOWN);
 #endif
-   set_month_day (gUSdate);
 
 }
 
@@ -781,16 +736,12 @@ run_ui (uint8_t remote_key)
 
 #endif
 
-   if (remote_key)
-   {
-      key = remote_key;
-      if (key < 0x60)
-         key |= (K_LONG | 0x20);
-   }
-
    // if key pressed then ignite backlight for a short while
    if (key)
    {
+#if DEBUG > 0
+      kfile_printf(&serial.fd, "Key 0x%04x Stack %d\r\n", key, StackCount());
+#endif
       lcd_backlight (1);
       backlight_timer = timer_clock ();
    }
@@ -801,6 +752,11 @@ run_ui (uint8_t remote_key)
          backlight_timer = 0;
          lcd_backlight (0);
       }
+      // if no local key, use remote key (if any!)
+      key = remote_key;
+      // if alpha key (PC connected remote) then handle pseudo-long press
+      if ((key > 0x40) && (key < 0x60))
+         key |= (K_LONG | 0x20);
    }
    if (timer_clock () - refresh_timer > ms_to_ticks (REFRESH))
    {
@@ -811,6 +767,7 @@ run_ui (uint8_t remote_key)
 
    switch (mode)
    {
+         int16_t *pVar;
    case FIELDEDIT:
       // refresh the value to place the cursor on the screen in the right place
       print_field (working_value, field, screen_number);
@@ -818,10 +775,12 @@ run_ui (uint8_t remote_key)
       switch (key)
       {
          int16_t inc;
+         IncFunc_t pIncFunc;           // pointer to field increment function for a field
       case K_CENTRE:
          // save value and exit field edit mode
          // save the working value into the real one
-         *variables[field].value = working_value;
+         pVar = (int16_t *) pgm_read_word(&variables[field].value);
+         *pVar = working_value;
          // some fields require special action
          switch (field)
          {
@@ -835,9 +794,6 @@ run_ui (uint8_t remote_key)
             // set Unix time in seconds, save adjustment in eeprom
             set_epoch_time ();
             break;
-         case eUSDATE:
-            set_month_day (gUSdate);
-            break;
          }
          save_eeprom_values ();
 
@@ -846,23 +802,25 @@ run_ui (uint8_t remote_key)
          break;
       case K_UP:
          /// increase by increment
-         inc = variables[field].get_inc (field, 1);
-         if (working_value + inc <= variables[field].max)
+         pIncFunc = (PGM_VOID_P) pgm_read_word(&variables[field].get_inc);
+         inc =  pIncFunc (field, 1);
+         if (working_value + inc <= (int16_t)pgm_read_word(&variables[field].max))
             working_value += inc;
          else                   // wrap
-            working_value = variables[field].min;
+            working_value = pgm_read_word(&variables[field].min);
          break;
       case K_DOWN:
-         // decrease by increment
-         inc = variables[field].get_inc (field, -1);
-         if (working_value - inc >= variables[field].min)
+         // decrease by decrement
+         pIncFunc = (PGM_VOID_P) pgm_read_word(&variables[field].get_inc);
+         inc = pIncFunc (field, -1);
+         if (working_value - inc >= (int16_t)pgm_read_word(&variables[field].min))
             working_value -= inc;
          else                   // wrap
-            working_value = variables[field].max;
+            working_value = pgm_read_word(&variables[field].max);
          break;
       case K_UP | K_LONG:
          // load default
-         working_value = variables[field].defval;
+         working_value = pgm_read_word(&variables[field].defval);
          break;
       case K_DOWN | K_LONG:
          mode = PAGEEDIT;
@@ -878,7 +836,8 @@ run_ui (uint8_t remote_key)
 // up/down moves through fields
    case PAGEEDIT:
       // refresh the value to place the cursor on the screen in the right place
-      print_field (*variables[field].value, field, screen_number);
+      pVar = (int16_t *) pgm_read_word(&variables[field].value);
+      print_field (*pVar, field, screen_number);
       switch (key)
       {
       case K_CENTRE:
@@ -890,7 +849,7 @@ run_ui (uint8_t remote_key)
          mode = FIELDEDIT;
          set_flash (field, true);
          // refresh the value
-         working_value = *variables[field].value;
+         working_value = *pVar;
          break;
       case K_UP:
          // field on previous line
@@ -938,9 +897,8 @@ run_ui (uint8_t remote_key)
          mode = PAGEEDIT;
          // turn on cursor
          kfile_printf (&term.fd, " %c", TERM_BLINK_ON);
-         // get the first field on this screen and display it
+         // get the first field on this screen. It gets displayed as we enter edit mode
          field = find_next_field (0, screen_number, 0);
-         print_field (*variables[field].value, field, screen_number);
          break;
       case K_UP:
          screen_number++;

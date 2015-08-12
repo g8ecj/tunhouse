@@ -2,8 +2,8 @@
 
 
 // code debugging!!
-#define DEBUG 1
+#define DEBUG 0
 
 // debugging uses the serial port rather than a pushbutton array
-#define PUSHBUTTONS 0
+#define PUSHBUTTONS 1
 

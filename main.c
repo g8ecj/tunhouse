@@ -226,7 +226,7 @@ init (void)
 static void
 debug_prints (const char * s)
 {
-   kprintf("%s", s);
+   kfile_printf(&serial.fd, "%s", s);
 }
 #endif
 

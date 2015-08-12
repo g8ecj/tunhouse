@@ -43,14 +43,12 @@
 #include <cpu/irq.h>
 
 #include <drv/timer.h>
-#include <drv/ser.h>
-#include <drv/term.h>
-#include <net/nrf24l01.h>
 
 #include "measure.h"
 #include "rtc.h"
 #include "eeprommap.h"
 #include "window.h"
+#include "nrf.h"
 #include "ui.h"
 
 #include "features.h"
@@ -88,103 +86,14 @@ GND       29
 VIN       30
 */
 
-#define KEYSTROKE 'K'
-
-Serial serial;
-
-uint8_t addrtx0[NRF24L01_ADDRSIZE] = NRF24L01_ADDRP0;
-uint8_t addrtx1[NRF24L01_ADDRSIZE] = NRF24L01_ADDRP1;
-
-
-static uint8_t
-run_nrf (void)
-{
-   int8_t status = 1, row;
-   uint8_t ret = 0, r, c;
-   uint8_t buffer[NRF24L01_PAYLOAD];
-
-   // always see if any remote key presses
-   if (nrf24l01_readready (NULL))
-   {
-      //read buffer
-      nrf24l01_read (buffer);
-      // see if a keyboard command. If so return the keycode
-      if (buffer[0] == KEYSTROKE)
-         ret = buffer[1];
-   }
-
-   // throttle data transfer by only doing every 'n' ms, controlled by the UI
-   if (!ui_refresh_check())
-      return ret;
-
-   // get a screenfull of data from the UI and send it
-   while ((row = ui_termrowget(&buffer[2])) >= 0)
-   {
-      nrf24l01_settxaddr (addrtx1);
-      buffer[0] = row + '0';
-      buffer[1] = '0';
-      status &= nrf24l01_write(buffer);
-      buffer[22] = 0;
-      timer_delay(10);
-   }
-
-   // get the current cursor address if it is on and send it
-   if (ui_termcursorget(&r, &c))
-   {
-      nrf24l01_settxaddr (addrtx1);
-      buffer[0] = 'A';
-      buffer[1] = r;
-      buffer[2] = c;
-      status &= nrf24l01_write(buffer);
-   }
-   // otherwise send an indication the cursor is off
-   else
-   {
-      nrf24l01_settxaddr (addrtx1);
-      buffer[0] = 'C';
-      buffer[1] = r;
-      buffer[2] = c;
-      status &= nrf24l01_write(buffer);
-   }
-
-   // debug report via serial interface
-   if (status != 1)
-   {
-      kfile_printf (&serial.fd, "> Tx failed\r\n");
-
-      /* Retranmission count indicates the tranmission quality */
-      status = nrf24_retransmissionCount ();
-      kfile_printf (&serial.fd, "> Retranmission count: %d\r\n", status);
-   }
-
-   // return to RX mode ready for more remote keys
-   nrf24l01_setRX();
-
-   return ret;
-}
 
 
 static void
 init (void)
 {
-#if DEBUG
-   /* Initialize debugging module (allow kprintf(), etc.) */
-   kdbg_init ();
-#endif
 
    /* Initialize system timer */
    timer_init ();
-
-   /*
-    * XXX: Arduino has a single UART port that was previously
-    * initialized for debugging purpose.
-    * In order to activate the serial driver you should disable 
-    * the debugging module.
-    */
-   /* Initialize UART0 */
-   ser_init (&serial, SER_UART0);
-   /* Configure UART0 to work at 115.200 bps */
-   ser_setbaudrate (&serial, 115200);
 
    // get the config stuff & last time setting
    load_eeprom_values ();
@@ -201,8 +110,8 @@ init (void)
    /* Enable all the interrupts */
    IRQ_ENABLE;
 
-   /* init hardware pins */
-   nrf24l01_init ();
+   // initialise RF link to remote
+   nrf_init();
 
    // display and button handling
    ui_init ();
@@ -210,13 +119,6 @@ init (void)
 
 }
 
-#if DEBUG == 1 && NRF24L01_PRINTENABLE == 1
-static void
-debug_prints (const char * s)
-{
-   kfile_printf(&serial.fd, "%s", s);
-}
-#endif
 
 int
 main (void)
@@ -224,10 +126,6 @@ main (void)
    uint8_t key = 0;
 
    init ();
-
-#if DEBUG == 1 && NRF24L01_PRINTENABLE == 1
-   nrf24l01_printinfo (debug_prints);
-#endif
 
    while (1)
    {

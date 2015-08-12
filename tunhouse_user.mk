@@ -13,6 +13,7 @@ tunhouse_PROGRAMMER_PORT = none
 # Files included by the user.
 tunhouse_USER_CSRC = \
 	$(tunhouse_SRC_PATH)/main.c \
+	$(tunhouse_SRC_PATH)/nrf.c \
 	$(tunhouse_SRC_PATH)/minmax.c \
 	$(tunhouse_SRC_PATH)/rtc.c \
 	$(tunhouse_SRC_PATH)/eeprommap.c \

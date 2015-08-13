@@ -18,7 +18,6 @@
 #include "eeprommap.h"
 #include "measure.h"
 
-#include "features.h"
 
 
 

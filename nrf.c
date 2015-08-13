@@ -2,19 +2,18 @@
 #include <drv/ser.h>
 #include <drv/timer.h>
 #include <net/nrf24l01.h>
-#include "features.h"
 #include "ui.h"
 #include "nrf.h"
 
 
-Serial serial;
+extern Serial serial;
 
 #define KEYSTROKE 'K'
 
 uint8_t addrtx0[NRF24L01_ADDRSIZE] = NRF24L01_ADDRP0;
 uint8_t addrtx1[NRF24L01_ADDRSIZE] = NRF24L01_ADDRP1;
 
-#if DEBUG == 1 && NRF24L01_PRINTENABLE == 1
+#if NRF24L01_PRINTENABLE == 1
 static void
 debug_prints (const char * s)
 {
@@ -26,15 +25,9 @@ debug_prints (const char * s)
 void
 nrf_init(void)
 {
-
-   /* Initialize UART0 */
-   ser_init (&serial, SER_UART0);
-   /* Configure UART0 to work at 115.200 bps */
-   ser_setbaudrate (&serial, 115200);
-
    /* init hardware pins */
    nrf24l01_init ();
-#if DEBUG == 1 && NRF24L01_PRINTENABLE == 1
+#if NRF24L01_PRINTENABLE == 1
    nrf24l01_printinfo (debug_prints);
 #endif
 }

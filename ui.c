@@ -39,11 +39,7 @@
 #include <drv/lcd_hd44.h>
 #include <drv/term.h>
 
-#include "features.h"
-
-#if PUSHBUTTONS == 1
 #include <drv/kbd.h>
-#endif
 
 #include <avr/eeprom.h>
 
@@ -651,9 +647,7 @@ ui_init (void)
    lcd_remapChar (lcd_degree, DEGREE);  // put the degree symbol on character 0x01
 
    term_init (&term);
-#if PUSHBUTTONS == 1
    kbd_init ();
-#endif
 
 }
 
@@ -726,22 +720,28 @@ run_ui (uint8_t remote_key)
    // mark those fields that should ne flashed
    flag_warnings ();
 
-#if PUSHBUTTONS == 1
    keymask_t key;
    key = kbd_peek ();
-#else
-   int16_t key;
-#define K_UP          'u'
-#define K_DOWN        'd'
-#define K_CENTRE      'c'
-#define K_LONG        0x8000
-   key = kfile_getc (&serial.fd);
-   if (key == EOF)
-      key = 0;
-   else if (key < 0x60)
-      key |= (K_LONG | 0x20);
 
-#endif
+   if (key == 0)
+   {
+      // if no pushbutton then check for local serial input
+      key = kfile_getc (&serial.fd);
+      if ((int16_t)key == EOF)
+         key = 0;
+   }
+
+   if (key == 0)
+   {
+      // if no local key, use remote key (if any!)
+      key = remote_key;
+   }
+
+   // if alpha key (PC connected remote) then handle pseudo-long press (upper case)
+   // candidate keys are a, b, d or i, j, l or q, r, t
+   if ((key > 0x40) && (key < 0x60))
+      key |= K_LONG;
+   key &= (K_LONG | K_UP | K_DOWN | K_CENTRE);
 
    // if key pressed then ignite backlight for a short while and assume a refresh (change to a screen)
    if (key)
@@ -757,13 +757,6 @@ run_ui (uint8_t remote_key)
          backlight_timer = 0;
          lcd_backlight (0);
       }
-      // if no local key, use remote key (if any!)
-      key = remote_key;
-      // if alpha key (PC connected remote) then handle pseudo-long press (upper case)
-      // candidate keys are a, b, d or i, j, l or q, r, t
-      if ((key > 0x40) && (key < 0x60))
-         key |= (K_LONG | 0x20);
-      key &= (K_LONG | K_UP | K_DOWN | K_CENTRE);
    }
 
    // refresh whole screen regularly if no key presses

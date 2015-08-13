@@ -43,6 +43,7 @@
 #include <cpu/irq.h>
 
 #include <drv/timer.h>
+#include <drv/ser.h>
 
 #include "measure.h"
 #include "rtc.h"
@@ -51,7 +52,9 @@
 #include "nrf.h"
 #include "ui.h"
 
-#include "features.h"
+Serial serial;
+
+#define DEBUG 0
 
 
 /* I/O pins used by the tunnel house window controller
@@ -94,6 +97,11 @@ init (void)
 
    /* Initialize system timer */
    timer_init ();
+
+   /* Initialize UART0 */
+   ser_init (&serial, SER_UART0);
+   /* Configure UART0 to work at 115.200 bps */
+   ser_setbaudrate (&serial, 115200);
 
    // get the config stuff & last time setting
    load_eeprom_values ();

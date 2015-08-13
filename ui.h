@@ -61,8 +61,6 @@ enum VARS
    eNUMVARS
 };
 
-extern int16_t gUSdate;
-
 
 void ui_init (void);
 void run_ui (uint8_t remote_key);

@@ -26,16 +26,16 @@ static void winmachine (uint8_t sensor, uint8_t event);
 
 /*
  Pins used to drive the relays
-PD2 D2    FET driver          } LO motor direction
-PD3 D3    FET driver          } HI motor direction
-PD7 D7    FET driver          } LO motor on/off
-PB2 D10   FET driver          } HI motor on/off
+PD2 D2    FET driver          } LO motor UP
+PD3 D3    FET driver          } HI motor UP
+PD7 D7    FET driver          } LO motor DOWN
+PB2 D10   FET driver          } HI motor DOWN
 */
 
-#define LO_DIRN(x)    { if (x) PORTD |= BV(PD2); else PORTD &=~BV(PD2); } while(0)
-#define HI_DIRN(x)    { if (x) PORTD |= BV(PD3); else PORTD &=~BV(PD3); } while(0)
-#define LO_ON(x)      { if (x) PORTD |= BV(PD7); else PORTD &=~BV(PB7); } while(0)
-#define HI_ON(x)      { if (x) PORTB |= BV(PB2); else PORTB &=~BV(PB2); } while(0)
+#define LO_UP(x)      { if (x) PORTD |= BV(PD2); else PORTD &=~BV(PD2); } while(0)
+#define HI_UP(x)      { if (x) PORTD |= BV(PD3); else PORTD &=~BV(PD3); } while(0)
+#define LO_DN(x)      { if (x) PORTD |= BV(PD7); else PORTD &=~BV(PB7); } while(0)
+#define HI_DN(x)      { if (x) PORTB |= BV(PB2); else PORTB &=~BV(PB2); } while(0)
 
 
 
@@ -83,10 +83,10 @@ window_init (void)
    gWinTimer[SENSOR_HIGH] = 0;
    DDRD |= BV(2) | BV(3) | BV(7);
    DDRC |= BV(3);
-   LO_DIRN(0);
-   LO_ON(0);
-   HI_DIRN(0);
-   HI_ON(0);
+   LO_UP(0);
+   LO_DN(0);
+   HI_UP(0);
+   HI_DN(0);
 
 }
 
@@ -157,13 +157,13 @@ do_motorup (uint8_t sensor)
     // turn on power to this motor   (port B)
    if (sensor == SENSOR_LOW)
    {
-      LO_DIRN(1);
-      LO_ON(0);
+      LO_UP(1);
+      LO_DN(0);
    }
    else
    {
-      HI_DIRN(1);
-      HI_ON(0);
+      HI_UP(1);
+      HI_DN(0);
    }
 }
 
@@ -178,13 +178,13 @@ do_motordn (uint8_t sensor)
     // turn on power to this motor (port B)
    if (sensor == SENSOR_LOW)
    {
-      LO_DIRN(0);
-      LO_ON(1);
+      LO_UP(0);
+      LO_DN(1);
    }
    else
    {
-      HI_DIRN(0);
-      HI_ON(1);
+      HI_UP(0);
+      HI_DN(1);
    }
 
 }
@@ -201,13 +201,13 @@ do_motoroff (uint8_t sensor)
     // motor off
    if (sensor == SENSOR_LOW)
    {
-      LO_DIRN(0);
-      LO_ON(0);
+      LO_UP(0);
+      LO_DN(0);
    }
    else
    {
-      HI_DIRN(0);
-      HI_ON(0);
+      HI_UP(0);
+      HI_DN(0);
    }
 
 }
@@ -223,13 +223,13 @@ do_motorcan (uint8_t sensor)
     // motor off
    if (sensor == SENSOR_LOW)
    {
-      LO_DIRN(0);
-      LO_ON(0);
+      LO_UP(0);
+      LO_DN(0);
    }
    else
    {
-      HI_DIRN(0);
-      HI_ON(0);
+      HI_UP(0);
+      HI_DN(0);
    }
 
 }

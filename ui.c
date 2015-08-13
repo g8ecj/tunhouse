@@ -79,8 +79,6 @@ static bool refreshed = false;
 extern Serial serial;
 static Term term;
 
-int16_t gUSdate;
-
 static const char lcd_degree[8] = { 0x1c, 0x14, 0x1c, 0x00, 0x00, 0x00, 0x00, 0x00 };   /* degree - char set B doesn't have it!! */
 
 #define DEGREE 1

@@ -158,12 +158,12 @@ do_motorup (uint8_t sensor)
    if (sensor == SENSOR_LOW)
    {
       LO_DIRN(1);
-      LO_ON(1);
+      LO_ON(0);
    }
    else
    {
       HI_DIRN(1);
-      HI_ON(1);
+      HI_ON(0);
    }
 }
 

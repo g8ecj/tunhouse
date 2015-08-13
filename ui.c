@@ -759,9 +759,11 @@ run_ui (uint8_t remote_key)
       }
       // if no local key, use remote key (if any!)
       key = remote_key;
-      // if alpha key (PC connected remote) then handle pseudo-long press
+      // if alpha key (PC connected remote) then handle pseudo-long press (upper case)
+      // candidate keys are a, b, d or i, j, l or q, r, t
       if ((key > 0x40) && (key < 0x60))
          key |= (K_LONG | 0x20);
+      key &= (K_LONG | K_UP | K_DOWN | K_CENTRE);
    }
 
    // refresh whole screen regularly if no key presses

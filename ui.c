@@ -68,12 +68,12 @@ static int8_t mode = MONITOR;
 static bool refreshed = false;
 
 // Timings (in mS) for various activities
-#define BACKLIGHT 15000L
 #define REFRESH 300L
 #define FLASHON 600L
 #define FLASHOFF 300L
 
-
+// local variables
+int16_t gBacklight;
 
 
 extern Serial serial;
@@ -194,6 +194,7 @@ const Vars variables[eNUMVARS] PROGMEM = {
    {&gLimits[SENSOR_HIGH][LIMIT_UP],  -2000,  3000,  2000,       eSHORT,  deca_inc},     // temperature to open
    {&gLimits[SENSOR_HIGH][LIMIT_DN],  -2000,  3000,  1500,       eSHORT,  deca_inc},     //                close
 
+   {&gBacklight,                          0,    60,    15,      eNORMAL,   int_inc},     // backlight timer adjuster
    {&gAdjustTime,                      -719,   719,     0,      eNORMAL,   int_inc},     // clock adjuster
 
    {&gHOUR,                               0,    23,    12,        eDATE,   int_inc},     // hour
@@ -216,6 +217,7 @@ const char datlim[]   PROGMEM  = "  -";
 const char timlim[]   PROGMEM  = "  :";
 const char dash[]     PROGMEM  = "-";
 const char nulstr[]   PROGMEM  = "";
+const char blitestr[]  PROGMEM  = "Backlight";
 const char adjuststr[]  PROGMEM  = "Timesync";
 const char battstr[]  PROGMEM  = "Battery";
 const char canstr[]   PROGMEM  = "Centre to Cancel";
@@ -314,7 +316,8 @@ const Screen battery[] PROGMEM = {
 
 
 const Screen Set_Time[] PROGMEM = {
-   {eADJUSTTIME,1,    0,  adjuststr,   11,    4},
+   {eBACKLIGHT, 1,    0,   blitestr,   11,    4},
+   {eADJUSTTIME,2,    0,  adjuststr,   11,    4},
    {eHOUR,      3,    0,     timlim,    0,    2},
    {eMINUTE,    3,    3,     timlim,    3,    2},
    {eSECOND,    3,    6,     nulstr,    6,    2},
@@ -460,13 +463,20 @@ print_field (int16_t value, int8_t field, uint8_t screen)
    {
       if ((int8_t) pgm_read_byte (&scrn[i].field) == field)     // found the correct one
       {
+         // set write position
          kfile_printf (&term.fd, "%c%c%c", TERM_CPC, TERM_ROW + pgm_read_byte (&scrn[i].row),
                        TERM_COL + pgm_read_byte (&scrn[i].vcol));
+         // output spaces of field width to clear it in case flashing or changing
          kfile_printf (&term.fd, "%.*s", pgm_read_byte (&scrn[i].width), spaces);
+
+         // if its currently in a blank phase of the flashing then we're done (leave as spaces)
          if (check_flash (field))
             break;
+
+         // reset to write position
          kfile_printf (&term.fd, "%c%c%c", TERM_CPC, TERM_ROW + pgm_read_byte (&scrn[i].row),
                        TERM_COL + pgm_read_byte (&scrn[i].vcol));
+         // output value based on type of field
          switch (pgm_read_byte(&variables[field].style))
          {
          case eNORMAL:
@@ -625,6 +635,7 @@ flag_warnings (void)
       set_flash (eUP_NOW, true);
    else
       set_flash (eUP_NOW, false);
+
    if (gValues[SENSOR_LOW][TINDEX_NOW] > gLimits[SENSOR_LOW][LIMIT_UP])
       set_flash (eDN_NOW, true);
    else
@@ -750,7 +761,7 @@ run_ui (uint8_t remote_key)
    }
    else
    {
-      if ((backlight_timer) && (timer_clock () - backlight_timer > ms_to_ticks (BACKLIGHT)))
+      if ((gBacklight) && (backlight_timer) && (timer_clock () - backlight_timer > ms_to_ticks (gBacklight * 1000)))
       {
          backlight_timer = 0;
          lcd_backlight (0);

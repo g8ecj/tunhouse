@@ -44,6 +44,7 @@ enum VARS
    eUP_LIMIT_HI,
    eUP_LIMIT_LO,
 
+   eBACKLIGHT,
    eADJUSTTIME,
 
    eHOUR,

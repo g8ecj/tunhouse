@@ -720,7 +720,7 @@ run_ui (uint8_t remote_key)
 {
    static int8_t screen_number = 0, last_screen = 99, field = 0;
    static ticks_t backlight_timer, refresh_timer;
-   static int16_t working_value;
+   static int16_t saved_value;
    uint8_t sensor;
    int16_t *pVar;
    int16_t inc;
@@ -781,16 +781,16 @@ run_ui (uint8_t remote_key)
    switch (mode)
    {
    case FIELDEDIT:
+      pVar = (int16_t *) pgm_read_word(&variables[field].value);
+      pIncFunc = (PGM_VOID_P) pgm_read_word(&variables[field].get_inc);
+
       // refresh the value to place the cursor on the screen in the right place
-      print_field (working_value, field, screen_number);
+      print_field (*pVar, field, screen_number);
 
       switch (key)
       {
       case K_CENTRE:
          // save value and exit field edit mode
-         // save the working value into the real one
-         pVar = (int16_t *) pgm_read_word(&variables[field].value);
-         *pVar = working_value;
          // some fields require special action
          switch (field)
          {
@@ -812,30 +812,28 @@ run_ui (uint8_t remote_key)
          break;
       case K_UP:
          /// increase by increment
-         pIncFunc = (PGM_VOID_P) pgm_read_word(&variables[field].get_inc);
          inc =  pIncFunc (field, 1);
-         if (working_value + inc <= (int16_t)pgm_read_word(&variables[field].max))
-            working_value += inc;
+         if (*pVar + inc <= (int16_t)pgm_read_word(&variables[field].max))
+            *pVar += inc;
          else                   // wrap
-            working_value = pgm_read_word(&variables[field].min);
+            *pVar = pgm_read_word(&variables[field].min);
          break;
       case K_DOWN:
          // decrease by decrement
-         pIncFunc = (PGM_VOID_P) pgm_read_word(&variables[field].get_inc);
          inc = pIncFunc (field, -1);
-         if (working_value - inc >= (int16_t)pgm_read_word(&variables[field].min))
-            working_value -= inc;
+         if (*pVar - inc >= (int16_t)pgm_read_word(&variables[field].min))
+            *pVar -= inc;
          else                   // wrap
-            working_value = pgm_read_word(&variables[field].max);
+            *pVar = pgm_read_word(&variables[field].max);
          break;
       case K_UP | K_LONG:
          // load default
-         working_value = pgm_read_word(&variables[field].defval);
+         *pVar = pgm_read_word(&variables[field].defval);
          break;
       case K_DOWN | K_LONG:
          mode = PAGEEDIT;
          // abort - reload previous values
-         load_eeprom_values ();
+         *pVar = saved_value;
          set_flash (field, false);      // make sure flash is off
          break;
       }
@@ -858,8 +856,8 @@ run_ui (uint8_t remote_key)
          // enter this field to change it
          mode = FIELDEDIT;
          set_flash (field, true);
-         // refresh the value
-         working_value = *pVar;
+         // save the current value
+         saved_value = *pVar;
          break;
       case K_UP:
          // field on previous line
@@ -879,7 +877,7 @@ run_ui (uint8_t remote_key)
       if (windowidle (sensor))
       {
          mode = MONITOR;
-         screen_number = FIRSTINFO;
+         screen_number = FIRSTINFO + sensor + 1;
       }
 
       switch (key)
@@ -887,7 +885,7 @@ run_ui (uint8_t remote_key)
       case K_CENTRE:
          windowcan (sensor);
          mode = MONITOR;
-         screen_number = FIRSTINFO;
+         screen_number = FIRSTINFO + sensor + 1;
          break;
       }
       break;

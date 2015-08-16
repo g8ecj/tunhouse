@@ -29,13 +29,13 @@ static void winmachine (uint8_t sensor, uint8_t event);
 PD2 D2    FET driver          } LO motor UP
 PD3 D3    FET driver          } HI motor UP
 PD7 D7    FET driver          } LO motor DOWN
-PB2 D10   FET driver          } HI motor DOWN
+PC3 A3    FET driver          } HI motor DOWN
 */
 
-#define LO_UP(x)      { if (x) PORTD |= BV(PD2); else PORTD &=~BV(PD2); } while(0)
-#define HI_UP(x)      { if (x) PORTD |= BV(PD3); else PORTD &=~BV(PD3); } while(0)
-#define LO_DN(x)      { if (x) PORTD |= BV(PD7); else PORTD &=~BV(PB7); } while(0)
-#define HI_DN(x)      { if (x) PORTB |= BV(PB2); else PORTB &=~BV(PB2); } while(0)
+#define LO_UP(x)      { if (x) PORTD |= BV(2); else PORTD &=~BV(2); } while(0)
+#define HI_UP(x)      { if (x) PORTD |= BV(3); else PORTD &=~BV(3); } while(0)
+#define LO_DN(x)      { if (x) PORTD |= BV(7); else PORTD &=~BV(7); } while(0)
+#define HI_DN(x)      { if (x) PORTC |= BV(3); else PORTC &=~BV(3); } while(0)
 
 
 

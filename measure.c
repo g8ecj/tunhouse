@@ -20,8 +20,6 @@
 
 
 
-
-
 MINMAX daymax[NUMSENSORS];
 MINMAX daymin[NUMSENSORS];
 
@@ -59,7 +57,7 @@ measure_init (void)
    ow_ds18x20_resolution(NULL, 10);
    ow_ds18X20_start (NULL, false);
 
-   ow_set_bus (&PINB, &PORTD, &DDRD, PD6);          // SENSOR_OUT
+   ow_set_bus (&PIND, &PORTD, &DDRD, PD6);          // SENSOR_OUT
    ow_ds18x20_resolution(NULL, 10);
    ow_ds18X20_start (NULL, false);
 }
@@ -113,24 +111,28 @@ run_measure (void)
       ow_set_bus (&PIND, &PORTD, &DDRD, PD4);          // SENSOR_LOW
       if (!ow_busy ())
       {
-         ow_ds18X20_read_temperature (NULL, &t);
-         t = validate_value(t);
-         gValues[SENSOR_LOW][TINDEX_NOW] = t;
-         minmax_add (&daymin[SENSOR_LOW], t);
-         minmax_add (&daymax[SENSOR_LOW], t);
+         if (ow_ds18X20_read_temperature (NULL, &t))
+         {
+            t = validate_value(t);
+            gValues[SENSOR_LOW][TINDEX_NOW] = t;
+            minmax_add (&daymin[SENSOR_LOW], t);
+            minmax_add (&daymax[SENSOR_LOW], t);
+         }
          ow_ds18X20_start (NULL, false);
-      }
+     }
       break;
    case SENSOR_HIGH:
       // high level (roof) sensor
       ow_set_bus (&PIND, &PORTD, &DDRD, PD5);         // SENSOR_HIGH
       if (!ow_busy ())
       {
-         ow_ds18X20_read_temperature (NULL, &t);
-         t = validate_value(t);
-         gValues[SENSOR_HIGH][TINDEX_NOW] = t;
-         minmax_add (&daymin[SENSOR_HIGH], t);
-         minmax_add (&daymax[SENSOR_HIGH], t);
+         if (ow_ds18X20_read_temperature (NULL, &t))
+         {
+            t = validate_value(t);
+            gValues[SENSOR_HIGH][TINDEX_NOW] = t;
+            minmax_add (&daymin[SENSOR_HIGH], t);
+            minmax_add (&daymax[SENSOR_HIGH], t);
+         }
          ow_ds18X20_start (NULL, false);
       }
       break;
@@ -139,11 +141,13 @@ run_measure (void)
       ow_set_bus (&PIND, &PORTD, &DDRD, PD6);          // SENSOR_OUT
       if (!ow_busy ())
       {
-         ow_ds18X20_read_temperature (NULL, &t);
-         t = validate_value(t);
-         gValues[SENSOR_OUT][TINDEX_NOW] = t;
-         minmax_add (&daymin[SENSOR_OUT], t);
-         minmax_add (&daymax[SENSOR_OUT], t);
+         if (ow_ds18X20_read_temperature (NULL, &t))
+         {
+            t = validate_value(t);
+            gValues[SENSOR_OUT][TINDEX_NOW] = t;
+            minmax_add (&daymin[SENSOR_OUT], t);
+            minmax_add (&daymax[SENSOR_OUT], t);
+         }
          ow_ds18X20_start (NULL, false);
       }
       break;

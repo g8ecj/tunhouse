@@ -105,7 +105,7 @@ ow_set_bus(volatile uint8_t * in, volatile uint8_t * out, volatile uint8_t * ddr
 	OW_OUT = out;
 	OW_IN = in;
 	OW_PIN_MASK = (1 << pin);
-	ow_reset();
+//	ow_reset();
 }
 
 #endif
@@ -226,7 +226,8 @@ ow_bit_io_intern(uint8_t b, uint8_t with_parasite_enable)
 			// edge that initiated the read time slot. Therefore, the master must
 			// release the bus and then sample the bus state within 15ussec from
 			// the start of the slot."
-			timer_udelay(15 - 2 - OW_CONF_DELAYOFFSET); if (OW_GET_IN() == 0)
+			timer_udelay(15 - 2 - OW_CONF_DELAYOFFSET);
+			if (OW_GET_IN() == 0)
 			{
 				// sample at end of read-timeslot
 				b = 0;

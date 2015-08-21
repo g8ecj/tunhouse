@@ -14,6 +14,8 @@
 
 // state of the windows on the 2 sensors
 int16_t gWinState[2];
+// whether the window is in auto or manual mode
+int16_t gWinAuto[2];
 // open/close timer rather than wait for a contact closure
 uint32_t gWinTimer[2];
 
@@ -125,6 +127,7 @@ windowidle(uint8_t sensor)
    else
       return true;
 }
+
 
 
 // drive round the state machine, moving between states and initiating actions
@@ -246,6 +249,11 @@ run_windows (void)
     // for each sensor
     for (sensor = SENSOR_LOW; sensor <= SENSOR_HIGH; sensor++)
     {
+        if (gWinState[sensor] >= WINOPENING)
+            gWinAuto[sensor] = 2;
+        else
+            gWinAuto[sensor] = 3;
+
         getlims (sensor, &now, &up, &down);
         if (now >= up)
             winmachine (sensor, TEMPGREATER);

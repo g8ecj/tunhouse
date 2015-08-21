@@ -56,12 +56,15 @@ enum VARS
 
    eBATTERY,
 
+   eWINAUTO_LO,
+   eWINAUTO_HI,
    eWINSTATE_LO,
    eWINSTATE_HI,
 
    eNUMVARS
 };
 
+extern int16_t gBacklight;
 
 void ui_init (void);
 void run_ui (uint8_t remote_key);

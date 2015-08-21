@@ -30,6 +30,7 @@
 
 
 extern int16_t gWinState[];
+extern int16_t gWinAuto[];
 
 void window_init (void);
 void run_windows (void);

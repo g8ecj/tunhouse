@@ -50,15 +50,15 @@ measure_init (void)
 
    // start off temperature conversion on all sensors
    ow_set_bus (&PIND, &PORTD, &DDRD, PD4);          // SENSOR_LOW
-   ow_ds18x20_resolution(NULL, 10);
+   ow_ds18x20_resolution(NULL, 11);
    ow_ds18X20_start (NULL, false);
 
    ow_set_bus (&PIND, &PORTD, &DDRD, PD5);          // SENSOR_HIGH
-   ow_ds18x20_resolution(NULL, 10);
+   ow_ds18x20_resolution(NULL, 11);
    ow_ds18X20_start (NULL, false);
 
    ow_set_bus (&PIND, &PORTD, &DDRD, PD6);          // SENSOR_OUT
-   ow_ds18x20_resolution(NULL, 10);
+   ow_ds18x20_resolution(NULL, 11);
    ow_ds18X20_start (NULL, false);
 }
 

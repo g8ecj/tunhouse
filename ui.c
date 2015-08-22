@@ -49,8 +49,6 @@
 #include "window.h"
 #include "ui.h"
 
-extern uint16_t StackCount (void);
-
 
 // a table of fields that are flashing
 #define MAXFLASH    10
@@ -66,14 +64,13 @@ static int8_t flashing[MAXFLASH];
 
 static int8_t mode = MONITOR;
 static bool refreshed = false;
+int16_t gBacklight;
 
 // Timings (in mS) for various activities
 #define REFRESH 300L
 #define FLASHON 600L
 #define FLASHOFF 300L
 
-// local variables
-int16_t gBacklight;
 
 
 extern Serial serial;
@@ -742,10 +739,11 @@ run_ui (uint8_t remote_key)
    }
 
    // if alpha key (PC connected remote) then handle pseudo-long press (upper case)
-   // candidate keys are a, b, d or i, j, l or q, r, t
+   // We still just use the bit pattern of the lowest 3 bits. Candidate keys are a, b, d or i, j, l or q, r, t
    if ((key > 0x40) && (key < 0x60))
       key |= K_LONG;
    key &= (K_LONG | K_UP | K_DOWN | K_CENTRE);
+
 
    // if key pressed then ignite backlight for a short while and assume a refresh (change to a screen)
    if (key)
@@ -754,14 +752,22 @@ run_ui (uint8_t remote_key)
       backlight_timer = timer_clock ();
       refreshed = true;
    }
+// If battery charging then run backlight. Keep timer running for when battery volts drop.
+   else if (gBattery > 1270)
+   {
+      lcd_backlight (1);
+      backlight_timer = timer_clock ();
+   }
    else
    {
+      // if backlight timer expired (if it exists) turn off backlight.
       if ((gBacklight) && (backlight_timer) && (timer_clock () - backlight_timer > ms_to_ticks (gBacklight * 1000)))
       {
-         backlight_timer = 0;
          lcd_backlight (0);
+         backlight_timer = 0;
       }
    }
+
 
    // refresh whole screen regularly if no key presses
    if (timer_clock () - refresh_timer > ms_to_ticks (REFRESH))

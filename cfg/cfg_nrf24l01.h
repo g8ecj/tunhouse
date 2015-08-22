@@ -30,7 +30,7 @@ Please refer to LICENSE file for licensing information.
  * $WIZ$ type = "enum"
  * $WIZ$ value_list = "nrf24l01_rf24_speed"
  */
-#define NRF24L01_RF24_SPEED NRF24L01_RF24_SPEED_1MBPS
+#define NRF24L01_RF24_SPEED NRF24L01_RF24_SPEED_250KBPS
 
 /**
  * crc setting

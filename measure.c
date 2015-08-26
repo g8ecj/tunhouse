@@ -1,3 +1,39 @@
+/**
+ * \file
+ * <!--
+ * This file is part of Robin's Tunnel house window opener
+ *
+ * Bertos is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ *
+ * As a special exception, you may use this file as part of a free software
+ * library without restriction.  Specifically, if other files instantiate
+ * templates or use macros or inline functions from this file, or you compile
+ * this file and link it with other files to produce an executable, this
+ * file does not by itself cause the resulting executable to be covered by
+ * the GNU General Public License.  This exception does not however
+ * invalidate any other reasons why the executable file might be covered by
+ * the GNU General Public License.
+ *
+ * Copyright 2015 Robin Gilks (www.gilks.org)
+ *
+ * -->
+ *
+ * \author Robin Gilks (g8ecj@gilks.org)
+ *
+ * \brief Interface to the 1-wire sensors
+ */
 
 #include <stdint.h>
 #include <stddef.h>
@@ -49,17 +85,38 @@ measure_init (void)
    }
 
    // start off temperature conversion on all sensors
-   ow_set_bus (&PIND, &PORTD, &DDRD, PD4);          // SENSOR_LOW
-   ow_ds18x20_resolution(NULL, 11);
-   ow_ds18X20_start (NULL, false);
+   if (ow_set_bus (&PIND, &PORTD, &DDRD, PD4) == 0)          // SENSOR_LOW
+   {
+      ow_ds18x20_resolution(NULL, 11);
+      ow_ds18X20_start (NULL, false);
+   }
+   else
+   {
+      minmax_add (&daymin[SENSOR_LOW], 0);      // clear min/max if no sensor
+      minmax_add (&daymax[SENSOR_LOW], 0);
+   }
 
-   ow_set_bus (&PIND, &PORTD, &DDRD, PD5);          // SENSOR_HIGH
-   ow_ds18x20_resolution(NULL, 11);
-   ow_ds18X20_start (NULL, false);
+   if (ow_set_bus (&PIND, &PORTD, &DDRD, PD5) == 0)          // SENSOR_HIGH
+   {
+      ow_ds18x20_resolution(NULL, 11);
+      ow_ds18X20_start (NULL, false);
+   }
+   else
+   {
+      minmax_add (&daymin[SENSOR_HIGH], 0);
+      minmax_add (&daymax[SENSOR_HIGH], 0);
+   }
 
-   ow_set_bus (&PIND, &PORTD, &DDRD, PD6);          // SENSOR_OUT
-   ow_ds18x20_resolution(NULL, 11);
-   ow_ds18X20_start (NULL, false);
+   if (ow_set_bus (&PIND, &PORTD, &DDRD, PD6) == 0)          // SENSOR_OUT
+   {
+      ow_ds18x20_resolution(NULL, 11);
+      ow_ds18X20_start (NULL, false);
+   }
+   else
+   {
+      minmax_add (&daymin[SENSOR_OUT], 0);
+      minmax_add (&daymax[SENSOR_OUT], 0);
+   }
 }
 
 
@@ -108,7 +165,8 @@ run_measure (void)
    {
    case SENSOR_LOW:
       // low level sensor
-      ow_set_bus (&PIND, &PORTD, &DDRD, PD4);          // SENSOR_LOW
+      if (ow_set_bus (&PIND, &PORTD, &DDRD, PD4))          // SENSOR_LOW
+         break;
       if (!ow_busy ())
       {
          if (ow_ds18X20_read_temperature (NULL, &t))
@@ -123,7 +181,8 @@ run_measure (void)
       break;
    case SENSOR_HIGH:
       // high level (roof) sensor
-      ow_set_bus (&PIND, &PORTD, &DDRD, PD5);         // SENSOR_HIGH
+      if (ow_set_bus (&PIND, &PORTD, &DDRD, PD5))         // SENSOR_HIGH
+         break;
       if (!ow_busy ())
       {
          if (ow_ds18X20_read_temperature (NULL, &t))
@@ -138,7 +197,8 @@ run_measure (void)
       break;
    case SENSOR_OUT:
       // outside sensor
-      ow_set_bus (&PIND, &PORTD, &DDRD, PD6);          // SENSOR_OUT
+      if (ow_set_bus (&PIND, &PORTD, &DDRD, PD6))          // SENSOR_OUT
+         break;
       if (!ow_busy ())
       {
          if (ow_ds18X20_read_temperature (NULL, &t))

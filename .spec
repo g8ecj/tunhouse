@@ -1,8 +1,7 @@
-name = 'empty preset'
+name = 'Tunnel house Window opener'
 advanced = True
 description="""
 <p>
-This is a minimalist project, it just initializes the hardware of the
-supported board and proposes an empty main.
+This is Robin's Mk2 window opener with remote control.
 <\p>
 """

@@ -101,8 +101,8 @@ typedef struct PROGMEM
 typedef struct PROGMEM
 {
    int8_t field;                // global field number (relevant across all screens).
-   // -1 = no value (text only)
-   // -2 = end of array of structs
+                                // -1 = no value (text only)
+                                // -2 = end of array of structs
    int8_t row;                  // row of where to start text
    int8_t col;                  // column of where to start text
    PGM_P text;                  // the text!!
@@ -130,7 +130,7 @@ deca_inc (int8_t field, int8_t dirn)
    return 100;
 }
 
-#if 0
+#if 0       // not used in this app
 static int8_t
 var_inc (int8_t field, int8_t dirn)
 {
@@ -218,7 +218,7 @@ const char dash[]     PROGMEM  = "-";
 const char nulstr[]   PROGMEM  = "";
 const char atstr[]    PROGMEM  = "@";
 const char blitestr[]  PROGMEM  = "Backlight";
-const char adjuststr[]  PROGMEM  = "Timesync";
+const char adjuststr[] PROGMEM  = "Timesync";
 const char battstr[]  PROGMEM  = "Battery";
 const char canstr[]   PROGMEM  = "Centre to Cancel";
 const char closestr[] PROGMEM  = "Close";
@@ -371,7 +371,7 @@ const Screen Set_Time[] PROGMEM = {
 static const Screen *screen_list[] =  { summary, lower, upper, external, datetime, battery, Set_Lower, Set_Upper, Set_Time };
 
 
-
+// add field to list of flashing fields
 void
 set_flash (int8_t field, int8_t set)
 {
@@ -707,6 +707,7 @@ ui_refresh_check(void)
 }
 
 
+// handle user interaction and screen refreshes in the UI
 void
 run_ui (uint8_t remote_key)
 {
@@ -752,7 +753,7 @@ run_ui (uint8_t remote_key)
       backlight_timer = timer_clock ();
       refreshed = true;
    }
-// If battery charging then run backlight. Keep timer running for when battery volts drop.
+   // If battery charging then run backlight. Keep timer running for when battery volts drop.
    else if (gBattery > 1270)
    {
       lcd_backlight (1);
@@ -774,13 +775,16 @@ run_ui (uint8_t remote_key)
    {
       refresh_timer = timer_clock ();
       refreshed = true;
-      if (!key)
-         print_screen (screen_number);
+      print_screen (screen_number);
    }
 
    // process keystrokes according to mode we are in.
    switch (mode)
    {
+   // up/down increment/decrement the value
+   // centre saves value and exits back to pageedit mode
+   // long up loads default for the field
+   // long down restores original value, aborts back to pageedit mode
    case FIELDEDIT:
       pVar = (int16_t *) pgm_read_word(&variables[field].value);
       pIncFunc = (PGM_VOID_P) pgm_read_word(&variables[field].get_inc);
@@ -841,8 +845,8 @@ run_ui (uint8_t remote_key)
       break;
 
 
-// centre enters field edit mode
-// up/down moves through fields
+// up/down moves through fields, short centre is back to monitor
+// long centre enters field edit mode
    case PAGEEDIT:
       // refresh the value to place the cursor on the screen in the right place
       pVar = (int16_t *) pgm_read_word(&variables[field].value);
@@ -872,8 +876,8 @@ run_ui (uint8_t remote_key)
       break;
 
 
-// up/down moves round monitor screens
-// when in setup screen then long centre enters field navigation mode
+// up/down moves round setup screens, centre exits back to monitor
+// long centre enters field navigation mode
    case SETUP:
       switch (key)
       {
@@ -903,9 +907,8 @@ run_ui (uint8_t remote_key)
       break;
 
 
-// up/down moves round monitor screens
-// left right moves round setup screens
-// when in monitor screen then centre toggles detail mode
+// up/down moves round monitor screens, centre always takes back to the summary screen
+//  long centre enters setup mode
    case MONITOR:
       switch (key)
       {

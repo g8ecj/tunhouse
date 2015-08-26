@@ -1,7 +1,7 @@
 /**
  * \file
  * <!--
- * This file is part of BeRTOS.
+ * This file is part of Robin's Tunnel house window opener
  *
  * Bertos is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,16 +26,17 @@
  * invalidate any other reasons why the executable file might be covered by
  * the GNU General Public License.
  *
- * Copyright 2010 Develer S.r.l. (http://www.develer.com/)
+ * Copyright 2015 Robin Gilks (www.gilks.org)
  *
  * -->
  *
- * \author Andrea Righi <arighi@develer.com>
+ * \author Robin Gilks (g8ecj@gilks.org)
  *
- * \brief Empty project.
+ * \brief Window opener with nrf24l01 RF remote linking
  *
- * This is a minimalist project, it just initializes the hardware of the
- * supported board and proposes an empty main.
+ * This project uses an i2c connected LCD display, SPI connected RF module, 
+ * 1-wire connected sensors, digital i/o to relays or H-bridges, analog to 
+ * track battery voltage and a serial interface for debugging.
  */
 
 #include <cfg/debug.h>

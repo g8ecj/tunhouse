@@ -96,16 +96,17 @@ volatile uint8_t *OW_DDR;
  * \param out output port
  * \param ddr data direction register
  * \param pin I/O pin (bit number on port)
+ * \return non zero = error code
  *
  */
-void
+uint8_t
 ow_set_bus(volatile uint8_t * in, volatile uint8_t * out, volatile uint8_t * ddr, uint8_t pin)
 {
 	OW_DDR = ddr;
 	OW_OUT = out;
 	OW_IN = in;
 	OW_PIN_MASK = (1 << pin);
-//	ow_reset();
+	return ow_reset();
 }
 
 #endif

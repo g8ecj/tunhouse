@@ -47,9 +47,6 @@
 #include <cfg/macros.h>
 #include <cfg/debug.h>
 
-//#warning TODO:This is an example implementation, you must implement it!
-
-//#define K_RPT_MASK (K_UP | K_DOWN)
 
 #define KBD_HW_INIT \
 	do { \

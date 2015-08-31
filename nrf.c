@@ -100,9 +100,8 @@ run_nrf (void)
       nrf24l01_settxaddr (addrtx1);
       buffer[0] = row + '0';
       buffer[1] = '0';
+      buffer[23] = 0;
       status &= nrf24l01_write(buffer);
-      buffer[22] = 0;
-      timer_delay(10);
    }
 
    // get the current cursor address if it is on and send it

@@ -67,6 +67,7 @@ enum VARS
 extern int16_t gBacklight;
 
 void ui_init (void);
+void ui_load_defaults(void);
 void run_ui (uint8_t remote_key);
 void set_flash (int8_t field, int8_t set);
 int8_t ui_termrowget(uint8_t * buffer);

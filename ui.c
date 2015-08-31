@@ -481,7 +481,7 @@ print_field (int16_t value, int8_t field, uint8_t screen)
             // if the whole part is less than 1 then we loose the sign bit so do it manually in all cases
             whole = abs (value / 100);
             part = abs (value % 100);
-            kfile_printf (&term.fd, "%.*s%d.%2u", value < 0 ? 1 : 0, "-", whole, part);
+            kfile_printf (&term.fd, "%.*s%d.%02u", value < 0 ? 1 : 0, "-", whole, part);
             break;
          case eSHORT:
             // split the value into those bits before and after the decimal point, ONLY 1 PLACE!
@@ -649,6 +649,22 @@ ui_init (void)
 
    if (gBacklight == 0)
       lcd_backlight (1);
+
+}
+
+
+void
+ui_load_defaults(void)
+{
+   uint8_t field;
+   int16_t *pVar;
+
+   for (field = 1; field < eNUMVARS; field++)
+   {
+      pVar = (int16_t *) pgm_read_word(&variables[field].value);
+      *pVar = pgm_read_word(&variables[field].defval);
+   }
+   save_eeprom_values ();
 
 }
 
@@ -856,6 +872,7 @@ run_ui (uint8_t remote_key)
       case K_CENTRE:
          mode = MONITOR;
          screen_number = FIRSTINFO;
+         kfile_printf (&term.fd, "%c", TERM_BLINK_OFF);
          break;
       case K_CENTRE | K_LONG:
          // enter this field to change it

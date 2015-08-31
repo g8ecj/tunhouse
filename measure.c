@@ -89,6 +89,8 @@ measure_init (void)
    {
       ow_ds18x20_resolution(NULL, 11);
       ow_ds18X20_start (NULL, false);
+      while (ow_busy());
+      ow_ds18X20_start (NULL, false);
    }
    else
    {
@@ -100,6 +102,8 @@ measure_init (void)
    {
       ow_ds18x20_resolution(NULL, 11);
       ow_ds18X20_start (NULL, false);
+      while (ow_busy());
+      ow_ds18X20_start (NULL, false);
    }
    else
    {
@@ -110,6 +114,8 @@ measure_init (void)
    if (ow_set_bus (&PIND, &PORTD, &DDRD, PD6) == 0)          // SENSOR_OUT
    {
       ow_ds18x20_resolution(NULL, 11);
+      ow_ds18X20_start (NULL, false);
+      while (ow_busy());
       ow_ds18X20_start (NULL, false);
    }
    else

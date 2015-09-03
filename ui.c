@@ -65,6 +65,7 @@ static int8_t flashing[MAXFLASH];
 static int8_t mode = MONITOR;
 static bool refreshed = false;
 int16_t gBacklight;
+ticks_t backlight_timer = 0;
 
 // Timings (in mS) for various activities
 #define REFRESH 300L
@@ -648,7 +649,10 @@ ui_init (void)
    kbd_init ();
 
    if (gBacklight == 0)
+   {
       lcd_backlight (1);
+      backlight_timer = timer_clock ();
+   }
 
 }
 
@@ -714,6 +718,7 @@ ui_termcursorget (uint8_t * row, uint8_t * column)
 
 }
 
+// Allow external user find out when the screen has been refreshed
 bool
 ui_refresh_check(void)
 {
@@ -723,12 +728,20 @@ ui_refresh_check(void)
 }
 
 
+// Allow external user find out the state of the backlight
+bool
+ui_backlight_check(void)
+{
+   return backlight_timer > 0 ? true : false;
+}
+
+
 // handle user interaction and screen refreshes in the UI
 void
 run_ui (uint8_t remote_key)
 {
    static int8_t screen_number = 0, last_screen = 99, field = 0;
-   static ticks_t backlight_timer, refresh_timer;
+   static ticks_t refresh_timer;
    static int16_t saved_value;
    uint8_t sensor;
    int16_t *pVar;

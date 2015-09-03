@@ -94,34 +94,45 @@ run_nrf (void)
    if (!ui_refresh_check())
       return ret;
 
+   nrf24l01_settxaddr (addrtx1);
    // get a screenfull of data from the UI and send it
    while ((row = ui_termrowget(&buffer[2])) >= 0)
    {
-      nrf24l01_settxaddr (addrtx1);
       buffer[0] = row + '0';
       buffer[1] = '0';
       buffer[23] = 0;
       status &= nrf24l01_write(buffer);
    }
 
+   // report backlight state
+   if (ui_backlight_check())
+   {
+      buffer[0] = 'B';
+   }
+   else
+   {
+      buffer[0] = 'b';
+   }
+   status &= nrf24l01_write(buffer);
+
    // get the current cursor address if it is on and send it
    if (ui_termcursorget(&r, &c))
    {
-      nrf24l01_settxaddr (addrtx1);
-      buffer[0] = 'A';
+      buffer[0] = 'C';
       buffer[1] = r;
       buffer[2] = c;
-      status &= nrf24l01_write(buffer);
    }
    // otherwise send an indication the cursor is off
    else
    {
       nrf24l01_settxaddr (addrtx1);
-      buffer[0] = 'C';
+      buffer[0] = 'c';
       buffer[1] = r;
       buffer[2] = c;
-      status &= nrf24l01_write(buffer);
    }
+   status &= nrf24l01_write(buffer);
+
+
 
    // debug report via serial interface
    if (status != 1)
@@ -132,9 +143,6 @@ run_nrf (void)
       status = nrf24_retransmissionCount ();
       kfile_printf (&serial.fd, "> Retranmission count: %d\r\n", status);
    }
-
-   // return to RX mode ready for more remote keys
-   nrf24l01_setRX();
 
    return ret;
 }

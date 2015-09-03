@@ -52,7 +52,7 @@ Please refer to LICENSE file for licensing information.
  *
  * $WIZ$ type = "int"; min = 1; max = 32
  */
-#define NRF24L01_PAYLOAD 32
+#define NRF24L01_PAYLOAD 25
 
 /**
  * Auto ack - allows the transmit side to check for delivery
@@ -76,7 +76,7 @@ Please refer to LICENSE file for licensing information.
  *
  * $WIZ$ type = "int"; min = 0; max = 15
  */
-#define NRF24L01_ARD_TIME 5
+#define NRF24L01_ARD_TIME 10
 
 
 //enable / disable pipe

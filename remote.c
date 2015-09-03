@@ -59,6 +59,9 @@ static const char lcd_degree[8] = { 0x1c, 0x14, 0x1c, 0x00, 0x00, 0x00, 0x00, 0x
 
 #define DEGREE 1
 
+#define NOSIGNAL 5000
+#define BACKLIGHT 15000
+
 uint8_t addrtx0[NRF24L01_ADDRSIZE] = NRF24L01_ADDRP0;
 uint8_t addrtx1[NRF24L01_ADDRSIZE] = NRF24L01_ADDRP1;
 
@@ -115,12 +118,15 @@ main (void)
    uint8_t bufferin[33];
    uint8_t bufferout[33];
    uint8_t cursor = false, x = ' ';
+   ticks_t backlight_timer, nosignal_timer;
    keymask_t key;
 
 
    init ();
 
    lcd_backlight (1);
+   backlight_timer = timer_clock ();
+   nosignal_timer = timer_clock ();
 
    while (1)
    {
@@ -138,14 +144,6 @@ main (void)
                x = bufferin[c+1];
             kfile_printf (&term.fd, "%c%c%c%.20s", TERM_CPC, TERM_ROW + t, TERM_COL + 0, &bufferin[2]);
          }
-         // if there is a cursor address it must be on.
-         else if (bufferin[0] == 'A')
-         {
-            r = bufferin[1];
-            c = bufferin[2];
-            cursor = true;
-            kfile_printf (&term.fd, "%c", TERM_BLINK_ON);
-         }
          // check for backlight on/off commands
          else if (bufferin[0] == 'B')
          {
@@ -155,39 +153,69 @@ main (void)
          {
             lcd_backlight (0);
          }
-         // cursor off
+         // cursor on.
          else if (bufferin[0] == 'C')
+         {
+            r = bufferin[1];
+            c = bufferin[2];
+            cursor = true;
+            kfile_printf (&term.fd, "%c", TERM_BLINK_ON);
+         }
+         // cursor off
+         else if (bufferin[0] == 'c')
          {
             cursor = false;
             kfile_printf (&term.fd, "%c", TERM_BLINK_OFF);
          }
 
+         // rewrite the character to the left of the cursor that we extracted earlier
+         if (cursor)
+            kfile_printf (&term.fd, "%c%c%c%c%c", TERM_CPC, TERM_ROW + r, TERM_COL + c - 1, x, TERM_BLINK_ON);
+
+         nosignal_timer = timer_clock ();
+         backlight_timer = timer_clock ();
+
+      }
 // just processed a cursor command, should have time to return a keyboard character
-//         if ((bufferin[0] == 'A') || (bufferin[0] == 'C'))
+//      if ((bufferin[0] == 'C') || (bufferin[0] == 'c'))
+      {
+         bufferin[0] = 'X';
+         key = kbd_peek ();
+
+         if (key == 0)
          {
-            key = kbd_peek ();
+            // if no pushbutton then check for local serial input
+            key = kfile_getc (&serial.fd);
+            if ((int16_t) key == EOF)
+               key = 0;
+         }
+         if (key > 0)
+         {
+            bufferout[0] = 'K';
+            bufferout[1] = key;
 
-            if (key == 0)
-            {
-               // if no pushbutton then check for local serial input
-               key = kfile_getc (&serial.fd);
-               if ((int16_t) key == EOF)
-                  key = 0;
-            }
-            if (key > 0)
-            {
-               bufferout[0] = 'K';
-               bufferout[1] = key;
-
-               // set tx address for pipe 0
-               nrf24l01_settxaddr (addrtx1);
-               if (nrf24l01_write (bufferout) == 0)
-                  kfile_printf(&serial.fd, "Key TX failed \r\n");
-            }
+            // set tx address for pipe 0
+            nrf24l01_settxaddr (addrtx1);
+            if (nrf24l01_write (bufferout) == 0)
+               kfile_printf(&serial.fd, "Key TX failed \r\n");
          }
       }
-      // rewrite the character to the left of the cursor that we extracted earlier
-      if (cursor)
-         kfile_printf (&term.fd, "%c%c%c%c%c", TERM_CPC, TERM_ROW + r, TERM_COL + c - 1, x, TERM_BLINK_ON);
+      // Notify user if no signal
+      if (timer_clock () - nosignal_timer > ms_to_ticks (NOSIGNAL))
+      {
+         nosignal_timer = timer_clock ();
+         if (backlight_timer)
+         {
+            lcd_backlight (1);
+            kfile_printf(&term.fd, "%c%c%c%cNo Signal", TERM_CLR, TERM_CPC, TERM_ROW + 1, TERM_COL);
+         }
+      }
+      // if backlight timer expired (if it exists) turn off backlight.
+      if ((backlight_timer) && (timer_clock () - backlight_timer > ms_to_ticks (BACKLIGHT)))
+      {
+         lcd_backlight (0);
+         backlight_timer = 0;
+      }
+
    }
 }

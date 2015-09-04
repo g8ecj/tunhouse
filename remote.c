@@ -125,6 +125,7 @@ main (void)
    init ();
 
    lcd_backlight (1);
+   kfile_printf(&term.fd, "%c%c%c%cStarting...", TERM_CLR, TERM_CPC, TERM_ROW + 1, TERM_COL + 5);
    backlight_timer = timer_clock ();
    nosignal_timer = timer_clock ();
 
@@ -207,7 +208,7 @@ main (void)
          if (backlight_timer)
          {
             lcd_backlight (1);
-            kfile_printf(&term.fd, "%c%c%c%cNo Signal", TERM_CLR, TERM_CPC, TERM_ROW + 1, TERM_COL);
+            kfile_printf(&term.fd, "%c%c%c%cNo Signal", TERM_CLR, TERM_CPC, TERM_ROW + 1, TERM_COL + 5);
          }
       }
       // if backlight timer expired (if it exists) turn off backlight.

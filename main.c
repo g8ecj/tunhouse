@@ -68,18 +68,17 @@ PD4 D4     7     1-wire              } LO
 PD5 D5     8     1-wire              } HI temperature sensors
 PD6 D6     9     1-wire              } EX
 PD7 D7    10     FET driver          } LO motor driver
+PB0 D8    11     FET driver          } HI motor driver
 
-PB0 D8    11     CE    (3)           } NRF24L01
-PB1 D9    12     CSN   (4)           } interface
-PB2 D10   13     SS
-PB3 D11   14     MOSI  (6)           }
+PB1 D9    12     CE    (3)           } NRF24L01
+PB2 D10   13     SS(CSN)(4)          }
+PB3 D11   14     MOSI  (6)           } interface
 PB4 D12   15     MISO  (7)           }
 PB5 D13   16     SCK   (5)           }
 
 PC0 A0    19     up                  }
 PC1 A1    20     centre              } buttons
 PC2 A2    21     down                }
-PC3 A3    22     FET driver          } HI motor driver
 
 PC4 A4    23     SDA                 } LCD
 PC5 A5    24     SCL                 }

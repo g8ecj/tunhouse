@@ -22,8 +22,8 @@ Please refer to LICENSE file for licensing information.
 //CE and CSN port definitions
 #define NRF24L01_DDR DDRB
 #define NRF24L01_PORT PORTB
-#define NRF24L01_CE PB0
-#define NRF24L01_CSN PB1
+#define NRF24L01_CE PB1
+#define NRF24L01_CSN PB2
 
 //CE and CSN functions
 #define nrf24l01_CSNhi NRF24L01_PORT |= BV(NRF24L01_CSN);

@@ -29,8 +29,8 @@
 
 
 
-extern int16_t gWinState[];
-extern int16_t gWinAuto[];
+extern int16_t gWinState[2];
+extern int16_t gWinAuto[2];
 
 void window_init (void);
 void run_windows (void);

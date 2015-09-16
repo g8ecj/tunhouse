@@ -62,13 +62,13 @@ Serial serial;
 
 GND        4
 
-PD2 D2     5     FET driver          } LO motor driver
-PD3 D3     6     FET driver          } HI
+PD2 D2     5     FET driver          } LO_UP motor driver
+PD3 D3     6     FET driver          } HI_UP motor driver
 PD4 D4     7     1-wire              } LO
 PD5 D5     8     1-wire              } HI temperature sensors
 PD6 D6     9     1-wire              } EX
-PD7 D7    10     FET driver          } LO motor driver
-PB0 D8    11     FET driver          } HI motor driver
+PD7 D7    10     FET driver          } LO_DN motor driver
+PB0 D8    11     FET driver          } HI_DN motor driver
 
 PB1 D9    12     CE    (3)           } NRF24L01
 PB2 D10   13     SS(CSN)(4)          }

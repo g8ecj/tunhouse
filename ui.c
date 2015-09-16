@@ -783,7 +783,7 @@ run_ui (uint8_t remote_key)
       refreshed = true;
    }
    // If battery charging then run backlight. Keep timer running for when battery volts drop.
-   else if (gBattery > 1270)
+   else if (gBattery > 1340)
    {
       lcd_backlight (1);
       backlight_timer = timer_clock ();

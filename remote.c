@@ -65,6 +65,10 @@ static const char lcd_degree[8] = { 0x1c, 0x14, 0x1c, 0x00, 0x00, 0x00, 0x00, 0x
 uint8_t addrtx0[NRF24L01_ADDRSIZE] = NRF24L01_ADDRP0;
 uint8_t addrtx1[NRF24L01_ADDRSIZE] = NRF24L01_ADDRP1;
 
+int16_t gWinState[2];
+int16_t gValues[3][3]; // current, max and min temperatures for each of 3 sensor
+
+
 #if NRF24L01_PRINTENABLE == 1
 static void
 debug_prints (const char *s)
@@ -169,6 +173,15 @@ main (void)
             kfile_printf (&term.fd, "%c", TERM_BLINK_OFF);
          }
 
+         // binary statistics to send out the serial port
+         else if (bufferin[0] == 'S')
+         {
+            uint32_t now;
+            memcpy(&now, &bufferin[1], sizeof(now));
+            memcpy(&gValues, &bufferin[5], sizeof(gValues));
+            memcpy(&gWinState, &bufferin[5 + sizeof(gValues)], sizeof(gWinState));
+
+         }
          // rewrite the character to the left of the cursor that we extracted earlier
          if (cursor)
             kfile_printf (&term.fd, "%c%c%c%c%c", TERM_CPC, TERM_ROW + r, TERM_COL + c - 1, x, TERM_BLINK_ON);
@@ -196,9 +209,9 @@ main (void)
             bufferout[1] = key;
 
             // set tx address for pipe 0
-            nrf24l01_settxaddr (addrtx1);
+            nrf24l01_settxaddr (addrtx0);
             if (nrf24l01_write (bufferout) == 0)
-               kfile_printf(&serial.fd, "Key TX failed \r\n");
+               kfile_printf(&serial.fd, "Key TX failed, tried %d times \r\n", nrf24_retransmissionCount());
          }
       }
       // Notify user if no signal

@@ -120,7 +120,7 @@ window_init (void)
    gWinTimer[SENSOR_LOW] = 0;
    gWinTimer[SENSOR_HIGH] = 0;
    DDRD |= BV(2) | BV(3) | BV(7);
-   DDRC |= BV(3);
+   DDRB |= BV(0);
    LO_UP(0);
    LO_DN(0);
    HI_UP(0);

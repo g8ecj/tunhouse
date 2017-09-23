@@ -58,20 +58,26 @@ Hit <next>
 Hit <create>
 Hit <finish>
 
-cd into this ardmega-turbine directory of the new project, delete the ardmega-turbine directory already in it and clone this repo into it using
+cd into this tunhouse directory of the new project, delete the tunhouse sub-directory already in it and clone this repo into it using
 
 git clone https://github.com/g8ecj/tunhouse.git tunhouse
 
-Two quick patches now have to be applied. The first changes the uart to operate in double speed mode for more reliable 115200 bps operation.
-
-
-The other is to remove the eeprom data from the hex file output, otherwise avrdude chokes on it.
+A quick patch may now have to be applied. This is to remove the eeprom data from the hex file output, otherwise avrdude chokes on it.
 That is done by changing at around line 320 in bertos/rules.mk
 from
 	$$($(1)_OBJCOPY) -O ihex $$< $$@
 to
 	$$($(1)_OBJCOPY) -R .eeprom -O ihex $$< $$@
 
-Move up one level and 'make' will generate the firmware in the 'images' directory.
+Move up one level and 'make' will generate the 'tunhouse.hex' firmware in the 'images' directory.
+
+
+Building the remote
+
+Follow the instructions above using the project name 'remote', no need for the 'drv'ow_ds18x20' module.
+When the wizard has completed, copy remote.c from the tunhouse directory into the new remote/remote directory and either
+   1. rename it to main.c or
+   2. edit the remote_user.mk and change main.c to remote.c
+Again, move up one level and 'make' will generate the 'remote.hex' firmware in the 'images' directory.
 
 

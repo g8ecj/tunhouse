@@ -13,7 +13,7 @@ The supply voltage (I run from a car battery with a 5W solar panel on it) can al
 When a key is pressed, the LCD backlight it turned on for a duration that can also be set in the UI.
 
 An image of the LCD is sent to a remote station via the NRF2401. This consists of 4 lines of 20 characters each along with backlight and cursor information.
-Keypress data can also be sent fro mthe remote startion back to the controller for full remote operation.
+Keypress data can also be sent from the remote startion back to the controller for full remote operation.
 
 The code uses 3 state machines:
    1. the opening and closing of the vents, handling timouts, manual override etc

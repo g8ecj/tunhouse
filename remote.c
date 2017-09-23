@@ -95,7 +95,7 @@ init (void)
    IRQ_ENABLE;
 
    // set up lcd display
-   lcd_hw_init ();
+   lcd_init ();
    lcd_remapChar (lcd_degree, DEGREE); // put the degree symbol on character 0x01
 
    // terminal emulator
@@ -190,30 +190,35 @@ main (void)
          backlight_timer = timer_clock ();
 
       }
-// just processed a cursor command, should have time to return a keyboard character
-//      if ((bufferin[0] == 'C') || (bufferin[0] == 'c'))
+      // invalidate buffer contents once processed
+      bufferin[0] = 'X';
+
+      key = kbd_peek ();
+
+      if (key == 0)
       {
-         bufferin[0] = 'X';
-         key = kbd_peek ();
-
-         if (key == 0)
-         {
-            // if no pushbutton then check for local serial input
-            key = kfile_getc (&serial.fd);
-            if ((int16_t) key == EOF)
-               key = 0;
-         }
-         if (key > 0)
-         {
-            bufferout[0] = 'K';
-            bufferout[1] = key;
-
-            // set tx address for pipe 0
-            nrf24l01_settxaddr (addrtx0);
-            if (nrf24l01_write (bufferout) == 0)
-               kfile_printf(&serial.fd, "Key TX failed, tried %d times \r\n", nrf24_retransmissionCount());
-         }
+         // if no pushbutton then check for local serial input
+         key = kfile_getc (&serial.fd);
+         if ((int16_t) key == EOF)
+            key = 0;
+         // if alpha key (PC connected remote) then handle pseudo-long press (upper case)
+         // We still just use the bit pattern of the lowest 3 bits. Candidate keys are a, b, d or i, j, l or q, r, t
+         if ((key > 0x40) && (key < 0x60))
+            key |= K_LONG;
+         key &= (K_LONG | K_UP | K_DOWN | K_CENTRE);
       }
+
+      if (key > 0)
+      {
+         bufferout[0] = 'K';
+         bufferout[1] = key;
+
+         // set tx address for pipe 0
+         nrf24l01_settxaddr (addrtx1);
+         if (nrf24l01_write (bufferout) == 0)
+            kfile_printf(&serial.fd, "Key TX failed, tried %d times \r\n", nrf24_retransmissionCount());
+      }
+
       // Notify user if no signal
       if (timer_clock () - nosignal_timer > ms_to_ticks (NOSIGNAL))
       {

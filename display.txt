@@ -53,13 +53,13 @@ Long press on centre goes to setup mode - restricts to time and limit setting sc
 Press on up/down selects upper or lower limit
 Short centre or timeout cancels/returns to summary
 Long press on centre enters page edit mode
+Press on up/down while in page edit moves between fields
 Long press on centre enters field edit mode
 Press on up/down changes value, centre saves, timeout cancels/returns to summary
-Press on up/down changes limit selected
 
 ----------------------
-|  Adjust      -93   |
-|  US/Euro       1   |
+|  Backlight    10   |
+|  Timesync    -93   |
 |  Time  hh:mm:ss    |
 |  Date  dd-mm-yy    |
 ----------------------
@@ -82,7 +82,7 @@ Press on up/down changes limit selected
 
 
 
-When in setup mode
+When in view sensor mode
 Long press on up/down operates manual override on those sensors associated with windows (upper & lower)
 Short press on centre cancels/returns to summary/monitor mode
 ----------------------
@@ -110,11 +110,11 @@ FET driver   } HI motor dirn    PD3 D3     6     25   A6       Battery  } analog
 1-wire       } HI               PD5 D5     8     23   PC4 A4   SDA      }
 1-wire       } EX               PD6 D6     9     22
 FET driver   } LO motor on/off  PD7 D7    10     21   PC2 A2   down     }
-CE           } NRF24L01         PB0 D8    11     20   PC1 A1   centre   } buttons
-CSN          } interface        PB1 D9    12     19   PC0 A0   up       }
-FET driver   } HI motor on/off  PB2 D10   13     18
-MOSI         }                  PB3 D11   14     17
-MISO         }                  PB4 D12   15     16   PB5 D13  SCK      }
+FET driver   } HI motor on/off  PB0 D8    11     20   PC1 A1   centre   } buttons
+CE           } NRF24L01         PB1 D9    12     19   PC0 A0   up       }
+CSN          } NRF24L01         PB2 D10   13     18
+MOSI         } NRF24L01         PB3 D11   14     17
+MISO         } NRF24L01         PB4 D12   15     16   PB5 D13  SCK      } NRF24L01
 
 
 +3.3v for nrf24l01 module - 2 diode drops (1N4004) from +5v

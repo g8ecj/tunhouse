@@ -119,11 +119,11 @@ init (void)
    /* Enable all the interrupts */
    IRQ_ENABLE;
 
-   // initialise RF link to remote
-   nrf_init();
-
    // display and button handling
    ui_init ();
+
+   // initialise RF link to remote
+   nrf_init();
 
    // if bad limit value assume eeprom is not initialised
    if (gLimits[SENSOR_LOW][LIMIT_UP] == -1)

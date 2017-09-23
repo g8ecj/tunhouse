@@ -63,7 +63,7 @@ EXTERN_C int emul_kbdReadCols(void);
 INLINE keymask_t kbd_readkeys(void)
 {
 
-	return (~(PINC) & 0x07);             // invert and shift 7...5 to 2...0
+	return (~(PINC) & 0x07);             // invert and isolate bits 2...0
 
 }
 

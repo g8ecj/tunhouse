@@ -61,6 +61,8 @@ static int8_t flashing[MAXFLASH];
 #define FIELDEDIT   3
 #define MANUAL      4
 
+// turn on backlight is battery better than 12.6 volts
+#define BATTERY_OK 1260
 
 static int8_t mode = MONITOR;
 static bool refreshed = false;
@@ -641,7 +643,7 @@ void
 ui_init (void)
 {
 
-   lcd_hw_init ();
+   lcd_init ();
    lcd_display (1, 0, 0);
    lcd_remapChar (lcd_degree, DEGREE);  // put the degree symbol on character 0x01
 
@@ -758,8 +760,13 @@ run_ui (uint8_t remote_key)
    {
       // if no pushbutton then check for local serial input
       key = kfile_getc (&serial.fd);
-      if ((int16_t)key == EOF)
+      if ((int16_t) key == EOF)
          key = 0;
+      // if alpha key (PC connected remote) then handle pseudo-long press (upper case)
+      // We still just use the bit pattern of the lowest 3 bits. Candidate keys are a, b, d or i, j, l or q, r, t
+      if ((key > 0x40) && (key < 0x60))
+         key |= K_LONG;
+      key &= (K_LONG | K_UP | K_DOWN | K_CENTRE);
    }
 
    if (key == 0)
@@ -767,13 +774,6 @@ run_ui (uint8_t remote_key)
       // if no local key, use remote key (if any!)
       key = remote_key;
    }
-
-   // if alpha key (PC connected remote) then handle pseudo-long press (upper case)
-   // We still just use the bit pattern of the lowest 3 bits. Candidate keys are a, b, d or i, j, l or q, r, t
-   if ((key > 0x40) && (key < 0x60))
-      key |= K_LONG;
-   key &= (K_LONG | K_UP | K_DOWN | K_CENTRE);
-
 
    // if key pressed then ignite backlight for a short while and assume a refresh (change to a screen)
    if (key)
@@ -783,7 +783,7 @@ run_ui (uint8_t remote_key)
       refreshed = true;
    }
    // If battery charging then run backlight. Keep timer running for when battery volts drop.
-   else if (gBattery > 1340)
+   else if (gBattery > BATTERY_OK)
    {
       lcd_backlight (1);
       backlight_timer = timer_clock ();

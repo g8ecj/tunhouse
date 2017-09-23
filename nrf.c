@@ -141,13 +141,17 @@ run_nrf (void)
    // every so often send binary statistics data
    if (timer_clock () - statistics_timer > ms_to_ticks (STATISTICS ))
    {
-      uint32_t now = time();
       statistics_timer = timer_clock ();
       nrf24l01_settxaddr (addrtx1);
       buffer[0] = 'S';
-      memcpy(&buffer[1], &now, sizeof(now));
-      memcpy(&buffer[5], &gValues, sizeof(gValues));
-      memcpy(&buffer[5 + sizeof(gValues)], &gWinState, sizeof(gWinState));
+      buffer[1] = gSECOND;
+      buffer[2] = gMINUTE;
+      buffer[3] = gHOUR;
+      buffer[4] = gDAY;
+      buffer[5] = gMONTH;
+      buffer[6] = gYEAR;
+      memcpy(&buffer[7], &gValues, sizeof(gValues));
+      memcpy(&buffer[7 + sizeof(gValues)], &gWinState, sizeof(gWinState));
       status &= nrf24l01_write(buffer);
    }
 

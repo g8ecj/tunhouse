@@ -19,17 +19,19 @@ Please refer to LICENSE file for licensing information.
 #include <avr/io.h>
 #include "cfg/macros.h"   /* BV() */
 
-//CE and CSN port definitions
-#define NRF24L01_DDR DDRB
-#define NRF24L01_PORT PORTB
-#define NRF24L01_CE PB1
-#define NRF24L01_CSN PB2
 
 //CE and CSN functions
-#define nrf24l01_CSNhi NRF24L01_PORT |= BV(NRF24L01_CSN);
-#define nrf24l01_CSNlo NRF24L01_PORT &= ~BV(NRF24L01_CSN);
-#define nrf24l01_CEhi NRF24L01_PORT |=  BV(NRF24L01_CE);
-#define nrf24l01_CElo NRF24L01_PORT &= ~BV(NRF24L01_CE);
+#define nrf24l01_CSNhi PORTB |=  BV(PB2);
+#define nrf24l01_CSNlo PORTB &= ~BV(PB2);
+#define nrf24l01_CEhi  PORTB |=  BV(PB1);
+#define nrf24l01_CElo  PORTB &= ~BV(PB1);
+
+#define nrf24l01_hw_init              \
+	do {                               \
+	DDRB |= (1<<PB2); \
+	DDRB |= (1<<PB1);  \
+	} while (0)
+
 
 
 

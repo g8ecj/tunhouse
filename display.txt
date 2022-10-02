@@ -11,15 +11,18 @@
 
 up/down between sensors. Upper, lower, external, battery, time
 Short press on centre or timeout returns to summary view
+When in view sensor mode
+Long press on up/down operates manual override on those sensors associated with windows (upper & lower)
+Short press on centre cancels/returns to summary/monitor mode
 ----------------------
-|      Upper         |
+|Upper manual CLOSING|
 |Min   -10.3         |
 |Now    10.4         |
 |Max    14.6         |
 ----------------------
 
 ----------------------
-|      Lower         |
+|Lower  auto  OPEN   |
 |Min   -13.4         |
 |Now    19.4         |
 |Max    23.9         |
@@ -27,21 +30,21 @@ Short press on centre or timeout returns to summary view
 
 ----------------------
 |     External       |
-|Min   -21.1         |
-|Now   -12.2         |
-|Max    11.4         |
+|Min   -21.1      C  |
+|Now   -12.2      C  |
+|Max    11.4      C  |
 ----------------------
 
 ----------------------
-|  Time  hh:mm:ss    |
-|  Date  dd-mm-yy    |
-|                    |
-|                    |
+|  Time              |
+|      hh:mm:ss      |
+|  Date              | 
+|      dd-mm-yy      |
 ----------------------
 
 ----------------------
-|     Battery        |
-|      12.5v         |
+|  Battery           |
+|    12.56 Volts     |
 |                    |
 |                    |
 ----------------------
@@ -58,38 +61,24 @@ Long press on centre enters field edit mode
 Press on up/down changes value, centre saves, timeout cancels/returns to summary
 
 ----------------------
-|  Backlight    10   |
-|  Timesync    -93   |
-|  Time  hh:mm:ss    |
-|  Date  dd-mm-yy    |
+| Radio        off   |
+| Backlight    15    |
+| Timesync     -93   |
+| hh:mm:ss  dd-mm-yy |
 ----------------------
 
 ----------------------
-|       Upper        |
-|      Limits        |
-|   Close    19      |
-|   Open     23      |
+| Upper   Limits     |
+|  Close  @19.0   C  |
+|  Open   @23.0   C  |
 |                    |
 ----------------------
 
 ----------------------
-|       Lower        |
-|      Limits        |
-|   Close    19      |
-|   Open     23      |
+| Lower   Limits     |
+|  Close  @18.0   C  |
+|  Open   @22.0   C  |
 |                    |
-----------------------
-
-
-
-When in view sensor mode
-Long press on up/down operates manual override on those sensors associated with windows (upper & lower)
-Short press on centre cancels/returns to summary/monitor mode
-----------------------
-|      Upper         |
-|   Manual Opening   |
-|                    |
-|  Centre to cancel  |
 ----------------------
 
 

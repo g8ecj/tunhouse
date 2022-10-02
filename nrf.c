@@ -55,6 +55,7 @@ extern Serial serial;
 
 uint8_t addrtx0[NRF24L01_ADDRSIZE] = NRF24L01_ADDRP0;
 uint8_t addrtx1[NRF24L01_ADDRSIZE] = NRF24L01_ADDRP1;
+int16_t gRadio;
 
 #if NRF24L01_PRINTENABLE == 1
 static void
@@ -86,7 +87,10 @@ run_nrf (void)
    uint8_t ret = 0, r, c;
    uint8_t buffer[NRF24L01_PAYLOAD];
 
-   // always see if any remote key presses
+   if (gRadio == 0)
+      return (0);
+
+      // always see if any remote key presses
    if (nrf24l01_readready (NULL))
    {
       //read buffer

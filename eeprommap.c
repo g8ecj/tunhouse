@@ -44,6 +44,8 @@ int16_t EEMEM eeAdjustTime;
 DT_t EEMEM eeDateTime;
 // timeout for the backlight
 int16_t EEMEM eeBacklight;
+// whether we are using the NRF radio or not
+int16_t EEMEM eeRadio;
 
 void
 load_eeprom_values (void)
@@ -52,6 +54,7 @@ load_eeprom_values (void)
    eeprom_read_block ((void *) &gLimits, (const void *) &eeLimits, sizeof (gLimits));
    eeprom_read_block ((void *) &gAdjustTime, (const void *) &eeAdjustTime, sizeof (gAdjustTime));
    eeprom_read_block ((void *) &gBacklight, (const void *) &eeBacklight, sizeof (gBacklight));
+   eeprom_read_block ((void *) &gRadio, (const void *) &eeRadio, sizeof (gRadio));
 
 
 }
@@ -62,5 +65,6 @@ save_eeprom_values (void)
    eeprom_write_block ((const void *) &gAdjustTime, (void *) &eeAdjustTime, sizeof (gAdjustTime));
    eeprom_write_block ((const void *) &gLimits, (void *) &eeLimits, sizeof (gLimits));
    eeprom_write_block ((const void *) &gBacklight, (void *) &eeBacklight, sizeof (gBacklight));
+   eeprom_write_block ((const void *) &gRadio, (void *) &eeRadio, sizeof (gRadio));
 
 }

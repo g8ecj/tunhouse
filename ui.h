@@ -44,6 +44,7 @@ enum VARS
    eUP_LIMIT_HI,
    eUP_LIMIT_LO,
 
+   eRADIO,
    eBACKLIGHT,
    eADJUSTTIME,
 
@@ -65,6 +66,7 @@ enum VARS
 };
 
 extern int16_t gBacklight;
+extern int16_t gRadio;
 
 void ui_init (void);
 void ui_load_defaults(void);

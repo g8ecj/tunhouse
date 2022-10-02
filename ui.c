@@ -194,6 +194,7 @@ const Vars variables[eNUMVARS] PROGMEM = {
    {&gLimits[SENSOR_HIGH][LIMIT_UP],  -2000,  3000,  2000,       eSHORT,  deca_inc},     // temperature to open
    {&gLimits[SENSOR_HIGH][LIMIT_DN],  -2000,  3000,  1500,       eSHORT,  deca_inc},     //                close
 
+   {&gRadio,                              0,     1,     0,      eBOOLEAN,  int_inc},     // turn NRF radio on/off
    {&gBacklight,                          0,    60,    15,      eNORMAL,   int_inc},     // backlight timer adjuster
    {&gAdjustTime,                      -719,   719,     0,      eNORMAL,   int_inc},     // clock adjuster
 
@@ -202,7 +203,7 @@ const Vars variables[eNUMVARS] PROGMEM = {
    {&gSECOND,                             0,    59,     0,        eDATE,   int_inc},     // second
    {&gDAY,                                1,    31,    15,        eDATE,   int_inc},     // day
    {&gMONTH,                              1,    12,     7,        eDATE,   int_inc},     // month
-   {&gYEAR,                              12,    99,    15,        eDATE,   int_inc},     // year
+   {&gYEAR,                              12,    99,    20,        eDATE,   int_inc},     // year
 
    {&gBattery,                            0,     0,     0,     eDECIMAL,  null_inc},     // battery volts
 
@@ -220,6 +221,7 @@ const char timlim[]   PROGMEM  = "  :";
 const char dash[]     PROGMEM  = "-";
 const char nulstr[]   PROGMEM  = "";
 const char atstr[]    PROGMEM  = "@";
+const char radiostr[] PROGMEM  = "Radio";
 const char blitestr[]  PROGMEM  = "Backlight";
 const char adjuststr[] PROGMEM  = "Timesync";
 const char battstr[]  PROGMEM  = "Battery";
@@ -344,6 +346,7 @@ const Screen Set_Upper[] PROGMEM = {
 };
 
 const Screen Set_Time[] PROGMEM = {
+   {eRADIO,     0,    0,   radiostr,   11,    2},
    {eBACKLIGHT, 1,    0,   blitestr,   11,    4},
    {eADJUSTTIME,2,    0,  adjuststr,   11,    4},
    {eHOUR,      3,    0,     timlim,    0,    2},

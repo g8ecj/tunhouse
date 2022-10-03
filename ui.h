@@ -58,6 +58,7 @@ enum VARS
    eBATCAL,
    eSTALL_DN,
    eSTALL_UP,
+   eMOTORRUN,
 
    eBATTERY,
 

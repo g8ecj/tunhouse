@@ -216,6 +216,7 @@ const Vars variables[eNUMVARS] PROGMEM = {
    {&gBatCal,                         -2000, 2000,     0,        eSHORT,  deca_inc},     // battery calibration +/- 20% to 0.1%
    {&gStall[SENSOR_LOW],                  0,  500,   100,        eSHORT,  deca_inc},     // motor stall cutout current
    {&gStall[SENSOR_HIGH],                 0,  500,   100,        eSHORT,  deca_inc},     // motor stall cutout current
+   {&gMotorRun,                           0,  600,    60,       eNORMAL,  deca_inc},     // motor run time
 
    {&gBattery,                            0,     0,     0,     eDECIMAL,  null_inc},     // battery volts
 
@@ -237,9 +238,10 @@ const char radiostr[] PROGMEM  = "Radio";
 const char blitestr[]  PROGMEM  = "Backlight";
 const char adjuststr[] PROGMEM  = "Timesync";
 const char battstr[]  PROGMEM  = "Battery";
-const char calstr[]   PROGMEM  = "Calibration";
+const char calstr[]   PROGMEM  = "Batt Cal";
 const char dnstallstr[] PROGMEM  = "Lower max I";
 const char upstallstr[] PROGMEM  = "Upper max I";
+const char motorrunstr[] PROGMEM  = "Motor Run";
 const char closestr[] PROGMEM  = "Close";
 const char datestr[]  PROGMEM  = "Date";
 const char exstr[]    PROGMEM  = "Ex   ";
@@ -374,11 +376,11 @@ const Screen Set_Time[] PROGMEM = {
 
 
 const Screen Set_Battery[] PROGMEM = {
-   {-1,         0,    3,   battstr,     0,    0},
-   {eBATCAL,    1,    0,    calstr,    14,    5},
-   {eSTALL_DN,  2,    0,dnstallstr,    14,    5},
-   {eSTALL_UP,  3,    0,upstallstr,    14,    5},
-   {-2,         0,    0,    nulstr,     0,    0}
+   {eBATCAL,    0,    0,     calstr,    14,    5},
+   {eSTALL_DN,  1,    0, dnstallstr,    14,    5},
+   {eSTALL_UP,  2,    0, upstallstr,    14,    5},
+   {eMOTORRUN,  3,    0, motorrunstr,   14,    5},
+   {-2,         0,    0,     nulstr,     0,    0}
 };
 
 

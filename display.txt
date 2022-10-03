@@ -85,7 +85,7 @@ Press on up/down changes value, centre saves, timeout cancels/returns to summary
 | Batt Cal     2.2   |
 | Lower max I  3.0   |
 | Upper max I  3.4   |
-| Motor Time   130   |
+| Motor Run    130   |
 ----------------------
 
 

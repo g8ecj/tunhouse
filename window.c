@@ -52,6 +52,8 @@
 int16_t gWinState[2];
 // whether the window is in auto or manual mode
 int16_t gWinAuto[2];
+// motor run time
+int16_t gMotorRun;
 // open/close timer rather than wait for a contact closure
 uint32_t gWinTimer[2];
 
@@ -190,7 +192,7 @@ do_motorup (uint8_t sensor)
 {
 
     // start timer if motor started
-    gWinTimer[sensor] = uptime() + RUNVALUE;
+    gWinTimer[sensor] = uptime() + gMotorRun;
 
     // set direction relay for upwards motion (port A)
     // turn on power to this motor   (port B)
@@ -212,7 +214,7 @@ static void
 do_motordn (uint8_t sensor)
 {
     // start timer if motor started
-    gWinTimer[sensor] = uptime() + RUNVALUE;
+    gWinTimer[sensor] = uptime() + gMotorRun;
     // direction relay defaults to down so ensure its off (port A)
     // turn on power to this motor (port B)
    if (sensor == SENSOR_LOW)

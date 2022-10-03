@@ -29,6 +29,7 @@
 
 #include "measure.h"
 #include "rtc.h"
+#include "window.h"
 #include "ui.h"
 
 
@@ -36,6 +37,8 @@
 // loose the existing value provided new stuff is *ALWAYS* added to the end
 
 
+// motor run time
+int16_t EEMEM eeMotorRun;
 // values for upper and lower limits on the sensors that can control windows
 int16_t EEMEM eeLimits[NUMSENSORS][NUMLIMIT];
 // configured number of seconds per day to adjust clock for slow/fast 16MHz crystal
@@ -62,6 +65,7 @@ load_eeprom_values (void)
    eeprom_read_block ((void *) &gRadio, (const void *) &eeRadio, sizeof (gRadio));
    eeprom_read_block ((void *) &gBatCal, (const void *) &eeBatCal, sizeof (gBatCal));
    eeprom_read_block ((void *) &gStall, (const void *) &eeStall, sizeof (gStall));
+   eeprom_read_block ((void *) &gMotorRun, (const void *) &eeMotorRun, sizeof (gMotorRun));
 
 
 }
@@ -75,5 +79,6 @@ save_eeprom_values (void)
    eeprom_write_block ((const void *) &gRadio, (void *) &eeRadio, sizeof (gRadio));
    eeprom_write_block ((const void *) &gBatCal, (void *) &eeBatCal, sizeof (gBatCal));
    eeprom_write_block ((const void *) &gStall, (void *) &eeStall, sizeof (gStall));
+   eeprom_write_block ((const void *) &gMotorRun, (void *) &eeMotorRun, sizeof (gMotorRun));
 
 }

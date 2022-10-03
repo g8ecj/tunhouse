@@ -63,6 +63,10 @@ MINMAX daymin[NUMSENSORS];
 int16_t gValues[NUMSENSORS][NUMINDEX]; // current, max and min temperatures for each sensor
 int16_t gLimits[NUMSENSORS][NUMLIMIT]; // upper and lower limits for driving window motors
 int16_t gBattery;
+int16_t gBatCal;
+int16_t gCurrent[NUMSENSORS];
+int16_t gStall[NUMSENSORS];
+
 uint8_t gpioid = 0;
 uint8_t gthermid = 0;
 uint32_t lasthour;
@@ -164,7 +168,22 @@ run_measure (void)
    int16_t t;
    int8_t i;
 
-   gBattery = analog_read (6);
+   gBattery = (uint32_t) analog_read (6) * (10000 + gBatCal) / 10000;
+   gCurrent[SENSOR_LOW] = analog_read (3) * 100 / RSHUNT;
+   gCurrent[SENSOR_HIGH] = analog_read (7) * 100 / RSHUNT;
+
+#if 1
+extern Serial serial;
+   static uint8_t pass = 0;
+
+   if (++pass > 10)
+   {
+      pass = 0;
+//      kfile_printf(&serial.fd, "V  %d\n", gBattery);
+   kfile_printf(&serial.fd, "I dn %d\n", gCurrent[SENSOR_LOW]);
+   kfile_printf(&serial.fd, "I up %d\n", gCurrent[SENSOR_HIGH]);
+   }
+#endif
 
    // do one sensor each time round
    switch (rotate & 3)

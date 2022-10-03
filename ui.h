@@ -55,6 +55,10 @@ enum VARS
    eMONTH,
    eYEAR,
 
+   eBATCAL,
+   eSTALL_DN,
+   eSTALL_UP,
+
    eBATTERY,
 
    eWINAUTO_LO,

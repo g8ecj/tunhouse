@@ -19,9 +19,15 @@
 #define LIMIT_UP    0
 #define LIMIT_DN    1
 
+// current shunt resistor value
+#define RSHUNT       0.22
+
 extern int16_t gValues[NUMSENSORS][NUMINDEX]; // current, max and min temperatures for each sensor
 extern int16_t gLimits[NUMSENSORS][NUMLIMIT]; // upper and lower limits for driving window motors
 extern int16_t gBattery;
+extern int16_t gBatCal;
+extern int16_t gCurrent[NUMSENSORS];
+extern int16_t gStall[NUMSENSORS];
 
 
 

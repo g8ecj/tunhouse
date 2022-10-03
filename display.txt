@@ -93,11 +93,11 @@ W I R I N G
                                            2     29   GND
                                            3     28
 GND                                        4     27   5V
-FET driver   } LO motor dirn    PD2 D2     5     26
+FET driver   } LO motor dirn    PD2 D2     5     26   A7                } LO current shunt
 FET driver   } HI motor dirn    PD3 D3     6     25   A6       Battery  } analog
 1-wire       } LO temp sensors  PD4 D4     7     24   PC5 A5   SCL      } LCD
 1-wire       } HI               PD5 D5     8     23   PC4 A4   SDA      }
-1-wire       } EX               PD6 D6     9     22
+1-wire       } EX               PD6 D6     9     22   PC3 A3            } HI current shunt
 FET driver   } LO motor on/off  PD7 D7    10     21   PC2 A2   down     }
 FET driver   } HI motor on/off  PB0 D8    11     20   PC1 A1   centre   } buttons
 CE           } NRF24L01         PB1 D9    12     19   PC0 A0   up       }

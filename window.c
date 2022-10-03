@@ -278,30 +278,35 @@ do_motorcan (uint8_t sensor)
 void
 run_windows (void)
 {
-    uint8_t sensor;
-    int16_t now, up, down;
+   uint8_t sensor;
+   int16_t now, up, down;
 
+   // for each sensor
+   for (sensor = SENSOR_LOW; sensor <= SENSOR_HIGH; sensor++)
+   {
+      if (gWinState[sensor] >= WINOPENING)
+         gWinAuto[sensor] = 2;
+      else
+         gWinAuto[sensor] = 3;
 
-    // for each sensor
-    for (sensor = SENSOR_LOW; sensor <= SENSOR_HIGH; sensor++)
-    {
-        if (gWinState[sensor] >= WINOPENING)
-            gWinAuto[sensor] = 2;
-        else
-            gWinAuto[sensor] = 3;
+      getlims (sensor, &now, &up, &down);
+      if (now >= up)
+         winmachine (sensor, TEMPGREATER);
+      else if (now <= down)
+         winmachine (sensor, TEMPLESSER);
 
-        getlims (sensor, &now, &up, &down);
-        if (now >= up)
-            winmachine (sensor, TEMPGREATER);
-        else if (now <= down)
-            winmachine (sensor, TEMPLESSER);
+      // treat exceeding stall current as timeout - stop motor!
+      if (gCurrent[sensor] > gStall[sensor])
+      {
+         gWinTimer[sensor] = 0;
+         winmachine (sensor, TIMEOUT);
+      }
 
-        if ((gWinTimer[sensor]) && (uptime() > gWinTimer[sensor]))
-        {
-        // timers handled here so its all done from the main line, not from an interrupt callback
-            gWinTimer[sensor] = 0;
-            winmachine (sensor, TIMEOUT);
-        }
-    }
-
+      if ((gWinTimer[sensor]) && (uptime () > gWinTimer[sensor]))
+      {
+         // timers handled here so its all done from the main line, not from an interrupt callback
+         gWinTimer[sensor] = 0;
+         winmachine (sensor, TIMEOUT);
+      }
+   }
 }

@@ -126,11 +126,19 @@ null_inc (int8_t field, int8_t dirn)
 }
 
 static int8_t
-deca_inc (int8_t field, int8_t dirn)
+heca_inc (int8_t field, int8_t dirn)
 {
    (void) dirn;
    (void) field;
    return 100;
+}
+
+static int8_t
+deca_inc (int8_t field, int8_t dirn)
+{
+   (void) dirn;
+   (void) field;
+   return 10;
 }
 
 #if 0       // not used in this app
@@ -188,11 +196,11 @@ const Vars variables[eNUMVARS] PROGMEM = {
    {&gValues[SENSOR_OUT][TINDEX_NOW],     0,     0,     0,     eSHORT,   null_inc},    //                value now
    {&gValues[SENSOR_OUT][TINDEX_MAX],     0,     0,     0,     eSHORT,   null_inc},    //                maximuum
 
-   {&gLimits[SENSOR_LOW][LIMIT_UP],   -2000,  3000,  2000,       eSHORT,  deca_inc},     // temperature to open
-   {&gLimits[SENSOR_LOW][LIMIT_DN],   -2000,  3000,  1500,       eSHORT,  deca_inc},     //                close
+   {&gLimits[SENSOR_LOW][LIMIT_UP],   -2000,  3000,  2000,       eSHORT,  heca_inc},     // temperature to open
+   {&gLimits[SENSOR_LOW][LIMIT_DN],   -2000,  3000,  1500,       eSHORT,  heca_inc},     //                close
 
-   {&gLimits[SENSOR_HIGH][LIMIT_UP],  -2000,  3000,  2000,       eSHORT,  deca_inc},     // temperature to open
-   {&gLimits[SENSOR_HIGH][LIMIT_DN],  -2000,  3000,  1500,       eSHORT,  deca_inc},     //                close
+   {&gLimits[SENSOR_HIGH][LIMIT_UP],  -2000,  3000,  2000,       eSHORT,  heca_inc},     // temperature to open
+   {&gLimits[SENSOR_HIGH][LIMIT_DN],  -2000,  3000,  1500,       eSHORT,  heca_inc},     //                close
 
    {&gRadio,                              0,     1,     0,      eBOOLEAN,  int_inc},     // turn NRF radio on/off
    {&gBacklight,                          0,    60,    15,      eNORMAL,   int_inc},     // backlight timer adjuster
@@ -204,6 +212,10 @@ const Vars variables[eNUMVARS] PROGMEM = {
    {&gDAY,                                1,    31,    15,        eDATE,   int_inc},     // day
    {&gMONTH,                              1,    12,     7,        eDATE,   int_inc},     // month
    {&gYEAR,                              12,    99,    20,        eDATE,   int_inc},     // year
+ 
+   {&gBatCal,                         -2000, 2000,     0,        eSHORT,  deca_inc},     // battery calibration +/- 20% to 0.1%
+   {&gStall[SENSOR_LOW],                  0,  500,   100,        eSHORT,  deca_inc},     // motor stall cutout current
+   {&gStall[SENSOR_HIGH],                 0,  500,   100,        eSHORT,  deca_inc},     // motor stall cutout current
 
    {&gBattery,                            0,     0,     0,     eDECIMAL,  null_inc},     // battery volts
 
@@ -225,7 +237,9 @@ const char radiostr[] PROGMEM  = "Radio";
 const char blitestr[]  PROGMEM  = "Backlight";
 const char adjuststr[] PROGMEM  = "Timesync";
 const char battstr[]  PROGMEM  = "Battery";
-const char canstr[]   PROGMEM  = "Centre to Cancel";
+const char calstr[]   PROGMEM  = "Calibration";
+const char dnstallstr[] PROGMEM  = "Lower max I";
+const char upstallstr[] PROGMEM  = "Upper max I";
 const char closestr[] PROGMEM  = "Close";
 const char datestr[]  PROGMEM  = "Date";
 const char exstr[]    PROGMEM  = "Ex   ";
@@ -359,11 +373,19 @@ const Screen Set_Time[] PROGMEM = {
 };
 
 
+const Screen Set_Battery[] PROGMEM = {
+   {-1,         0,    3,   battstr,     0,    0},
+   {eBATCAL,    1,    0,    calstr,    14,    5},
+   {eSTALL_DN,  2,    0,dnstallstr,    14,    5},
+   {eSTALL_UP,  3,    0,upstallstr,    14,    5},
+   {-2,         0,    0,    nulstr,     0,    0}
+};
+
+
 // *INDENT-ON*
 
 #define NUM_INFO    6
-#define NUM_SETUP   3
-#define NUM_MANUAL  2
+#define NUM_SETUP   4
 
 #define FIRSTINFO   0
 #define MAXINFO     (NUM_INFO - 1)
@@ -371,10 +393,9 @@ const Screen Set_Time[] PROGMEM = {
 #define FIRSTSETUP  NUM_INFO
 #define MAXSETUP    (NUM_INFO + NUM_SETUP - 1)
 
-#define MAXSCREENS  NUM_INFO + NUM_SETUP + NUM_MANUAL
 
 // order here is critical - screen numbers are used to derive sensor numbers in some modes!!
-static const Screen *screen_list[] =  { summary, lower, upper, external, datetime, battery, Set_Lower, Set_Upper, Set_Time };
+static const Screen *screen_list[] =  { summary, lower, upper, external, datetime, battery, Set_Lower, Set_Upper, Set_Time, Set_Battery };
 
 
 // add field to list of flashing fields
@@ -831,13 +852,16 @@ run_ui (uint8_t remote_key)
          // some fields require special action
          switch (field)
          {
+         case eADJUSTTIME:
          case eHOUR:
          case eMINUTE:
          case eSECOND:
          case eDAY:
          case eMONTH:
          case eYEAR:
-         case eADJUSTTIME:
+         case eBATCAL:
+         case eSTALL_DN:
+         case eSTALL_UP:
             // set Unix time in seconds, save adjustment in eeprom
             set_epoch_time ();
             break;

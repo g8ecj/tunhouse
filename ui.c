@@ -234,6 +234,9 @@ const char timlim[]   PROGMEM  = "  :";
 const char dash[]     PROGMEM  = "-";
 const char nulstr[]   PROGMEM  = "";
 const char atstr[]    PROGMEM  = "@";
+const char ampsstr[]  PROGMEM  = "A";
+const char secsstr[]  PROGMEM  = "s";
+const char percentstr[] PROGMEM  = "%";
 const char radiostr[] PROGMEM  = "Radio";
 const char blitestr[]  PROGMEM  = "Backlight";
 const char adjuststr[] PROGMEM  = "Timesync";
@@ -377,9 +380,13 @@ const Screen Set_Time[] PROGMEM = {
 
 const Screen Set_Battery[] PROGMEM = {
    {eBATCAL,    0,    0,     calstr,    14,    5},
+   {-1,         0,   18, percentstr,     0,    0},
    {eSTALL_DN,  1,    0, dnstallstr,    14,    5},
+   {-1,         1,   18,    ampsstr,     0,    0},
    {eSTALL_UP,  2,    0, upstallstr,    14,    5},
+   {-1,         2,   18,    ampsstr,     0,    0},
    {eMOTORRUN,  3,    0, motorrunstr,   14,    5},
+   {-1,         3,   17,     secsstr,    0,    0},
    {-2,         0,    0,     nulstr,     0,    0}
 };
 

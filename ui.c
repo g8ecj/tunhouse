@@ -179,22 +179,22 @@ enum STYLE
 };
 
 
-//           value,                        min,   max, default, style,   increment function
+//           value,                     min,   max, default,   style, increment function
 // Note: Its only worth having (real) limits for those values that can be changed.
 // *INDENT-OFF*
 const Vars variables[eNUMVARS] PROGMEM = {
    {NULL, 0, 0, 0, eNORMAL, null_inc},  // dummy 1st entry
-   {&gValues[SENSOR_LOW][TINDEX_MIN],     0,     0,     0,     eSHORT,   null_inc},    // low position, minimum
-   {&gValues[SENSOR_LOW][TINDEX_NOW],     0,     0,     0,     eSHORT,   null_inc},    //                value now
-   {&gValues[SENSOR_LOW][TINDEX_MAX],     0,     0,     0,     eSHORT,   null_inc},    //                maximuum
+   {&gValues[SENSOR_LOW][TINDEX_MIN],     0,     0,     0,       eSHORT,  null_inc},    // low position, minimum
+   {&gValues[SENSOR_LOW][TINDEX_NOW],     0,     0,     0,       eSHORT,  null_inc},    //                value now
+   {&gValues[SENSOR_LOW][TINDEX_MAX],     0,     0,     0,       eSHORT,  null_inc},    //                maximuum
 
-   {&gValues[SENSOR_HIGH][TINDEX_MIN],    0,     0,     0,     eSHORT,   null_inc},    // high position, minimum
-   {&gValues[SENSOR_HIGH][TINDEX_NOW],    0,     0,     0,     eSHORT,   null_inc},    //                value now
-   {&gValues[SENSOR_HIGH][TINDEX_MAX],    0,     0,     0,     eSHORT,   null_inc},    //                maximuum
+   {&gValues[SENSOR_HIGH][TINDEX_MIN],    0,     0,     0,       eSHORT,  null_inc},    // high position, minimum
+   {&gValues[SENSOR_HIGH][TINDEX_NOW],    0,     0,     0,       eSHORT,  null_inc},    //                value now
+   {&gValues[SENSOR_HIGH][TINDEX_MAX],    0,     0,     0,       eSHORT,  null_inc},    //                maximuum
 
-   {&gValues[SENSOR_OUT][TINDEX_MIN],     0,     0,     0,     eSHORT,   null_inc},    // outside position, minimum
-   {&gValues[SENSOR_OUT][TINDEX_NOW],     0,     0,     0,     eSHORT,   null_inc},    //                value now
-   {&gValues[SENSOR_OUT][TINDEX_MAX],     0,     0,     0,     eSHORT,   null_inc},    //                maximuum
+   {&gValues[SENSOR_OUT][TINDEX_MIN],     0,     0,     0,       eSHORT,  null_inc},    // outside position, minimum
+   {&gValues[SENSOR_OUT][TINDEX_NOW],     0,     0,     0,       eSHORT,  null_inc},    //                value now
+   {&gValues[SENSOR_OUT][TINDEX_MAX],     0,     0,     0,       eSHORT,  null_inc},    //                maximuum
 
    {&gLimits[SENSOR_LOW][LIMIT_UP],   -2000,  3000,  2000,       eSHORT,  heca_inc},     // temperature to open
    {&gLimits[SENSOR_LOW][LIMIT_DN],   -2000,  3000,  1500,       eSHORT,  heca_inc},     //                close
@@ -202,7 +202,7 @@ const Vars variables[eNUMVARS] PROGMEM = {
    {&gLimits[SENSOR_HIGH][LIMIT_UP],  -2000,  3000,  2000,       eSHORT,  heca_inc},     // temperature to open
    {&gLimits[SENSOR_HIGH][LIMIT_DN],  -2000,  3000,  1500,       eSHORT,  heca_inc},     //                close
 
-   {&gRadio,                              0,     1,     0,      eBOOLEAN,  int_inc},     // turn NRF radio on/off
+   {&gRadio,                              0,     1,     0,     eBOOLEAN,   int_inc},     // turn NRF radio on/off
    {&gBacklight,                          0,    60,    15,      eNORMAL,   int_inc},     // backlight timer adjuster
    {&gAdjustTime,                      -719,   719,     0,      eNORMAL,   int_inc},     // clock adjuster
 

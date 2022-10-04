@@ -24,6 +24,7 @@
 
 
 // all the fields displayed
+// these enum map directly to the order of signed 16 bit integers in the Vars array
 enum VARS
 {
    eDN_MIN = 1,

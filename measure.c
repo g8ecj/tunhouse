@@ -53,6 +53,7 @@
 #include "analog.h"
 #include "eeprommap.h"
 #include "measure.h"
+#include "window.h"
 
 
 
@@ -171,17 +172,18 @@ run_measure (void)
    gBattery = (uint32_t) analog_read (6) * (10000 + gBatCal) / 10000;
    gCurrent[SENSOR_LOW] = analog_read (3) * 100 / RSHUNT;
    gCurrent[SENSOR_HIGH] = analog_read (7) * 100 / RSHUNT;
+   gCurrent[SENSOR_LOW] = 400;
+   gCurrent[SENSOR_HIGH] = 400;
 
-#if 1
+#if 0
 extern Serial serial;
    static uint8_t pass = 0;
 
    if (++pass > 10)
    {
       pass = 0;
-//      kfile_printf(&serial.fd, "V  %d\n", gBattery);
-   kfile_printf(&serial.fd, "I dn %d\n", gCurrent[SENSOR_LOW]);
-   kfile_printf(&serial.fd, "I up %d\n", gCurrent[SENSOR_HIGH]);
+      kfile_printf(&serial.fd, "I dn %d\n", gCurrent[SENSOR_LOW]);
+      kfile_printf(&serial.fd, "I up %d\n", gCurrent[SENSOR_HIGH]);
    }
 #endif
 

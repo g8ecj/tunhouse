@@ -297,13 +297,14 @@ run_windows (void)
       else if (now <= down)
          winmachine (sensor, TEMPLESSER);
 
+#if 1
       // treat exceeding stall current as timeout - stop motor!
-      if (gCurrent[sensor] > gStall[sensor])
+      if (gCurrent[sensor] > (gStall[sensor] * 10))
       {
          gWinTimer[sensor] = 0;
          winmachine (sensor, TIMEOUT);
       }
-
+#endif
       if ((gWinTimer[sensor]) && (uptime () > gWinTimer[sensor]))
       {
          // timers handled here so its all done from the main line, not from an interrupt callback

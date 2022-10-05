@@ -21,6 +21,8 @@
 
 // current shunt resistor value
 #define RSHUNT       0.22
+// external resistor scaling to measure up to ~20 volts (using E12 resistor values)
+#define V_SCALE  ((15.0 + 5.6) / 5.6)
 
 extern int16_t gValues[NUMSENSORS][NUMINDEX]; // current, max and min temperatures for each sensor
 extern int16_t gLimits[NUMSENSORS][NUMLIMIT]; // upper and lower limits for driving window motors

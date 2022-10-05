@@ -46,9 +46,6 @@
 
 #include "analog.h"
 
-// external resistor scaling to measure up to ~20 volts (using E12 resistor values)
-#define V_SCALE  ((15.0 + 5.6) / 5.6)
-
 
 // read an analog input 8 times to improve accuracy
 uint16_t
@@ -76,7 +73,7 @@ analog_read (uint8_t chan)
 
    ADCSRA &= ~BV (ADEN);        // disable the ADC
 
-   // 5 volts, scaled across 1023 values, external potential divider
+   // 5 volts, scaled across 1023 values
    // scaled up by 100 to give 10mV resolution in an integer
-   return (uint16_t) ((float) ADC_temp * 5.0 / 1023.0 * V_SCALE * 100);
+   return (uint16_t) ((float) ADC_temp * 5000.0 / 1023.0); // * 100);
 }

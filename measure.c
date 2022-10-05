@@ -160,7 +160,7 @@ validate_value(int16_t value)
    return value;
 }
 
-
+#define ALPHA 0.15
 // poll round our sensors in turn, if conversion finished then note the value and start a new conversion
 void
 run_measure (void)
@@ -168,14 +168,16 @@ run_measure (void)
    static char rotate = 0;
    int16_t t;
    int8_t i;
+   uint16_t volts;
 
-   gBattery = (uint32_t) analog_read (6) * (10000 + gBatCal) / 10000;
-   gCurrent[SENSOR_LOW] = analog_read (3) * 100 / RSHUNT;
-   gCurrent[SENSOR_HIGH] = analog_read (7) * 100 / RSHUNT;
-   gCurrent[SENSOR_LOW] = 400;
-   gCurrent[SENSOR_HIGH] = 400;
+   gBattery = (uint32_t) analog_read (6) * V_SCALE * (10000 + gBatCal) / 10000;
+   volts = analog_read (3) / RSHUNT;
+   gCurrent[SENSOR_LOW] = (int16_t) ((ALPHA * (float) volts) + (1 - ALPHA) * (float) gCurrent[SENSOR_LOW]);
 
-#if 0
+   volts = analog_read (7) / RSHUNT;
+   gCurrent[SENSOR_HIGH] = (int16_t) ((ALPHA * (float) volts) + (1 - ALPHA) * (float) gCurrent[SENSOR_HIGH]);
+
+#if 1
 extern Serial serial;
    static uint8_t pass = 0;
 

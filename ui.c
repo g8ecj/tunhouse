@@ -214,8 +214,8 @@ const Vars variables[eNUMVARS] PROGMEM = {
    {&gYEAR,                              12,    99,    20,        eDATE,   int_inc},     // year
  
    {&gBatCal,                         -2000, 2000,     0,        eSHORT,  deca_inc},     // battery calibration +/- 20% to 0.1%
-   {&gStall[SENSOR_LOW],                  0,  500,   100,        eSHORT,  deca_inc},     // motor stall cutout current
-   {&gStall[SENSOR_HIGH],                 0,  500,   100,        eSHORT,  deca_inc},     // motor stall cutout current
+   {&gStall[SENSOR_LOW],                  0, 1200,   200,        eSHORT,  deca_inc},     // motor stall cutout current
+   {&gStall[SENSOR_HIGH],                 0, 1200,   200,        eSHORT,  deca_inc},     // motor stall cutout current
    {&gMotorRun,                           0,  600,    60,       eNORMAL,  deca_inc},     // motor run time
 
    {&gBattery,                            0,     0,     0,     eDECIMAL,  null_inc},     // battery volts

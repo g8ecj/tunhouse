@@ -160,7 +160,7 @@ validate_value(int16_t value)
    return value;
 }
 
-#define ALPHA 0.15
+#define ALPHA 0.05
 // poll round our sensors in turn, if conversion finished then note the value and start a new conversion
 void
 run_measure (void)
@@ -184,8 +184,8 @@ extern Serial serial;
    if (++pass > 10)
    {
       pass = 0;
-      kfile_printf(&serial.fd, "V %d\n", gBattery);
-//      kfile_printf(&serial.fd, "I dn %d\n", gCurrent[SENSOR_LOW]);
+//      kfile_printf(&serial.fd, "V %d\n", gBattery);
+      kfile_printf(&serial.fd, "I dn %d\n", gCurrent[SENSOR_LOW]);
 //      kfile_printf(&serial.fd, "I up %d\n", gCurrent[SENSOR_HIGH]);
    }
 #endif

@@ -20,7 +20,7 @@
 #define LIMIT_DN    1
 
 // current shunt resistor value
-#define RSHUNT       0.22
+#define RSHUNT       0.1
 // external resistor scaling to measure up to ~20 volts (using E12 resistor values)
 #define V_SCALE  ((15.0 + 5.6) / 5.6)
 

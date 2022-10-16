@@ -171,13 +171,13 @@ run_measure (void)
    uint16_t volts;
 
    gBattery = (uint32_t) analog_read (6) * V_SCALE * (10000 + gBatCal) / 100000;
-   volts = analog_read (3) / RSHUNT;
+   volts = analog_read (3) / RSHUNTDN;
    gCurrent[SENSOR_LOW] = (int16_t) ((ALPHA * (float) volts) + (1 - ALPHA) * (float) gCurrent[SENSOR_LOW]);
 
-   volts = analog_read (7) / RSHUNT;
+   volts = analog_read (7) / RSHUNTUP;
    gCurrent[SENSOR_HIGH] = (int16_t) ((ALPHA * (float) volts) + (1 - ALPHA) * (float) gCurrent[SENSOR_HIGH]);
 
-#if 0
+#if 1
 extern Serial serial;
    static uint8_t pass = 0;
 
@@ -186,7 +186,7 @@ extern Serial serial;
       pass = 0;
 //      kfile_printf(&serial.fd, "V %d\n", gBattery);
       kfile_printf(&serial.fd, "I dn %d\n", gCurrent[SENSOR_LOW]);
-//      kfile_printf(&serial.fd, "I up %d\n", gCurrent[SENSOR_HIGH]);
+      kfile_printf(&serial.fd, "I up %d\n", gCurrent[SENSOR_HIGH]);
    }
 #endif
 

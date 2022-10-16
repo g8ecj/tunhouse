@@ -94,21 +94,21 @@ const WINDOW_NEXTSTATE window_nextstate[][6] PROGMEM = {
 // events  TEMPGREATER              TEMPLESSER                  MANUALOPEN             MANUALCLOSE                MANUALCANCEL                 TIMEOUT
 // states
 // MANOPENING
-   {{MANOPENING, NULL},        {MANOPENING, NULL},       {MANOPENING, NULL},        {MANCLOSING, do_motordn},   {WINOPEN, do_motorcan},     {MANOPEN, do_motoroff}},
+   {{MANOPENING, NULL},        {MANOPENING, NULL},       {MANOPENING, NULL},        {MANCLOSING, do_motordn},   {MANOPEN, do_motorcan},     {MANOPEN, do_motoroff}},
 // MANCLOSING
-   {{MANCLOSING, NULL},        {MANCLOSING, NULL},       {MANOPENING, do_motorup},  {MANCLOSING, NULL},         {WINCLOSED, do_motorcan},   {MANCLOSED, do_motoroff}},
+   {{MANCLOSING, NULL},        {MANCLOSING, NULL},       {MANOPENING, do_motorup},  {MANCLOSING, NULL},         {MANCLOSED, do_motorcan},   {MANCLOSED, do_motoroff}},
 // MANOPEN
-   {{MANOPEN, NULL},           {MANOPEN, NULL},          {MANOPEN, NULL},           {MANCLOSING, do_motordn},   {WINOPEN, do_motorcan},     {WINOPEN, NULL}},
+   {{MANOPEN, NULL},           {MANOPEN, NULL},          {MANOPEN, NULL},           {MANCLOSING, do_motordn},   {MANOPEN, NULL},            {WINOPEN, NULL}},
 // MANCLOSED
-   {{MANCLOSED, NULL},         {MANCLOSED, NULL},        {MANOPENING, do_motorup},  {MANCLOSED, NULL},          {WINCLOSED, do_motorcan},   {WINCLOSED, NULL}},
+   {{MANCLOSED, NULL},         {MANCLOSED, NULL},        {MANOPENING, do_motorup},  {MANCLOSED, NULL},          {MANCLOSED, NULL},          {WINCLOSED, NULL}},
 // WINOPENING
-   {{WINOPENING, NULL},        {WINCLOSING, do_motordn}, {WINOPENING, NULL},        {MANCLOSING, do_motordn},   {WINOPEN, do_motorcan},     {WINOPEN, do_motoroff}},
+   {{WINOPENING, NULL},        {WINCLOSING, do_motordn}, {WINOPENING, NULL},        {MANCLOSING, do_motordn},   {WINOPENING, NULL},         {WINOPEN, do_motoroff}},
 // WINCLOSING
-   {{WINOPENING, do_motorup},  {WINCLOSING, NULL},       {MANOPENING, do_motorup},  {WINCLOSING, NULL},         {WINCLOSED, do_motorcan},   {WINCLOSED, do_motoroff}},
+   {{WINOPENING, do_motorup},  {WINCLOSING, NULL},       {MANOPENING, do_motorup},  {WINCLOSING, NULL},         {WINCLOSING, NULL},         {WINCLOSED, do_motoroff}},
 // WINOPEN
-   {{WINOPEN, NULL},           {WINCLOSING, do_motordn}, {WINOPEN, NULL},           {MANCLOSING, do_motordn},   {WINOPEN, do_motorcan},     {WINOPEN, NULL}},
+   {{WINOPEN, NULL},           {WINCLOSING, do_motordn}, {WINOPEN, NULL},           {MANCLOSING, do_motordn},   {WINOPEN, NULL},            {WINOPEN, NULL}},
 // WINCLOSED 
-   {{WINOPENING, do_motorup},  {WINCLOSED, NULL},        {MANOPENING, do_motorup},  {WINCLOSED, NULL},          {WINCLOSED, do_motorcan},   {WINCLOSED, NULL}},
+   {{WINOPENING, do_motorup},  {WINCLOSED, NULL},        {MANOPENING, do_motorup},  {WINCLOSED, NULL},          {WINCLOSED, NULL},          {WINCLOSED, NULL}},
 };
          /* *INDENT-ON* */
 
@@ -160,6 +160,9 @@ windowcan (int8_t sensor)
 uint8_t
 windowidle(uint8_t sensor)
 {
+   if (sensor == SENSOR_OUT)
+      return true;
+
    if ((gWinState[sensor] == MANOPENING) || (gWinState[sensor] == MANCLOSING))
       return false;
    else
@@ -257,8 +260,8 @@ do_motoroff (uint8_t sensor)
 static void
 do_motorcan (uint8_t sensor)
 {
-    // start display timer as we stop the motor
-    gWinTimer[sensor] = uptime() + CANCELVALUE;
+    // set timer so we have no more movements for LOCKOUT seconds
+    gWinTimer[sensor] = uptime() + LOCKOUTVALUE;
     // make sure both relays are de-energized
     // default direction = downwards (relay off)
     // motor off

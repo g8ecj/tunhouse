@@ -478,7 +478,7 @@ print_field (int16_t value, int8_t field, uint8_t screen)
    int8_t i;
    int16_t whole, part;
    char spaces[10] = "         ";
-   char tritext[4][8] = { "off ", "on  ", " auto", "manual" };
+   char tritext[4][8] = { "off ", "on  ", " auto ", "manual" };
    char wintext[4][8] = { "OPENING", "CLOSING", "OPEN   ", "CLOSED " };
 
    const Screen *scrn = screen_list[screen];
@@ -979,7 +979,11 @@ run_ui (uint8_t remote_key)
       switch (key)
       {
       case K_CENTRE:
-         screen_number = FIRSTINFO;
+         sensor = screen_number - 1;
+         if (!windowidle (sensor))
+            windowcan (sensor);
+         else
+            screen_number = FIRSTINFO;
          break;
       case K_CENTRE | K_LONG:
          mode = SETUP;

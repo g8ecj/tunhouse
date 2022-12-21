@@ -83,7 +83,10 @@ PC2 A2    21     down                }
 PC4 A4    23     SDA                 } LCD
 PC5 A5    24     SCL                 }
 
-    A6    25     Battery             } analog
+PC3 A3    26     Current Sense       } motor LO
+PC7 A7    22     Current sense       } motor HI
+
+PC6 A6    25     Battery             } analog
 
 5V        27
 GND       29

@@ -57,6 +57,7 @@ int16_t gMotorRun;
 // open/close timer rather than wait for a contact closure
 uint32_t gWinTimer[2];
 
+
 static void do_motorup (uint8_t sensor);
 static void do_motordn (uint8_t sensor);
 static void do_motoroff (uint8_t sensor);
@@ -130,31 +131,26 @@ window_init (void)
 
 }
 
-
-
 // manually open a window
 void
 windowopen (int8_t sensor)
 {
-    winmachine (sensor, MANUALOPEN);
+   winmachine (sensor, MANUALOPEN);
 }
-
 
 // manually close a window
 void
 windowclose (int8_t sensor)
 {
-    winmachine (sensor, MANUALCLOSE);
+   winmachine (sensor, MANUALCLOSE);
 }
-
 
 // cancel lockout timer
 void
 windowcan (int8_t sensor)
 {
-    winmachine (sensor, MANUALCANCEL);
+   winmachine (sensor, MANUALCANCEL);
 }
-
 
 // find out if window still opening/closing manually
 uint8_t
@@ -188,96 +184,89 @@ winmachine (uint8_t sensor, uint8_t event)
     gWinState[sensor] = nextstate;
 }
 
-
 // start motor unspooling to open a window
 static void
 do_motorup (uint8_t sensor)
 {
 
-    // start timer if motor started
-    gWinTimer[sensor] = uptime() + gMotorRun;
+   // start timer if motor started
+   gWinTimer[sensor] = uptime () + gMotorRun;
 
-    // set direction relay for upwards motion (port A)
-    // turn on power to this motor   (port B)
+   // set direction relay for upwards motion (port A)
+   // turn on power to this motor   (port B)
    if (sensor == SENSOR_LOW)
    {
-      LO_UP(1);
-      LO_DN(0);
+      LO_UP (1);
+      LO_DN (0);
    }
    else
    {
-      HI_UP(1);
-      HI_DN(0);
+      HI_UP (1);
+      HI_DN (0);
    }
 }
-
 
 // start motor spooling to close a window
 static void
 do_motordn (uint8_t sensor)
 {
-    // start timer if motor started
-    gWinTimer[sensor] = uptime() + gMotorRun;
-    // direction relay defaults to down so ensure its off (port A)
-    // turn on power to this motor (port B)
+   // start timer if motor started
+   gWinTimer[sensor] = uptime () + gMotorRun;
+   // direction relay defaults to down so ensure its off (port A)
+   // turn on power to this motor (port B)
    if (sensor == SENSOR_LOW)
    {
-      LO_UP(0);
-      LO_DN(1);
+      LO_UP (0);
+      LO_DN (1);
    }
    else
    {
-      HI_UP(0);
-      HI_DN(1);
+      HI_UP (0);
+      HI_DN (1);
    }
-
 }
-
 
 // stop motor
 static void
 do_motoroff (uint8_t sensor)
 {
-    // start lockout timer if motor stopped
-    gWinTimer[sensor] = uptime() + LOCKOUTVALUE;
-    // make sure both relays are de-energized
-    // default direction = downwards (relay off)
-    // motor off
+   // start lockout timer if motor stopped
+   gWinTimer[sensor] = uptime () + LOCKOUTVALUE;
+   // make sure both relays are de-energized
+   // default direction = downwards (relay off)
+   // motor off
    if (sensor == SENSOR_LOW)
    {
-      LO_UP(0);
-      LO_DN(0);
+      LO_UP (0);
+      LO_DN (0);
    }
    else
    {
-      HI_UP(0);
-      HI_DN(0);
+      HI_UP (0);
+      HI_DN (0);
    }
-
 }
 
 // stop motor to cancel a movement
 static void
 do_motorcan (uint8_t sensor)
 {
-    // set timer so we have no more movements for LOCKOUT seconds
-    gWinTimer[sensor] = uptime() + LOCKOUTVALUE;
-    // make sure both relays are de-energized
-    // default direction = downwards (relay off)
-    // motor off
+   // set timer so we have no more movements for LOCKOUT seconds
+   gWinTimer[sensor] = uptime () + LOCKOUTVALUE;
+   // make sure both relays are de-energized
+   // default direction = downwards (relay off)
+   // motor off
    if (sensor == SENSOR_LOW)
    {
-      LO_UP(0);
-      LO_DN(0);
+      LO_UP (0);
+      LO_DN (0);
    }
    else
    {
-      HI_UP(0);
-      HI_DN(0);
+      HI_UP (0);
+      HI_DN (0);
    }
-
 }
-
 
 // called from main on a regular basis to run state machine
 void
@@ -300,14 +289,13 @@ run_windows (void)
       else if (now <= down)
          winmachine (sensor, TEMPLESSER);
 
-#if 1
       // treat exceeding stall current as timeout - stop motor!
       if (gCurrent[sensor] > (gStall[sensor] * 10))
       {
          gWinTimer[sensor] = 0;
          winmachine (sensor, TIMEOUT);
       }
-#endif
+#
       if ((gWinTimer[sensor]) && (uptime () > gWinTimer[sensor]))
       {
          // timers handled here so its all done from the main line, not from an interrupt callback

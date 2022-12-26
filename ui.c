@@ -61,8 +61,8 @@ static int8_t flashing[MAXFLASH];
 #define FIELDEDIT   3
 #define MANUAL      4
 
-// turn on backlight is battery better than 12.6 volts
-#define BATTERY_OK 1260
+// turn on backlight if battery better than 12.2 volts
+#define BATTERY_OK 1220
 
 static int8_t mode = MONITOR;
 static bool refreshed = false;
@@ -70,7 +70,7 @@ int16_t gBacklight;
 ticks_t backlight_timer = 0;
 
 // Timings (in mS) for various activities
-#define REFRESH 300L
+#define REFRESH 1000L
 #define FLASHON 600L
 #define FLASHOFF 300L
 
@@ -214,8 +214,8 @@ const Vars variables[eNUMVARS] PROGMEM = {
    {&gYEAR,                              12,    99,    20,        eDATE,   int_inc},     // year
  
    {&gBatCal,                         -2000, 2000,     0,        eSHORT,  deca_inc},     // battery calibration +/- 20% to 0.1%
-   {&gStall[SENSOR_LOW],                  0, 1200,   200,        eSHORT,  deca_inc},     // motor stall cutout current
-   {&gStall[SENSOR_HIGH],                 0, 1200,   200,        eSHORT,  deca_inc},     // motor stall cutout current
+   {&gStall[SENSOR_LOW],                  0, 1200,   600,        eSHORT,  deca_inc},     // motor stall cutout current
+   {&gStall[SENSOR_HIGH],                 0, 1200,   600,        eSHORT,  deca_inc},     // motor stall cutout current
    {&gMotorRun,                           0,  600,    60,       eNORMAL,  deca_inc},     // motor run time
 
    {&gBattery,                            0,     0,     0,     eDECIMAL,  null_inc},     // battery volts
@@ -490,16 +490,13 @@ print_field (int16_t value, int8_t field, uint8_t screen)
          // set write position
          kfile_printf (&term.fd, "%c%c%c", TERM_CPC, TERM_ROW + pgm_read_byte (&scrn[i].row),
                        TERM_COL + pgm_read_byte (&scrn[i].vcol));
-         // output spaces of field width to clear it in case flashing or changing
-         kfile_printf (&term.fd, "%.*s", pgm_read_byte (&scrn[i].width), spaces);
-
          // if its currently in a blank phase of the flashing then we're done (leave as spaces)
          if (check_flash (field))
+         {
+            // output spaces of field width to clear it in case flashing or changing
+            kfile_printf (&term.fd, "%.*s", pgm_read_byte (&scrn[i].width), spaces);
             break;
-
-         // reset to write position
-         kfile_printf (&term.fd, "%c%c%c", TERM_CPC, TERM_ROW + pgm_read_byte (&scrn[i].row),
-                       TERM_COL + pgm_read_byte (&scrn[i].vcol));
+         }
          // output value based on type of field
          switch (pgm_read_byte(&variables[field].style))
          {
@@ -681,6 +678,8 @@ ui_init (void)
    lcd_remapChar (lcd_degree, DEGREE);  // put the degree symbol on character 0x01
 
    term_init (&term);
+   // pass serial descriptor to terminal emulator
+   term_Addserial (&term, &serial);
    kbd_init ();
 
    if (gBacklight == 0)
@@ -852,7 +851,9 @@ run_ui (uint8_t remote_key)
       pIncFunc = (PGM_VOID_P) pgm_read_word(&variables[field].get_inc);
 
       // refresh the value to place the cursor on the screen in the right place
+      kfile_printf (&term.fd, "%c", TERM_BLINK_ON);
       print_field (*pVar, field, screen_number);
+      kfile_printf (&term.fd, "%c", TERM_BLINK_OFF);
 
       switch (key)
       {
@@ -915,13 +916,16 @@ run_ui (uint8_t remote_key)
    case PAGEEDIT:
       // refresh the value to place the cursor on the screen in the right place
       pVar = (int16_t *) pgm_read_word(&variables[field].value);
+      kfile_printf (&term.fd, "%c", TERM_CURS_ON);
+      kfile_printf (&term.fd, "%c", TERM_BLINK_ON);
       print_field (*pVar, field, screen_number);
+      kfile_printf (&term.fd, "%c", TERM_BLINK_OFF);
+      kfile_printf (&term.fd, "%c", TERM_CURS_OFF);
       switch (key)
       {
       case K_CENTRE:
          mode = MONITOR;
          screen_number = FIRSTINFO;
-         kfile_printf (&term.fd, "%c", TERM_BLINK_OFF);
          break;
       case K_CENTRE | K_LONG:
          // enter this field to change it
@@ -954,8 +958,6 @@ run_ui (uint8_t remote_key)
       case K_CENTRE | K_LONG:
          // enter edit mode
          mode = PAGEEDIT;
-         // turn on cursor
-         kfile_printf (&term.fd, " %c", TERM_BLINK_ON);
          // get the first field on this screen. It gets displayed as we enter edit mode
          field = find_next_field (0, screen_number, 0);
          break;

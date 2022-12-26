@@ -48,6 +48,8 @@
 #include <drv/ow_ds2413.h>
 #include <drv/ow_ds18x20.h>
 #include <drv/ser.h>
+#include <drv/timer.h>
+
 #include "minmax.h"
 #include "rtc.h"
 #include "analog.h"
@@ -71,6 +73,7 @@ int16_t gStall[NUMSENSORS];
 uint8_t gpioid = 0;
 uint8_t gthermid = 0;
 uint32_t lasthour;
+ticks_t lasttime;
 
 
 // do a bit of init for testing
@@ -80,6 +83,7 @@ measure_init (void)
    uint8_t i, j;
 
    lasthour = uptime ();
+   lasttime = timer_clock ();
    // initialise all the min/max buffers (hourly and daily)
    for (i = 0; i < NUMSENSORS; i++)
    {
@@ -170,6 +174,11 @@ run_measure (void)
    int8_t i;
    uint16_t volts;
 
+   if (timer_clock () - lasttime < ms_to_ticks (100))
+      return;
+
+   lasttime = timer_clock ();
+
    gBattery = (uint32_t) analog_read (6) * V_SCALE * (10000 + gBatCal) / 100000;
    volts = analog_read (3) / RSHUNTDN;
    gCurrent[SENSOR_LOW] = (int16_t) ((ALPHA * (float) volts) + (1 - ALPHA) * (float) gCurrent[SENSOR_LOW]);
@@ -177,17 +186,10 @@ run_measure (void)
    volts = analog_read (7) / RSHUNTUP;
    gCurrent[SENSOR_HIGH] = (int16_t) ((ALPHA * (float) volts) + (1 - ALPHA) * (float) gCurrent[SENSOR_HIGH]);
 
-#if 1
+#if 0
 extern Serial serial;
-   static uint8_t pass = 0;
-
-   if (++pass > 10)
-   {
-      pass = 0;
-//      kfile_printf(&serial.fd, "V %d\n", gBattery);
       kfile_printf(&serial.fd, "I dn %d\n", gCurrent[SENSOR_LOW]);
       kfile_printf(&serial.fd, "I up %d\n", gCurrent[SENSOR_HIGH]);
-   }
 #endif
 
    // do one sensor each time round

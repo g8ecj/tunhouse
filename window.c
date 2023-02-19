@@ -86,29 +86,18 @@ typedef struct PROGMEM
 #define NULL ((void *)0)
 #endif
 
-         /* *INDENT-OFF* */
 const WINDOW_NEXTSTATE window_nextstate[][6] PROGMEM = {
 // events  TEMPGREATER              TEMPLESSER                  MANUALOPEN             MANUALCLOSE                MANUALCANCEL                 TIMEOUT
 // states
-// MANOPENING
-   {{MANOPENING, NULL},        {MANOPENING, NULL},       {MANOPENING, NULL},        {MANCLOSING, do_motordn},   {MANOPEN, do_motorcan},     {MANOPEN, do_motoroff}},
-// MANCLOSING
-   {{MANCLOSING, NULL},        {MANCLOSING, NULL},       {MANOPENING, do_motorup},  {MANCLOSING, NULL},         {MANCLOSED, do_motorcan},   {MANCLOSED, do_motoroff}},
-// MANOPEN
-   {{MANOPEN, NULL},           {MANOPEN, NULL},          {MANOPEN, NULL},           {MANCLOSING, do_motordn},   {MANOPEN, NULL},            {WINOPEN, NULL}},
-// MANCLOSED
-   {{MANCLOSED, NULL},         {MANCLOSED, NULL},        {MANOPENING, do_motorup},  {MANCLOSED, NULL},          {MANCLOSED, NULL},          {WINCLOSED, NULL}},
-// WINOPENING
-   {{WINOPENING, NULL},        {WINCLOSING, do_motordn}, {WINOPENING, NULL},        {MANCLOSING, do_motordn},   {WINOPENING, NULL},         {WINOPEN, do_motoroff}},
-// WINCLOSING
-   {{WINOPENING, do_motorup},  {WINCLOSING, NULL},       {MANOPENING, do_motorup},  {WINCLOSING, NULL},         {WINCLOSING, NULL},         {WINCLOSED, do_motoroff}},
-// WINOPEN
-   {{WINOPEN, NULL},           {WINCLOSING, do_motordn}, {WINOPEN, NULL},           {MANCLOSING, do_motordn},   {WINOPEN, NULL},            {WINOPEN, NULL}},
-// WINCLOSED 
-   {{WINOPENING, do_motorup},  {WINCLOSED, NULL},        {MANOPENING, do_motorup},  {WINCLOSED, NULL},          {WINCLOSED, NULL},          {WINCLOSED, NULL}},
+   {{MANOPENING, NULL},       {MANOPENING, NULL},       {MANOPENING, NULL},       {MANCLOSING, do_motordn}, {MANOPEN, do_motorcan},   {MANOPEN, do_motoroff}},    // MANOPENING
+   {{MANCLOSING, NULL},       {MANCLOSING, NULL},       {MANOPENING, do_motorup}, {MANCLOSING, NULL},       {MANCLOSED, do_motorcan}, {MANCLOSED, do_motoroff}},  // MANCLOSING
+   {{MANOPEN, NULL},          {MANOPEN, NULL},          {MANOPEN, NULL},          {MANCLOSING, do_motordn}, {MANOPEN, NULL},          {WINOPEN, NULL}},           // MANOPEN
+   {{MANCLOSED, NULL},        {MANCLOSED, NULL},        {MANOPENING, do_motorup}, {MANCLOSED, NULL},        {MANCLOSED, NULL},        {WINCLOSED, NULL}},         // MANCLOSED
+   {{WINOPENING, NULL},       {WINCLOSING, do_motordn}, {WINOPENING, NULL},       {MANCLOSING, do_motordn}, {WINOPENING, NULL},       {WINOPEN, do_motoroff}},    // WINOPENING
+   {{WINOPENING, do_motorup}, {WINCLOSING, NULL},       {MANOPENING, do_motorup}, {WINCLOSING, NULL},       {WINCLOSING, NULL},       {WINCLOSED, do_motoroff}},  // WINCLOSING
+   {{WINOPEN, NULL},          {WINCLOSING, do_motordn}, {WINOPEN, NULL},          {MANCLOSING, do_motordn}, {WINOPEN, NULL},          {WINOPEN, NULL}},           // WINOPEN
+   {{WINOPENING, do_motorup}, {WINCLOSED, NULL},        {MANOPENING, do_motorup}, {WINCLOSED, NULL},        {WINCLOSED, NULL},        {WINCLOSED, NULL}},         // WINCLOSED 
 };
-         /* *INDENT-ON* */
-
 
 // start with windows closed
 void

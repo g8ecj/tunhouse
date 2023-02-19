@@ -181,7 +181,6 @@ enum STYLE
 
 //           value,                     min,   max, default,   style, increment function
 // Note: Its only worth having (real) limits for those values that can be changed.
-// *INDENT-OFF*
 const Vars variables[eNUMVARS] PROGMEM = {
    {NULL, 0, 0, 0, eNORMAL, null_inc},  // dummy 1st entry
    {&gValues[SENSOR_LOW][TINDEX_MIN],     0,     0,     0,       eSHORT,  null_inc},    // low position, minimum
@@ -390,8 +389,6 @@ const Screen Set_Battery[] PROGMEM = {
    {-2,         0,    0,     nulstr,     0,    0}
 };
 
-
-// *INDENT-ON*
 
 #define NUM_INFO    6
 #define NUM_SETUP   4

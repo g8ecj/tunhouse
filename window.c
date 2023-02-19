@@ -39,14 +39,13 @@
 
 #include <avr/pgmspace.h>
 
-#include <drv/timer.h>
 #include <drv/ow_1wire.h>
 #include <drv/ow_ds2413.h>
+#include <drv/timer.h>
 
+#include "measure.h"
 #include "rtc.h"
 #include "window.h"
-#include "measure.h"
-
 
 // state of the windows on the 2 sensors
 int16_t gWinState[2];
@@ -56,7 +55,6 @@ int16_t gWinAuto[2];
 int16_t gMotorRun;
 // open/close timer rather than wait for a contact closure
 uint32_t gWinTimer[2];
-
 
 static void do_motorup (uint8_t sensor);
 static void do_motordn (uint8_t sensor);
@@ -78,12 +76,10 @@ PB0 D8    FET driver          } HI motor DOWN
 #define LO_DN(x)      { if (x) PORTD |= BV(7); else PORTD &=~BV(7); } while(0)
 #define HI_DN(x)      { if (x) PORTB |= BV(0); else PORTB &=~BV(0); } while(0)
 
-
-
 typedef struct PROGMEM
 {
-    uint8_t nextstate;
-    void (*pFunc) (uint8_t);
+   uint8_t nextstate;
+   void (*pFunc) (uint8_t);
 } WINDOW_NEXTSTATE;
 
 #ifndef NULL
@@ -122,13 +118,12 @@ window_init (void)
    gWinState[SENSOR_HIGH] = WINCLOSED;
    gWinTimer[SENSOR_LOW] = 0;
    gWinTimer[SENSOR_HIGH] = 0;
-   DDRD |= BV(2) | BV(3) | BV(7);
-   DDRB |= BV(0);
-   LO_UP(0);
-   LO_DN(0);
-   HI_UP(0);
-   HI_DN(0);
-
+   DDRD |= BV (2) | BV (3) | BV (7);
+   DDRB |= BV (0);
+   LO_UP (0);
+   LO_DN (0);
+   HI_UP (0);
+   HI_DN (0);
 }
 
 // manually open a window
@@ -295,7 +290,7 @@ run_windows (void)
          gWinTimer[sensor] = 0;
          winmachine (sensor, TIMEOUT);
       }
-#
+
       if ((gWinTimer[sensor]) && (uptime () > gWinTimer[sensor]))
       {
          // timers handled here so its all done from the main line, not from an interrupt callback
